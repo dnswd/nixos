@@ -235,7 +235,13 @@
     enable = true;
     enableZshIntegration = true;
   };
-  
+
+  # Direnv
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
   # Tmux
   programs.tmux = {
     enable = true;
@@ -306,10 +312,6 @@
     catppuccin.enable = true;
     
     extraPackages = with pkgs; [
-      lua54Packages.jsregexp # luasnip dependency
-      lua-language-server
-      nil
-
       # Clipboard dependency
       xclip
       wl-clipboard
@@ -320,6 +322,22 @@
 
       # LSP dependencies
       elixir-ls
+      lua-language-server
+      nil
+      gopls
+      nodejs_20
+      nodePackages.typescript-language-server
+      nodePackages.bash-language-server
+      tailwindcss-language-server
+      dockerfile-language-server-nodejs
+      cmake-language-server
+      marksman
+      glas
+      glsl_analyzer
+      sqls
+      ccls
+      nodePackages.vscode-html-languageserver-bin
+      nodePackages.vscode-css-languageserver-bin
     ];
 
     extraLuaPackages = ps: [
@@ -330,6 +348,9 @@
       # Tmux support
       vim-tmux-navigator
       vim-tmux-clipboard
+
+      # Lua helper
+      plenary-nvim
 
       ###############
       # NVIM Config #
@@ -343,7 +364,29 @@
       nvim-web-devicons
 
       # File tree
-      oil-nvim
+      {
+        plugin = telescope-file-browser-nvim;
+        type = "lua";
+      }
+      # {
+      #   plugin = oil-nvim;
+      #   type = "lua";
+      #   config = /* Lua */ ''
+      #     require('oil').setup {}
+      #   '';
+      # }
+
+      # Switch files
+      harpoon2 # Lua setup moved to telescope
+
+      # Error lens
+      {
+        plugin = trouble-nvim;
+        type = "lua";
+        config = /* Lua */ ''
+          require('trouble').setup()
+        '';
+      }
 
       ############
       # Language #
@@ -379,78 +422,17 @@
           
           -- LSP server config for each LS
           local servers = {
-            -- Python
-            pylsp = {
-              settings = {
-                pylsp = {
-                  plugins = {
-                    pycodestyle = {
-                      ignore = { 'E501' }
-                    }
-                  }
-                }
-              }
-            },
-
-            -- Rust
-            rust_analyzer = {
-              cmd = { "rust-analyzer" },
-              tools = { autoSetHints = true },
-              setup = function(ops)
-                local rust_tools = require('rust-tools')
-                rust_tools.setup(opts)
-              end
-            },
-
             -- Nix
             nil_ls = {},
 
             -- Bash
             bashls = {},
 
-            -- C / C++
-            clangd = {},
-
-            -- Dart
-            dartls = {},
-
-            -- Docker
-            dockerls = {},
-
             -- Go
             gopls = {},
 
-            -- Haskell
-            hls = {},
-
-            -- Java
-            jdtls = {},
-
-            -- Kotlin
-            kotlin_language_server = {},
-
-            -- Lua
-            lua_ls = {},
-
-            -- Ruby
-            solargraph = {},
-
-            -- Terraform
-            terraformls = {},
-            
-            -- TeX
-            texlab = {
-              chktex = {
-                onEdit = true,
-                onOpenAndSave = true
-              }
-            },
-
             -- Typescript
             tsserver = {},
-
-            -- Elixir
-            elixirls = { cmd = {"elixir-ls"} },
           }
 
           local on_attach = function(_, bufnr)
@@ -588,18 +570,50 @@
         type = "lua";
         config = /* Lua */ ''
           require('telescope').setup({
-           	extensions = {
-             	fzf = {
-                  fuzzy = true,                    -- false will only do exact matching
-                  override_generic_sorter = true,  -- override the generic sorter
-                  override_file_sorter = true,     -- override the file sorter
-                  case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
-                                                   -- the default case_mode is "smart_case"
-             	}
-           	}
+            extensions = {
+              fzf = {
+                fuzzy = true,                    -- false will only do exact matching
+                override_generic_sorter = true,  -- override the generic sorter
+                override_file_sorter = true,     -- override the file sorter
+                case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+                                                 -- the default case_mode is "smart_case"
+              },
+
+              file_browser = {
+                theme = "ivy",
+                hijack_netrw = true,
+              },
+            }
           })
 
+          -- Load telescope extentions
           require('telescope').load_extension('fzf')
+          require('telescope').load_extension('file_browser')
+
+          -- Harpoon setup
+          local harpoon = require('harpoon')
+          harpoon:setup({})
+
+          -- basic telescope configuration
+          local conf = require("telescope.config").values
+          local function toggle_telescope(harpoon_files)
+              local file_paths = {}
+              for _, item in ipairs(harpoon_files.items) do
+                  table.insert(file_paths, item.value)
+              end
+
+              require("telescope.pickers").new({}, {
+                  prompt_title = "Harpoon",
+                  finder = require("telescope.finders").new_table({
+                      results = file_paths,
+                  }),
+                  previewer = conf.file_previewer({}),
+                  sorter = conf.generic_sorter({}),
+              }):find()
+          end
+
+          vim.keymap.set("n", "<C-e>", function() toggle_telescope(harpoon:list()) end,
+              { desc = "Open harpoon window" })
         '';
       }
       telescope-fzf-native-nvim
@@ -645,6 +659,10 @@
         pattern = "*",
         callback = disable_relative_number,
       })
+
+      -- File explorer
+      -- vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+      vim.keymap.set("n", "<space>fb", ":Telescope file_browser path=%:p:h select_buffer=true<CR>")
     '';
   };
 }
