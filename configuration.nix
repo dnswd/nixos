@@ -22,7 +22,7 @@ in {
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
-  networking.networkmanager.enable = true; 
+  networking.networkmanager.enable = true;
 
   # Set your time zone.
   time.timeZone = "Asia/Jakarta";
@@ -44,10 +44,10 @@ in {
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-  
+
   # Use GPU to render X11
   services.xserver.videoDrivers = [ "amdgpu" ];
-  
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -57,7 +57,7 @@ in {
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
-  
+
   # Enable automatic login for the user.
   services.displayManager = {
     autoLogin.enable = true;
@@ -91,10 +91,11 @@ in {
   users.users.halcyon = {
     isNormalUser = true;
     description = "Halcyon";
-    extraGroups = [ 
-      "networkmanager" 
+    extraGroups = [
+      "networkmanager"
       "wheel"
       "video"
+      "render"
       "audio"
       "disk"
       "docker"
@@ -105,7 +106,7 @@ in {
     #  thunderbird
     ];
   };
-  
+
   # Use zsh as default shell
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
@@ -115,7 +116,7 @@ in {
       export GPG_TTY="$(tty)"
     '';
   };
-  
+
   # Fonts
   fonts = {
     packages = with pkgs; [
@@ -123,7 +124,7 @@ in {
     ];
     fontconfig.subpixel.rgba = "rgb";
   };
-  
+
 
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
@@ -131,7 +132,7 @@ in {
 
   # Install firefox.
   programs.firefox.enable = true;
-  
+
   # Install steam
   programs.steam = {
     enable = true;
@@ -140,11 +141,15 @@ in {
     gamescopeSession.enable = true;
   };
 
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
-  
+
   # Enable Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Trusted users
+  nix.settings.trusted-users = [ "root" "@wheel" "halcyon" ];
 
   # Linker (nix-ld)
   programs.nix-ld.enable = true;
@@ -191,10 +196,11 @@ in {
     direnv
     nix-direnv
     python3
+    devenv
 
     # Steam games /w FHS environment
     steam-run
-    
+
     # Input-leap KVM
     input-leap
 
@@ -209,6 +215,9 @@ in {
 
     # Keyboard mapping
     vial
+
+    # Vencord / Discord
+    vesktop
   ];
 
   # udev rule to recognize vial devices and allow them to be configured
@@ -234,11 +243,11 @@ in {
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
-  
+
   # Make sure to route all traffic to wireguard tunnel when enabled
   # https://nixos.wiki/wiki/WireGuard#Setting_up_WireGuard_with_NetworkManager
-  networking.firewall.checkReversePath = false; 
-  
+  networking.firewall.checkReversePath = false;
+
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

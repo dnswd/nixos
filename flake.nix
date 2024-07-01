@@ -6,13 +6,15 @@
     catppuccin.url = "github:catppuccin/nix";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    nixvim.url = "github:nix-community/nixvim";
+    nixvim.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, home-manager, catppuccin, ... }@inputs: let
+  outputs = { self, nixpkgs, home-manager, catppuccin, nixvim, ... }@inputs: let
     system = "x86_64-linux";
     hostname = "ikigai";
     username = "halcyon";
-    
+
   in rec {
     nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
       inherit system;
@@ -27,6 +29,7 @@
               imports = [
                 ./home.nix
                 catppuccin.homeManagerModules.catppuccin
+                nixvim.homeManagerModules.nixvim
               ];
             };
             home-manager.extraSpecialArgs = { inherit system hostname username; };
