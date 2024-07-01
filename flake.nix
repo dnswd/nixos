@@ -59,7 +59,7 @@
                 ./home.nix
                 catppuccin.homeManagerModules.catppuccin
                 # nixvim.homeManagerModules.nixvim
-              ];
+              ] ++ lib.my.importFrom ./home;
             };
             home-manager.extraSpecialArgs = extraSpecialArgs;
           }

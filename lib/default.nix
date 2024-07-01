@@ -13,6 +13,9 @@
       inherit lib;
       self = {};
     };
+    self.attrs = import ./vimkeymap.nix {
+      self = {};
+    };
   };
 
   mylib = makeExtensible (self:
