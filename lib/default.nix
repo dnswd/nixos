@@ -13,7 +13,7 @@
       inherit lib;
       self = {};
     };
-    self.attrs = import ./vimkeymap.nix {
+    self.mkKey = import ./vimkeymap.nix {
       self = {};
     };
   };

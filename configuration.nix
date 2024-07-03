@@ -1,14 +1,12 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, ... }: let
-
+{pkgs, ...}: let
 in {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -46,7 +44,7 @@ in {
   services.xserver.enable = true;
 
   # Use GPU to render X11
-  services.xserver.videoDrivers = [ "amdgpu" ];
+  services.xserver.videoDrivers = ["amdgpu"];
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -103,7 +101,7 @@ in {
       "qemu-libvirtd"
     ];
     packages = with pkgs; [
-    #  thunderbird
+      #  thunderbird
     ];
   };
 
@@ -111,7 +109,7 @@ in {
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
   environment = {
-    shells = [ pkgs.bashInteractive pkgs.zsh ];
+    shells = [pkgs.bashInteractive pkgs.zsh];
     shellInit = ''
       export GPG_TTY="$(tty)"
     '';
@@ -120,11 +118,10 @@ in {
   # Fonts
   fonts = {
     packages = with pkgs; [
-      (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
+      (nerdfonts.override {fonts = ["FantasqueSansMono"];})
     ];
     fontconfig.subpixel.rgba = "rgb";
   };
-
 
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
@@ -141,15 +138,14 @@ in {
     gamescopeSession.enable = true;
   };
 
-
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
   # Enable Flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 
   # Trusted users
-  nix.settings.trusted-users = [ "root" "@wheel" "halcyon" ];
+  nix.settings.trusted-users = ["root" "@wheel" "halcyon"];
 
   # Linker (nix-ld)
   programs.nix-ld.enable = true;
@@ -221,9 +217,13 @@ in {
   ];
 
   # udev rule to recognize vial devices and allow them to be configured
-  services.udev.extraRules = /* udev */ ''
-    KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
-  '';
+  services.udev.extraRules =
+    /*
+    udev
+    */
+    ''
+      KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
+    '';
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -248,7 +248,6 @@ in {
   # https://nixos.wiki/wiki/WireGuard#Setting_up_WireGuard_with_NetworkManager
   networking.firewall.checkReversePath = false;
 
-
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
@@ -257,4 +256,3 @@ in {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
 }
-

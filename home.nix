@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "halcyon";
@@ -31,7 +33,11 @@
 
   # Manage shell aliases, if you need to enable zsh feature use `programs.zsh.shellAliases`.
   home.shellAliases = {
-    clear = /* Bash */ ''printf "\033[2J\033[3J\033[1;1H"'';
+    clear =
+      /*
+      Bash
+      */
+      ''printf "\033[2J\033[3J\033[1;1H"'';
   };
 
   # XDG
@@ -68,7 +74,7 @@
   # Fuzzy find directory
   programs.fd = {
     enable = true;
-    ignores = [ ".git/*" "node_modules/*" ];
+    ignores = [".git/*" "node_modules/*"];
   };
 
   # Zoxide for fuzzy cd
@@ -82,6 +88,4 @@
     enable = true;
     enableZshIntegration = true;
   };
-
 }
-
