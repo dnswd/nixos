@@ -1,6 +1,6 @@
 {my, ...}: let
   inherit (my) icons;
-  
+
   themeColors = {
     bg = "none";
     fg = "#d2d2d2";

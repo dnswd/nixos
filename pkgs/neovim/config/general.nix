@@ -19,6 +19,7 @@
     (mkPkgs "windows-mc" inputs.windows-mc)
     (mkPkgs "windows-a" inputs.windows-a)
   ];
+
   # nPlugins are normally available in nixpkgs
   nPlugins = with pkgs.vimPlugins; [vim-lastplace neodev-nvim nvim-surround];
 
@@ -33,7 +34,6 @@
     windows = [(mkKeymap "n" "<c-w>=" "<cmd>WindowsEqualize<CR>" "Equalize windows")];
   };
 in {
-
   # Import LSPs
   imports = my.importFrom ../lang;
 
@@ -59,10 +59,12 @@ in {
     neoscroll.enable = true;
     tmux-navigator.enable = true;
     todo-comments = {enable = true;};
+
     octo = {
       enable = true;
       settings = {suppress_missing_scope = {projects_v2 = true;};};
     };
+
     nvim-colorizer = {
       enable = true;
       userDefaultOptions = {
@@ -81,6 +83,7 @@ in {
         virtualtext = "■";
       };
     };
+
     fidget = {
       enable = true;
       progress.display.progressIcon = {pattern = "moon";};
@@ -92,6 +95,7 @@ in {
         };
       };
     };
+
     auto-save = {
       enable = true;
       settings = {
@@ -115,6 +119,7 @@ in {
       };
     };
   };
+
   keymaps =
     [
       (mkKeymap "n" "<leader>st" "<cmd>TodoTelescope<cr>" "Search Todo")

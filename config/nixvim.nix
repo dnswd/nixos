@@ -1,6 +1,3 @@
-{
-  pkgs,
-  ...
-}: {
-  home.packages = [ pkgs.my.neovim ];
+{pkgs, ...}: {
+  home.packages = [pkgs.my.neovim];
 }

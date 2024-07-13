@@ -1,4 +1,8 @@
-{my, pkgs, ...}: let
+{
+  my,
+  pkgs,
+  ...
+}: let
   inherit (my) mkKeymap;
 in {
   plugins.noice = {

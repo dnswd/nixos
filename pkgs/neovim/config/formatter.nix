@@ -1,5 +1,4 @@
 {...}: {
-
   plugins.conform-nvim = {
     enable = true;
     formatOnSave = {
@@ -9,7 +8,4 @@
       yaml = ["prettierd" "prettier"];
     };
   };
-
 }
-
-

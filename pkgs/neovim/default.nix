@@ -7,7 +7,7 @@
 }:
 inputs.nixvim.legacyPackages.${system}.makeNixvimWithModule {
   inherit pkgs;
-  extraSpecialArgs = { inherit my inputs; };
+  extraSpecialArgs = {inherit my inputs;};
   module = {
     imports = my.importFrom ./config;
   };

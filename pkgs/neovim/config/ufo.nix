@@ -1,4 +1,7 @@
-{my, opts, ...}: let
+{
+  my,
+  ...
+}: let
   inherit (my) mkKeymap opts;
 in {
   plugins.nvim-ufo = {

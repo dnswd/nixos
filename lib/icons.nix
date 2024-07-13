@@ -1,5 +1,5 @@
 {...}: rec {
-    kind = {
+  kind = {
     Array = "";
     Boolean = "";
     Class = "";
