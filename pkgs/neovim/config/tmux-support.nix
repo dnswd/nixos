@@ -11,8 +11,12 @@
 
 in {
 
-  plugins.conform-nvim = {
-    enable = true;
+  plugins = {
+    tmux-navigator.enable = true;
   };
+
+  extraPlugins = with pkgs.vimPlugins; [
+    vim-tmux-clipboard
+  ];
 
 }

@@ -11,8 +11,14 @@
 
 in {
 
-  plugins.conform-nvim = {
+  plugins.indent-blankline = {
     enable = true;
+    settings = {
+      exclude = {
+        filetypes = [ "help" "dashboard" "toggleterm" ];
+        buftypes = [ "terminal" ];
+      };
+    };
   };
 
 }

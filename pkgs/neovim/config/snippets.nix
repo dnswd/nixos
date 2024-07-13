@@ -11,7 +11,11 @@
 
 in {
 
-  plugins.conform-nvim = {
+  plugins.luasnip = {
+    enable = true;
+  };
+
+  plugins.friendly-snippets = {
     enable = true;
   };
 

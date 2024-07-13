@@ -11,7 +11,7 @@
 
 in {
 
-  plugins.conform-nvim = {
+  plugins.notify = {
     enable = true;
   };
 

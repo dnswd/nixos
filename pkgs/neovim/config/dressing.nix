@@ -11,8 +11,9 @@
 
 in {
 
-  plugins.conform-nvim = {
+  plugins.dressing = {
     enable = true;
+    settings = { };
   };
 
 }

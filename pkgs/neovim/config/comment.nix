@@ -1,11 +1,18 @@
-{my, ...}: let
-  inherit (my) mkKeymap;
+{
+  my,
+  pkgs,
+  inputs,
+  mkKey,
+  ...
+}: let
+
+  inherit (my) mkKeymap mkKeymap';
+  mkPkgs = name: src: pkgs.vimUtils.buildVimPlugin {inherit name src;};
+
 in {
+
   plugins.comment = {
     enable = true;
   };
-  keymaps = [
-    (mkKeymap "n" "<leader>/" {__raw = ''function() require("Comment.api").toggle.linewise.current() end'';} "Toggle comment")
-    (mkKeymap "v" "<leader>/" "<ESC><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<CR>" "Toggle comment")
-  ];
+
 }
