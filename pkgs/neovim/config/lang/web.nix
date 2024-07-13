@@ -31,6 +31,20 @@
       cssls.enable = true;
       biome.enable = true;
     };
+
+    typescript-tools = {
+      enable = true;
+      settings = {
+        codeLens = "references_only";
+        completeFunctionCalls = true;
+        includeCompletionsWithInsertText = true;
+        separateDiagnosticServer = true;
+        tsserverFormatOptions = {
+          quotePreference = "single";
+        };
+      };
+    };
+
     none-ls.sources = {
       formatting = {
         prettierd = {
