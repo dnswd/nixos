@@ -13,7 +13,7 @@ in {
 
   plugins.treesitter = {
     enable = true;
-    folding = true;
+    # folding = true;
     nixGrammars = true;
     nixvimInjections = true;
     # settings = {
