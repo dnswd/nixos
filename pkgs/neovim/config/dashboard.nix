@@ -1,5 +1,5 @@
-{...}: let
-  icons = import ../settings/icons.nix;
+{my, ...}: let
+  inherit (my) icons;
 in {
   plugins.dashboard = {
     # TODO: search for fix when free

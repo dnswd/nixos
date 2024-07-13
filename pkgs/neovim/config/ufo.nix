@@ -1,7 +1,5 @@
-{opts, ...}: let
-  opts = import ../settings/options.nix;
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap;
+{my, opts, ...}: let
+  inherit (my) mkKeymap opts;
 in {
   plugins.nvim-ufo = {
     enable = true;

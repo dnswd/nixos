@@ -1,6 +1,5 @@
-{pkgs, ...}: let
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap;
+{my, pkgs, ...}: let
+  inherit (my) mkKeymap;
 in {
   plugins.noice = {
     enable = true;

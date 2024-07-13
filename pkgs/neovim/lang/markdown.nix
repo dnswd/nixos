@@ -1,10 +1,10 @@
 {
+  my,
   pkgs,
   inputs,
   ...
 }: let
-  mkKey = import ../../lib;
-  inherit (mkKey) mkKeymap;
+  inherit (my) mkKeymap;
 in {
   plugins.markdown-preview = {enable = true;};
   extraPlugins = [

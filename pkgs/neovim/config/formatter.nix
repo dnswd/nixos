@@ -4,9 +4,9 @@
     enable = true;
     formatOnSave = {
       lspFallback = true;
-      formattersByFt = {
-        yaml = ["prettierd" "prettier"];
-      };
+    };
+    formattersByFt = {
+      yaml = ["prettierd" "prettier"];
     };
   };
 

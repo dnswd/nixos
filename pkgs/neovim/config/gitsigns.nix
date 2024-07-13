@@ -1,7 +1,5 @@
-{...}: let
-  icons = import ../settings/icons.nix;
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap;
+{my, ...}: let
+  inherit (my) mkKeymap icons;
 in {
   plugins.gitsigns = {
     enable = true;

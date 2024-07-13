@@ -1,5 +1,5 @@
-{...}: let
-  opts = import ../settings/option.nix;
+{my, ...}: let
+  inherit (my) opts;
 in {
   autoCmd = [
     {

@@ -1,5 +1,5 @@
-{
-  kind = {
+{...}: rec {
+    kind = {
     Array = "";
     Boolean = "";
     Class = "";
@@ -173,5 +173,9 @@
       arrow_open = "";
       arrow_closed = "";
     };
+  };
+  opts = {
+    border = "rounded";
+    transparent = "true";
   };
 }

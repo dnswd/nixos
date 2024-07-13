@@ -1,8 +1,5 @@
-{...}: let
-  opts = import ../settings/options.nix;
-  icons = import ../settings/icons.nix;
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap;
+{my, ...}: let
+  inherit (my) mkKeymap opts icons;
 in {
   plugins = {
     lsp = {

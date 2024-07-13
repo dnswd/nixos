@@ -1,6 +1,5 @@
-{...}: let
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap mkKeymap' mkKeymapWithOpts;
+{my, ...}: let
+  inherit (my) mkKeymap mkKeymap' mkKeymapWithOpts;
 in {
   plugins.bufferline = {
     enable = true;

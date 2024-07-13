@@ -1,5 +1,5 @@
-{...}: let
-  opts = import ../settings/options.nix;
+{my, ...}: let
+  inherit (my) opts;
 in {
   highlightOverride = {
     PMenu = {

@@ -1,11 +1,10 @@
 {
+  my,
   pkgs,
   inputs,
   ...
 }: let
-  icons = import ../settings/icons.nix;
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap;
+  inherit (my) mkKeymap icons;
 
   ntree-Opts =
     /*

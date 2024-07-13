@@ -1,11 +1,11 @@
 # This file contains plugins that are basics or don't need their own file
-{...}: {
+{
+  my,
   pkgs,
   inputs,
   ...
 }: let
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap mkKeymap';
+  inherit (my) mkKeymap mkKeymap';
   mkPkgs = name: src: pkgs.vimUtils.buildVimPlugin {inherit name src;};
 
   # ePlugins are the plugins that are not available in nixpkgs/nixvim coming from flakes
@@ -33,6 +33,10 @@
     windows = [(mkKeymap "n" "<c-w>=" "<cmd>WindowsEqualize<CR>" "Equalize windows")];
   };
 in {
+
+  # Import LSPs
+  imports = my.importFrom ../lang;
+
   # Keeping this at top so that if any plugin is removed it's respective config can be removed
   extraConfigLua =
     # lua

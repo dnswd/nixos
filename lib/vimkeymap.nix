@@ -1,6 +1,7 @@
-{lib, ...}: {
-  mkKey = rec {
-    mkKeymap = mode: key: action: desc: {
+{lib, ...}: let
+  inherit (lib) opts;
+in rec {
+  mkKeymap = mode: key: action: desc: {
       inherit mode key action;
       options = {
         inherit desc;
@@ -9,9 +10,8 @@
       };
     };
     # Make keymap without description:
-    mkKeymap' = mode: key: action:
-      mkKeymap mode key action null;
-    mkKeymapWithOpts = mode: key: action: desc: opts:
-      (mkKeymap mode key action desc) // {options = opts;};
-  };
+  mkKeymap' = mode: key: action:
+    mkKeymap mode key action null;
+  mkKeymapWithOpts = mode: key: action: desc: opts:
+    (mkKeymap mode key action desc) // {options = opts;};
 }

@@ -1,13 +1,14 @@
 {
+  my,
   pkgs,
   inputs,
-  lib,
+  system,
   ...
 }:
-inputs.nixvim.legacyPackages.${pkgs.system}.makeNixvimWithModule {
+inputs.nixvim.legacyPackages.${system}.makeNixvimWithModule {
   inherit pkgs;
-  extraSpecialArgs = {};
+  extraSpecialArgs = { inherit my inputs; };
   module = {
-    imports = lib.my.importFrom ./config;
+    imports = my.importFrom ./config;
   };
 }

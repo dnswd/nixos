@@ -1,9 +1,10 @@
 {
+  my,
   pkgs,
   inputs,
   ...
 }: let
-  opts = import ../settings/options.nix;
+  inherit (my) opts;
 in {
   extraPlugins = [
     (pkgs.vimUtils.buildVimPlugin {

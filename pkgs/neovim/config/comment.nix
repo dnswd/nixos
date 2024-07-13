@@ -1,6 +1,5 @@
-{...}: let
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap;
+{my, ...}: let
+  inherit (my) mkKeymap;
 in {
   plugins.comment = {
     enable = true;

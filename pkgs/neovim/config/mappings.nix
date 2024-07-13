@@ -1,6 +1,5 @@
-{...}: let
-  mkKey = import ../lib;
-  inherit (mkKey) mkKeymap mkKeymap' mkKeymapWithOpts;
+{my, ...}: let
+  inherit (my) mkKeymap mkKeymap' mkKeymapWithOpts;
   insert = [
     (mkKeymap "i" "jk" "<esc>" "Normal Mode")
     (mkKeymap "i" "<c-s>" "<esc>:w<cr>" "Save file")
