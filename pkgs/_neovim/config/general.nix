@@ -3,7 +3,6 @@
   my,
   pkgs,
   inputs,
-  mkKey,
   ...
 }: let
   inherit (my) mkKeymap mkKeymap';
@@ -20,6 +19,7 @@
     (mkPkgs "windows-mc" inputs.windows-mc)
     (mkPkgs "windows-a" inputs.windows-a)
   ];
+
   # nPlugins are normally available in nixpkgs
   nPlugins = with pkgs.vimPlugins; [vim-lastplace neodev-nvim nvim-surround];
 
@@ -34,10 +34,25 @@
     windows = [(mkKeymap "n" "<c-w>=" "<cmd>WindowsEqualize<CR>" "Equalize windows")];
   };
 in {
+  # Import LSPs
+  imports = my.importFrom ../lang;
 
-  viAlias = true;
-  vimAlias = true;
-  
+  # Keeping this at top so that if any plugin is removed it's respective config can be removed
+  extraConfigLua =
+    # lua
+    ''
+      local set= function(name)
+        local ok, p = pcall(require, name)
+        if ok then
+          p.setup()
+        end
+      end
+      set "windows"
+      set "nvim-surround"
+      set "md-pdf"
+    '';
+
+  extraPlugins = nPlugins ++ ePlugins;
   plugins = {
     # TODO: add multicursor
     dressing.enable = true;
@@ -105,8 +120,6 @@ in {
     };
   };
 
-  extraPlugins = nPlugins ++ ePlugins;
-
   keymaps =
     [
       (mkKeymap "n" "<leader>st" "<cmd>TodoTelescope<cr>" "Search Todo")
@@ -128,24 +141,4 @@ in {
     ++ maps.moveline
     ++ maps.colorpicker
     ++ maps.windows;
-
-  extraConfigLuaPre =
-    # lua
-    ''
-      local set = function(name)
-        local ok, p = pcall(require, name)
-        if ok and p.setup then
-          p.setup()
-          return p
-        elseif not ok then
-          print("Error loading module " .. name)
-        else
-          print("Module " .. name .. " does not have a setup function")
-        end
-      end
-
-      set "windows"
-      set "nvim-surround"
-      set "md-pdf"
-    '';
 }
