@@ -14,8 +14,8 @@ in {
 
   viAlias = true;
   vimAlias = true;
-  vimdiffAlias = true;
-  defaultEditor = true;
+  # vimdiffAlias = true;
+  # defaultEditor = true;
   
   globals = {
     mapleader = " ";
@@ -28,7 +28,6 @@ in {
     softtabstop = 2;
     shiftwidth = 2;
     updatetime = 300;
-    termguicolors = 300;
     mouse = "a";
   };
 

@@ -6,7 +6,7 @@
   ...
 }: let
 
-  inherit (my) mkKeymap mkKeymap';
+  inherit (my) mkKeymap mkKeymap' icons;
   mkPkgs = name: src: pkgs.vimUtils.buildVimPlugin {inherit name src;};
 
 in {
@@ -37,7 +37,7 @@ in {
             action = "qa";
           }
         ];
-      }
+      };
     };
   };
 

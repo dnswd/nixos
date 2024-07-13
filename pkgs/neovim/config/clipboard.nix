@@ -10,8 +10,8 @@
     register = "unnamedplus";
     providers = {
       wl-copy.enable = true;
-      xclip = true;
+      # xclip = true;
     };
   };
-  
+
 }

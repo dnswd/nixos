@@ -20,7 +20,7 @@ in {
           function(args)
             require('luasnip').lsp_expand(args.body)
           end
-          ''
+          '';
       };
       mapping = {
         "<C-n>" = "cmp.mapping.select_next_item()";
@@ -71,7 +71,7 @@ in {
     };
   };
 
-  plugins.cmp-nvim-lspenable = true;
+  plugins.cmp-nvim-lsp.enable = true;
   plugins.cmp-buffer.enable = true;
   plugins.cmp-path.enable = true;
   plugins.cmp-nvim-lsp-document-symbol.enable = true;

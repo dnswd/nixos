@@ -26,7 +26,7 @@ in {
     extensions = {
       fzf-native.enable = true;
       undo.enable = true;
-    }
+    };
   };
 
 }

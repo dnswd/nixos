@@ -11,16 +11,16 @@
 
 in {
 
-  extraPlugins = with pkgs.vimPlugins; [
-    {
-      plugin = nvim-web-devicons;
-      type = "lua";
-      config =
-        # Lua
-        ''
-          require('nvim-web-devicons').setup({})
-        '';
-    }
-  ];
+  # extraPlugins = with pkgs.vimPlugins; [
+  #   {
+  #     plugin = nvim-web-devicons;
+  #     type = "lua";
+  #     config =
+  #       # Lua
+  #       ''
+  #         require('nvim-web-devicons').setup({})
+  #       '';
+  #   }
+  # ];
 
 }

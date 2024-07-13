@@ -16,10 +16,10 @@ in {
     folding = true;
     nixGrammars = true;
     nixvimInjections = true;
-    setting = {
-      indent.enable = true;
-      highlight.enable = true;
-    };
+    # settings = {
+    #   indent.enable = true;
+    #   highlight.enable = true;
+    # };
   };
 
   plugins.treesitter-context.enable = true;

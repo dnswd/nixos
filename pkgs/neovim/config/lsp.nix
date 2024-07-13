@@ -46,12 +46,10 @@ in {
   };
 
   # LSP langs embedded in documents/other lang
-  plugins.otter = {
-    tmux-navigator.enable = true;
-  };
+  plugins.otter.enable = true;
 
   # JSX context for comments
-  plugins.ts-context-commentstring.enable
+  plugins.ts-context-commentstring.enable = true;
 
   # Typescript helper
   plugins.typescript-tools = {
