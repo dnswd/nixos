@@ -1,8 +1,4 @@
 {
-  my,
-  pkgs,
-  inputs,
-  mkKey,
   ...
 }: {
 
@@ -10,7 +6,6 @@
     register = "unnamedplus";
     providers = {
       wl-copy.enable = true;
-      # xclip = true;
     };
   };
 

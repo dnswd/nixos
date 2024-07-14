@@ -1,15 +1,6 @@
 {
-  my,
-  pkgs,
-  inputs,
-  mkKey,
   ...
-}: let
-
-  inherit (my) mkKeymap mkKeymap';
-  mkPkgs = name: src: pkgs.vimUtils.buildVimPlugin {inherit name src;};
-
-in {
+}: {
 
   # Experimental neovim UI
   plugins.noice = {
@@ -22,9 +13,5 @@ in {
       lsp_doc_border = false; # add a border to hover docs and signature help
     };
   };
-
-  extraPlugins = with pkgs.vimPlugins; [
-    vim-tmux-clipboard
-  ];
 
 }

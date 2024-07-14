@@ -1,15 +1,7 @@
 {
   my,
-  pkgs,
-  inputs,
-  mkKey,
   ...
-}: let
-
-  inherit (my) mkKeymap mkKeymap';
-  mkPkgs = name: src: pkgs.vimUtils.buildVimPlugin {inherit name src;};
-
-in {
+}: {
 
   # Language LSPs
   imports = my.importFrom ../lang;
@@ -56,9 +48,5 @@ in {
     enable = true;
     settings.jsxCloseTag.enable = true; # Auto close tags
   };
-
-  extraPlugins = with pkgs.vimPlugins; [
-    vim-tmux-clipboard
-  ];
 
 }

@@ -1,18 +1,13 @@
 {
-  my,
-  pkgs,
-  inputs,
-  mkKey,
   ...
-}: let
-
-  inherit (my) mkKeymap mkKeymap';
-  mkPkgs = name: src: pkgs.vimUtils.buildVimPlugin {inherit name src;};
-
-in {
+}: {
 
   plugins.conform-nvim = {
     enable = true;
+    formatOnSave = {
+      lspFallback = true;
+      timeoutMs = 500;
+    };
   };
 
 }

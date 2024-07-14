@@ -1,8 +1,12 @@
-{...}: {
+{
+  ...
+}: {
+  
   plugins = {
     rustaceanvim.enable = true;
     crates-nvim.enable = true;
   };
+  
   extraConfigLua =
     # lua
     ''
@@ -11,4 +15,5 @@
             })
             require("crates").show()
     '';
+  
 }

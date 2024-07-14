@@ -3,6 +3,7 @@
   inputs,
   ...
 }: {
+
   extraConfigLua =
     # lua
     ''
@@ -11,12 +12,14 @@
         require("ts-comments").setup()
       end
     '';
+
   extraPlugins = [
     (pkgs.vimUtils.buildVimPlugin {
       name = "ts-comments";
       src = inputs.ts-comments;
     })
   ];
+
   plugins = {
     ts-autotag.enable = true;
     lsp.servers = {
@@ -76,5 +79,6 @@
         };
       };
     };
+
   };
 }

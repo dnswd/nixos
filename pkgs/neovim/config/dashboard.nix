@@ -1,13 +1,9 @@
 {
   my,
-  pkgs,
-  inputs,
-  mkKey,
   ...
 }: let
 
-  inherit (my) mkKeymap mkKeymap' icons;
-  mkPkgs = name: src: pkgs.vimUtils.buildVimPlugin {inherit name src;};
+  inherit (my) icons;
 
 in {
 
@@ -16,7 +12,7 @@ in {
     settings = {
       config = {
         packages = { enable = false; };
-        week_header.enable = true;
+        # week_header.enable = true;
         footer = [" " " " "Don't Stop Until You are Proud..."];
         project = { enable = false; };
         header = [
@@ -24,7 +20,7 @@ in {
           "           zzz"
           "　　　_,,..,,,,_ . ＿"
           "　　./ ,' 3 ／ 　 ヽ--、"
-          "　　l　　 / 　　　　　 　ヽ、"
+          "   　　l　　 / 　　　　　 　ヽ、"
           " ／`'ｰ/＿＿＿＿＿／"
           " ￣￣￣￣￣￣￣￣ "
           ""

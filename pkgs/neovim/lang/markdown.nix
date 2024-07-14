@@ -6,6 +6,7 @@
 }: let
   inherit (my) mkKeymap;
 in {
+  
   plugins.markdown-preview = {enable = true;};
   extraPlugins = [
     pkgs.vimPlugins.glow-nvim
@@ -18,10 +19,12 @@ in {
       src = inputs.nvim-hl-md;
     })
   ];
+  
   keymaps = [
     (mkKeymap "n" "<leader>umb" "<cmd>MarkdownPreview<cr>" "Markdown Preview")
     (mkKeymap "n" "<leader>ump" "<cmd>Glow<cr>" "Markdown Preview")
   ];
+  
   extraConfigLua =
     # lua
     ''
@@ -35,8 +38,9 @@ in {
       end
 
       vim.cmd([[
-      let g:vim_markdown_conceal = 2
+        let g:vim_markdown_conceal = 2
       ]])
 
     '';
+
 }

@@ -1,22 +1,13 @@
-# This file contains plugins that are basics or don't need their own file
 {
-  my,
   pkgs,
-  inputs,
-  mkKey,
   ...
-}: let
-
-  inherit (my) mkKeymap mkKeymap';
-  mkPkgs = name: src: pkgs.vimUtils.buildVimPlugin {inherit name src;};
-
-in {
+}: {
 
   viAlias = true;
   vimAlias = true;
-  # vimdiffAlias = true;
-  # defaultEditor = true;
-  
+
+  colorschemes.catppuccin.enable = true;
+
   globals = {
     mapleader = " ";
     maplocalleader = " ";
