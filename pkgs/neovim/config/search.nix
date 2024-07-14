@@ -18,6 +18,9 @@
       fzf-native.enable = true;
       undo.enable = true;
     };
+    keymaps = {
+      "<leader>fg" = "live_grep";
+    };
   };
 
 }
