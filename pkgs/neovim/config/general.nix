@@ -6,7 +6,24 @@
   viAlias = true;
   vimAlias = true;
 
-  colorschemes.catppuccin.enable = true;
+  colorschemes.catppuccin = {
+    enable = true;
+    settings = {
+      flavor = "macchiato";
+      integrations = {
+        cmp = true;
+        gitsigns = true;
+        treesitter = true;
+        notify = true;
+      };
+      transparent_background = true;
+      background = {
+        dark = "macchiato";
+        light = "macchiato";
+      };
+
+    };
+  };
 
   globals = {
     mapleader = " ";
