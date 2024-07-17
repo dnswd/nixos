@@ -15,6 +15,11 @@
         gitsigns = true;
         treesitter = true;
         notify = true;
+        harpoon = true;
+        neotree = true;
+        noice = true;
+        telescope = { enabled = true; };
+        which_key = true;
       };
       transparent_background = true;
       background = {
