@@ -24,46 +24,6 @@
       url = "github:yaocccc/nvim-hl-mdcodeblock.lua";
       flake = false;
     };
-    # tokyodark = {
-    #   url = "github:tiagovla/tokyodark.nvim";
-    #   flake = false;
-    # };
-    # session-manager = {
-    #   url = "github:Shatur/neovim-session-manager";
-    #   flake = false;
-    # };
-    # ntree-float = {
-    #   url = "github:JMarkin/nvim-tree.lua-float-preview";
-    #   flake = false;
-    # };
-    # buffer-manager = {
-    #   url = "github:j-morano/buffer_manager.nvim";
-    #   flake = false;
-    # };
-    # color-picker = {
-    #   url = "github:ziontee113/color-picker.nvim";
-    #   flake = false;
-    # };
-    # moveline = {
-    #   url = "github:willothy/moveline.nvim";
-    #   flake = false;
-    # };
-    # md-pdf = {
-    #   url = "github:arminveres/md-pdf.nvim";
-    #   flake = false;
-    # };
-    # windows = {
-    #   url = "github:anuvyklack/windows.nvim";
-    #   flake = false;
-    # };
-    # windows-mc = {
-    #   url = "github:anuvyklack/middleclass";
-    #   flake = false;
-    # };
-    # windows-a = {
-    #   url = "github:anuvyklack/animation.nvim";
-    #   flake = false;
-    # };
   };
 
   outputs = {
@@ -123,7 +83,6 @@
               [
                 ./home.nix
                 catppuccin.homeManagerModules.catppuccin
-                # nixvim.homeManagerModules.nixvim
               ]
               ++ lib.my.importFrom ./config;
           };
