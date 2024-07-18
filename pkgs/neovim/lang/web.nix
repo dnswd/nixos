@@ -23,7 +23,9 @@
   plugins = {
     ts-autotag.enable = true;
     lsp.servers = {
-      tsserver.enable = true;
+      tsserver = {
+        enable = true;
+      };
       vuels.enable = true;
       tailwindcss.enable = true;
       svelte.enable = true;
@@ -35,18 +37,18 @@
       biome.enable = true;
     };
 
-    typescript-tools = {
-      enable = true;
-      settings = {
-        codeLens = "references_only";
-        completeFunctionCalls = true;
-        includeCompletionsWithInsertText = true;
-        separateDiagnosticServer = true;
-        tsserverFormatOptions = {
-          quotePreference = "single";
-        };
-      };
-    };
+    # typescript-tools = {
+    #   enable = true;
+    #   settings = {
+    #     codeLens = "references_only";
+    #     completeFunctionCalls = true;
+    #     includeCompletionsWithInsertText = true;
+    #     separateDiagnosticServer = true;
+    #     tsserverFormatOptions = {
+    #       quotePreference = "single";
+    #     };
+    #   };
+    # };
 
     none-ls.sources = {
       formatting = {
