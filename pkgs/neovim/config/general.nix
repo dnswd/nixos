@@ -33,13 +33,16 @@
   globals = {
     mapleader = " ";
     maplocalleader = " ";
-  };
+  };   
 
   opts = {
     signcolumn = "yes";
-    tabstop = 4;
-    softtabstop = 2;
+
+    # Use spaces instead tabs
     shiftwidth = 2;
+    smarttab = true;
+    expandtab = true;
+    
     updatetime = 300;
     mouse = "a";
   };
