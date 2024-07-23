@@ -21,7 +21,6 @@
   ];
 
   plugins = {
-    ts-autotag.enable = true;
     lsp.servers = {
       tsserver = {
         enable = true;

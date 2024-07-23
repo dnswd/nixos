@@ -12,19 +12,19 @@ in {
     settings = {
       config = {
         packages = { enable = false; };
-        # week_header.enable = true;
+        week_header.enable = true;
         footer = [" " " " "Don't Stop Until You are Proud..."];
         project = { enable = false; };
-        header = [
-          ""
-          "           zzz"
-          "　　　_,,..,,,,_ . ＿"
-          "　　./ ,' 3 ／ 　 ヽ--、"
-          "   　　l　　 / 　　　　　 　ヽ、"
-          " ／`'ｰ/＿＿＿＿＿／"
-          " ￣￣￣￣￣￣￣￣ "
-          ""
-        ];
+        # header = [
+        #   ""
+        #   "           zzz"
+        #   "　　　_,,..,,,,_ . ＿"
+        #   "　　./ ,' 3 ／ 　 ヽ--、"
+        #   "   　　l　　 / 　　　　　 　ヽ、"
+        #   " ／`'ｰ/＿＿＿＿＿／"
+        #   " ￣￣￣￣￣￣￣￣ "
+        #   ""
+        # ];
         shortcut = [
           {
             desc = "${icons.ui.BoldClose} Quit";

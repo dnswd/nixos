@@ -24,6 +24,9 @@
       url = "github:yaocccc/nvim-hl-mdcodeblock.lua";
       flake = false;
     };
+
+    # Minecraft
+    polymc.url = "github:PolyMC/PolyMC";
   };
 
   outputs = {
@@ -58,7 +61,8 @@
                 inherit inputs system;
                 inherit (lib) my;
               });
-          })
+            })
+          inputs.polymc.overlay
         ];
       });
 

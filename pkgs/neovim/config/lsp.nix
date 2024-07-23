@@ -40,10 +40,7 @@
   # LSP langs embedded in documents/other lang
   plugins.otter.enable = true;
 
-  # JSX context for comments
-  plugins.ts-context-commentstring.enable = true;
-
-  # Typescript helper
+# Typescript helper
   plugins.typescript-tools = {
     enable = true;
     settings.jsxCloseTag.enable = true; # Auto close tags

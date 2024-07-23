@@ -53,6 +53,9 @@
 
     # Enable error lens
     trouble.enable = true;
+
+    # Auto close bracket
+    nvim-autopairs.enable = true;
   };
 
   # Lua helper

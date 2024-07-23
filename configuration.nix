@@ -197,6 +197,9 @@ in {
     # Steam games /w FHS environment
     steam-run
 
+    # Minecraft
+    polymc
+
     # Input-leap KVM
     input-leap
 

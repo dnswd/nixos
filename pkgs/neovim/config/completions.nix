@@ -32,8 +32,8 @@
           cmp.mapping(function(fallback)
             if cmp.visible() then
                 cmp.select_next_item()
-            elseif require('luasnip').expand_or_locally_jumpable() then
-                require('luasnip').expand_or_jump()
+            elseif require('luasnip').locally_jumpable() then
+                require('luasnip').jump()
             else
                 fallback()
             end
