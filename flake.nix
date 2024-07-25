@@ -70,29 +70,39 @@
       inherit pkgs system hostname username;
       inherit (lib) my;
     };
-  in {
+      in {
     formatter.${system} = pkgs.alejandra;
 
-    nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
-      inherit system;
-      modules = [
-        (import ./configuration.nix (extraSpecialArgs // {inherit lib;}))
-        catppuccin.nixosModules.catppuccin
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.${username} = {
-            imports =
-              [
-                ./home.nix
-                catppuccin.homeManagerModules.catppuccin
-              ]
-              ++ lib.my.importFrom ./config;
-          };
-          home-manager.extraSpecialArgs = extraSpecialArgs;
-        }
-      ];
+    nixosConfigurations = let
+      base = {
+        inherit system;
+        modules = [
+          (import ./configuration.nix (extraSpecialArgs // {inherit lib;}))
+          catppuccin.nixosModules.catppuccin
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.${username} = {
+              imports =
+                [
+                  ./home.nix
+                  catppuccin.homeManagerModules.catppuccin
+                ]
+                ++ lib.my.importFrom ./config;
+            };
+            home-manager.extraSpecialArgs = extraSpecialArgs;
+          }
+        ];
+      };  
+    in {
+      ${hostname} = nixpkgs.lib.nixosSystem base;
+      iso = nixpkgs.lib.nixosSystem (lib.my.mergeAttrs {
+        modules = [
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/channel.nix"
+        ];
+      } base);
     };
   };
 }
