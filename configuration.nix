@@ -217,6 +217,9 @@ in {
 
     # Vencord / Discord
     vesktop
+
+    # Slack
+    slack
   ];
 
   # udev rule to recognize vial devices and allow them to be configured
