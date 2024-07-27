@@ -31,9 +31,11 @@
           ''
           cmp.mapping(function(fallback)
             if cmp.visible() then
-                cmp.select_next_item()
-            elseif require('luasnip').locally_jumpable() then
-                require('luasnip').jump()
+                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+            elseif luasnip.expand_or_locally_jumpable() then 
+              luasnip.expand_or_jump()
+            elseif has_words_before() then
+              cmp.complete()
             else
                 fallback()
             end
@@ -43,7 +45,7 @@
         ''
         cmp.mapping(function(fallback)
           if cmp.visible() then
-            cmp.select_prev_item()
+            cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
           elseif luasnip.locally_jumpable(-1) then
             luasnip.jump(-1)
           else
