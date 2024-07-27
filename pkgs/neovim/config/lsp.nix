@@ -8,57 +8,57 @@
   keymaps = [
     {
       key = "<Leader>r";
-      action = "vim.lsp.buf.rename()";
+      action = /* lua */ "vim.lsp.buf.rename()";
       options = { silent = true; noremap = true; desc = "Rename symbol"; };
     }
     {
       key = "<Leader>a";
-      action = "vim.lsp.buf.code_action()";
+      action = /* lua */ "vim.lsp.buf.code_action()";
       options = { silent = true; noremap = true; desc = "Code action"; };
     }
     {
       key = "<Leader>f";
-      action = "function() vim.lsp.buf.format({ timeout_ms = 5000 }) end";
+      action = /* lua */ "vim.lsp.buf.format({ timeout_ms = 5000 })";
       options = { silent = true; noremap = true; desc = "Format code"; };
     }
     {
       key = "gd";
-      action = "vim.lsp.buf.definition()";
+      action = /* lua */ "vim.lsp.buf.definition()";
       options = { silent = true; noremap = true; desc = "Go to definition"; };
     }
     {
       key = "gD";
-      action = "vim.lsp.buf.declaration()";
+      action = /* lua */ "vim.lsp.buf.declaration()";
       options = { silent = true; noremap = true; desc = "Go to declaration"; };
     }
     {
       key = "gI";
-      action = "vim.lsp.buf.implementation()";
+      action = /* lua */ "vim.lsp.buf.implementation()";
       options = { silent = true; noremap = true; desc = "Go to implementation"; };
     }
     {
       key = "gr";
-      action = "vim.lsp.buf.references()";
+      action = /* lua */ "vim.lsp.buf.references()";
       options = { silent = true; noremap = true; desc = "List references"; };
     }
     {
       key = "<Leader>D";
-      action = "vim.lsp.buf.type_definition()";
+      action = /* lua */ "vim.lsp.buf.type_definition()";
       options = { silent = true; noremap = true; desc = "Go to type definition"; };
     }
     {
       key = "<Leader>s";
-      action = "require('telescope.builtin').lsp_document_symbols()";
+      action = /* lua */ "require('telescope.builtin').lsp_document_symbols()";
       options = { silent = true; noremap = true; desc = "Document symbols"; };
     }
     {
       key = "<Leader>S";
-      action = "require('telescope.builtin').lsp_workspace_symbols()";
+      action = /* lua */ "require('telescope.builtin').lsp_workspace_symbols()";
       options = { silent = true; noremap = true; desc = "Workspace symbols"; };
     }
     {
       key = "K";
-      action = "vim.lsp.buf.hover()";
+      action = /* lua */ "vim.lsp.buf.hover()";
       options = { silent = true; noremap = true; desc = "Hover documentation"; };
     }
   ];
@@ -81,7 +81,7 @@ in {
       local keymaps = ${helpers.toLuaObject keymaps}
 
       for _, mapping in ipairs(keymaps) do
-        bufmap(mapping.key, mapping.action, mapping.options)
+        bufmap(mapping.key, loadstring(mapping.action), mapping.options)
       end
 
       vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
