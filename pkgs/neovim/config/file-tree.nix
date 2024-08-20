@@ -9,6 +9,7 @@
       hideGitignored = false;
       visible = true;
     };
+    window.position = "left";
   };
 
 }

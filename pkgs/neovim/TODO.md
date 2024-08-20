@@ -38,7 +38,6 @@ vim.api.nvim_set_keymap('n', '<leader>fb', ':Telescope buffers<CR>', { noremap =
 ```
 - [ ] Toggle harpoon current file
 - [ ] Search everything all at once
-
 ```lua
 local telescope = require('telescope')
 local builtin = require('telescope.builtin')
@@ -98,3 +97,4 @@ end
 
 vim.api.nvim_set_keymap('n', '<leader>cs', ':lua combined_search()<CR>', { noremap = true, silent = true })
 ```
+- [ ] Toggle view/hide neotree
