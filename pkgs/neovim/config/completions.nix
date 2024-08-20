@@ -31,13 +31,11 @@
           ''
           cmp.mapping(function(fallback)
             if cmp.visible() then
-                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-            elseif luasnip.expand_or_locally_jumpable() then 
-              luasnip.expand_or_jump()
-            elseif has_words_before() then
-              cmp.complete()
+              cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+            elseif luasnip.locally_jumpable() then 
+              luasnip.jump()
             else
-                fallback()
+              fallback()
             end
           end, { 'i', 's' })
           '';

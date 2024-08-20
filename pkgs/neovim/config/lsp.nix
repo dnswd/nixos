@@ -93,10 +93,4 @@ in {
   # LSP langs embedded in documents/other lang
   plugins.otter.enable = true;
 
-  # Typescript helper
-  plugins.typescript-tools = {
-    enable = true;
-    settings.jsxCloseTag.enable = true; # Auto close tags
-  };
-
 }

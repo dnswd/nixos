@@ -25,7 +25,6 @@
       tsserver = {
         enable = true;
       };
-      vuels.enable = true;
       tailwindcss.enable = true;
       svelte.enable = true;
       jsonls.enable = true;
@@ -48,6 +47,16 @@
     #     };
     #   };
     # };
+
+    # Typescript helper
+  typescript-tools = {
+    enable = true;
+    settings = {
+      jsxCloseTag.enable = true; # Auto close tags
+      completeFunctionCalls = true;
+      separateDiagnosticServer = true;
+    }
+  };
 
     none-ls.sources = {
       formatting = {
