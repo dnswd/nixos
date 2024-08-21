@@ -49,14 +49,14 @@
     # };
 
     # Typescript helper
-  typescript-tools = {
-    enable = true;
-    settings = {
-      jsxCloseTag.enable = true; # Auto close tags
-      completeFunctionCalls = true;
-      separateDiagnosticServer = true;
-    }
-  };
+    typescript-tools = {
+      enable = true;
+      settings = {
+        jsxCloseTag.enable = true; # Auto close tags
+        completeFunctionCalls = true;
+        separateDiagnosticServer = true;
+      };
+    };
 
     none-ls.sources = {
       formatting = {
