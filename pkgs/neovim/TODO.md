@@ -25,18 +25,18 @@ vim.api.nvim_set_keymap('n', '<leader>d', '<cmd>lua go_to_declaration_or_find_us
 ```lua
 vim.api.nvim_set_keymap('n', '<leader>bd', ':bd<CR>', { noremap = true, silent = true })
 ```
-- [ ] Navigate between tabs 
-  - [ ] Tag via harpoon https://github.com/ThePrimeagen/harpoon/issues/352#issuecomment-1841252180
+- [x] Navigate between tabs 
+  - [x] Tag via harpoon https://github.com/ThePrimeagen/harpoon/issues/352#issuecomment-1841252180
   - [x] Cycle buffer 
 ```lua
 vim.api.nvim_set_keymap('n', '<Tab>', ':BufferLineCycleNext<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<S-Tab>', ':BufferLineCyclePrev<CR>', { noremap = true, silent = true })
 ```
-  - [ ] Select with telescope
+  - [x] Select with telescope
 ```lua
 vim.api.nvim_set_keymap('n', '<leader>fb', ':Telescope buffers<CR>', { noremap = true, silent = true })
 ```
-- [ ] Toggle harpoon current file
+- [x] Toggle harpoon current file
 - [ ] Search everything all at once
 ```lua
 local telescope = require('telescope')
