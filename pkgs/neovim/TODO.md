@@ -21,13 +21,13 @@ vim.api.nvim_set_keymap('n', '<leader>d', '<cmd>lua go_to_declaration_or_find_us
 - [x] Shortcut to type declaration
 - [ ] Shortcut to implementation
 - [ ] Remap jump into `[` for backward and `]` to go forward (currently CTRL-I and CTRL-O)
-- [ ] Close current tab buffer
+- [x] Close current tab buffer
 ```lua
 vim.api.nvim_set_keymap('n', '<leader>bd', ':bd<CR>', { noremap = true, silent = true })
 ```
 - [ ] Navigate between tabs 
   - [ ] Tag via harpoon https://github.com/ThePrimeagen/harpoon/issues/352#issuecomment-1841252180
-  - [ ] Cycle buffer 
+  - [x] Cycle buffer 
 ```lua
 vim.api.nvim_set_keymap('n', '<Tab>', ':BufferLineCycleNext<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<S-Tab>', ':BufferLineCyclePrev<CR>', { noremap = true, silent = true })
