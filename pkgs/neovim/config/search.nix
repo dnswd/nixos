@@ -21,6 +21,7 @@ in {
       fzf-native.enable = true;
       undo.enable = true;
     };
+    enabledExtensions = [ "notify" ];
     keymaps = {
       "<leader>fg" = "live_grep";
     };
