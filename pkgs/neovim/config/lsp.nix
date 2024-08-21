@@ -27,22 +27,35 @@
       options = { silent = true; noremap = true; desc = "Go to definition"; };
     }
     {
-      key = "gD";
-      action = /* lua */ "vim.lsp.buf.declaration()";
-      options = { silent = true; noremap = true; desc = "Go to declaration"; };
-    }
-    {
       key = "gI";
       action = /* lua */ "vim.lsp.buf.implementation()";
       options = { silent = true; noremap = true; desc = "Go to implementation"; };
     }
     {
-      key = "gr";
-      action = /* lua */ "vim.lsp.buf.references()";
-      options = { silent = true; noremap = true; desc = "List references"; };
+      key = "<C-D>";
+      action = /* lua */ ''
+      vim.lsp.buf_request(0, "textDocument/definition", vim.lsp.util.make_position_params(), function(err, result) 
+        if not err and result and not vim.tbl_isempty(result) and result[1].range then 
+          local current_pos = vim.api.nvim_win_get_cursor(0) 
+          local def = result[1].range.start 
+          if def.line == current_pos[1] - 1 and def.character == current_pos[2] then 
+            require("telescope.builtin").lsp_references() 
+          else 
+            if #result > 1 then 
+              require("telescope.builtin").lsp_locations({ results = result, prompt_title = "Definitions" }) 
+            else 
+              vim.lsp.util.jump_to_location(result[1]) 
+            end 
+          end 
+        else 
+          require("telescope.builtin").lsp_references() 
+        end 
+      end)
+  '';
+      options = { silent = true; noremap = true; desc = "Go to declaration/usages"; };
     }
     {
-      key = "<Leader>D";
+      key = "<S-D>";
       action = /* lua */ "vim.lsp.buf.type_definition()";
       options = { silent = true; noremap = true; desc = "Go to type definition"; };
     }

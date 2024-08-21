@@ -1,4 +1,4 @@
-- [ ] Shortcut jump to declaration or usages (if already at declaration, find usage)
+- [x] Shortcut jump to declaration or usages (if already at declaration, find usage)
 ```lua
 local function go_to_declaration_or_find_usages()
   local params = vim.lsp.util.make_position_params()
@@ -18,7 +18,7 @@ end
 -- Keybinding to trigger the combined behavior
 vim.api.nvim_set_keymap('n', '<leader>d', '<cmd>lua go_to_declaration_or_find_usages()<CR>', { noremap = true, silent = true })
 ```
-- [ ] Shortcut to type declaration
+- [x] Shortcut to type declaration
 - [ ] Shortcut to implementation
 - [ ] Remap jump into `[` for backward and `]` to go forward (currently CTRL-I and CTRL-O)
 - [ ] Close current tab buffer
