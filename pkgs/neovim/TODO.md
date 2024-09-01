@@ -98,6 +98,6 @@ end
 vim.api.nvim_set_keymap('n', '<leader>cs', ':lua combined_search()<CR>', { noremap = true, silent = true })
 ```
 - [ ] Toggle view/hide neotree
-- [ ] Mapping dismiss notification
-- [ ] Mapping toggle notification history
+- [x] Mapping dismiss notification
+- [x] Mapping toggle notification history
 - [ ] LSP errors window
