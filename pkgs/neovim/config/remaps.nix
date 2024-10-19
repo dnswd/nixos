@@ -2,7 +2,7 @@
   inherit (my) mkKeymap;
 in {
   keymaps = [
-    (mkKeymap "n" "<leader>pv" "Ex"               "Open netrw")
+    (mkKeymap "n" "<leader>v"  ":Ex<CR>"          "Open netrw")
 
     (mkKeymap "v" "J"          ":m '>+1<CR>gv=gv" "Move selected lines upwards")
     (mkKeymap "v" "K"          ":m '<-2<CR>gv=gv" "Move selected lines downwards")
@@ -13,12 +13,12 @@ in {
     (mkKeymap "n" "<C-d>"      "<C-d>zz"          "Page down but cursor stay in the middle")
     (mkKeymap "n" "<C-u>"      "<C-u>zz"          "Page up but cursor stay in the middle")
     (mkKeymap "n" "n"          "nzzzv"            "Next search but cursor stay in the middle")
-    (mkKeymap "n" "N"          "Nzzv"             "Previous search but cursor stay in the middle")
+    (mkKeymap "n" "N"          "Nzzzv"             "Previous search but cursor stay in the middle")
 
     # Make sure keep the register when pasting (default behavior: replaced with deleted content when pasting)
     (mkKeymap "x" "<leader>p"  ''"_dP''           "Paste without replacing the register content")
 
-    # Make sure delete doesn't store content to register
+    # Make sure delete doesn't store content to registe
     (mkKeymap "n" "<leader>d"  ''"_d''            "Delete to void")
     (mkKeymap "v" "<leader>d"  ''"_d''            "Delete to void")
 
@@ -40,8 +40,8 @@ in {
     (mkKeymap "n" "<leader>s"  '':%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>'' "Substitute current word")
 
     # CLI shenanigans
+    # sessionizer doesn't work yet 
     (mkKeymap "n" "<C-f>"      "<cmd>silent !tmux neww tmux-sessionizer<CR>" "Create new tmux session")
     (mkKeymap "n" "<leader>x"  "<cmd>!chmod +x %<CR>"                        "Make current file executable")
-
   ];
 }

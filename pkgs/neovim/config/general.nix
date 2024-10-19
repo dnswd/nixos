@@ -14,14 +14,14 @@
       flavor = "macchiato";
       integrations = {
         cmp = true;
-        gitsigns = true;
+        # gitsigns = true;
         treesitter = true;
-        notify = true;
+        # notify = true;
         harpoon = true;
-        neotree = true;
-        noice = true;
-        telescope = { enabled = true; };
-        which_key = true;
+        # neotree = true;
+        # noice = true;
+        # telescope = { enabled = true; };
+        # which_key = true;
       };
       transparent_background = true;
       background = {
@@ -37,6 +37,11 @@
     maplocalleader = " ";
   };
 
+  extraConfigLuaPre = # Lua
+  ''
+  vim.o.undodir = vim.fn.expand("~/.vim/undodir");
+  '';
+
   opts = {
     signcolumn = "yes";
 
@@ -46,7 +51,7 @@
 
     # Tabs 
     tabstop = 4;
-    softtabspot = 4;
+    softtabstop = 4;
     shiftwidth = 4;
     smartindent = true;
     # Use spaces instead tabs
@@ -64,7 +69,7 @@
     backup = false;
 
     # Long running undo file
-    undodir = ''os.getenv("HOME") .. "/.vim/undodir"'';
+    # Undodir configured above using extraConfgLuaPre to resolve home path
     undofile = true;
 
     # Disable search highlight but enable incremental search
@@ -81,25 +86,25 @@
     mouse = "a";
   };
 
-  # diagnostics = {
-  #   signs = {
-  #     text = {
-  #       "[vim.diagnostic.severity.ERROR]" = "✘";
-  #       "[vim.diagnostic.severity.WARN]" = "▲";
-  #       "[vim.diagnostic.severity.HINT]" = "⚑";
-  #       "[vim.diagnostic.severity.INFO]" = "»";
-  #     };
-  #   };
-  # };
+  diagnostics = {
+    signs = {
+      text = {
+        "[vim.diagnostic.severity.ERROR]" = "✘";
+        "[vim.diagnostic.severity.WARN]" = "▲";
+        "[vim.diagnostic.severity.HINT]" = "⚑";
+        "[vim.diagnostic.severity.INFO]" = "»";
+      };
+    };
+  };
 
   plugins = {
-    # # Enable lazy loading
+    # Enable lazy loading
     lazy.enable = true;
-    #
-    # # Enable error lens
+
+    # Enable error lens
     trouble.enable = true;
-    #
-    # # Auto close bracket
+
+    # Auto close bracket
     nvim-autopairs.enable = true;
   };
 
