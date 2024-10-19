@@ -8,6 +8,7 @@ in {
       silent = true;
       diagnostic = {
         # Navigate in diagnostics
+        "<leader>vd" = "open_float";
         "<leader>k" = "goto_prev";
         "<leader>j" = "goto_next";
       };

@@ -41,12 +41,41 @@
   opts = {
     signcolumn = "yes";
 
+    # Line numbers
+    number = true;
+    relativenumber = true;
+
+    # Tabs 
+    tabstop = 4;
+    softtabspot = 4;
+    shiftwidth = 4;
+    smartindent = true;
     # Use spaces instead tabs
-    shiftwidth = 2;
     smarttab = true;
     expandtab = true;
+
+    # Disable wrapping 
+    wrap = false;
+
+    # Disable backup
+    swapfile = false;
+    backup = false;
+
+    # Long running undo file
+    undodir = ''os.getenv("HOME") .. "/.vim/undodir"'';
+    undofile = true;
+
+    # Disable search highlight but enable incremental search
+    hlsearch = false;
+    incsearch = true;
+
+    # Colors
+    termguicolors = true;
+
+    # Scroll line threshold
+    scrolloff = 8;
     
-    updatetime = 300;
+    updatetime = 50;
     mouse = "a";
   };
 
