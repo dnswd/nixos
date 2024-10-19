@@ -1,6 +1,8 @@
-{ my, ... }:let
+{ my, ... }:
+let
   inherit (my) mkKeymap;
-in {
+in
+{
   plugins.undotree = {
     enable = true;
   };
