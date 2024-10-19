@@ -6,6 +6,9 @@
   viAlias = true;
   vimAlias = true;
 
+  # Disable providers
+  withRuby = false;
+
   colorschemes.catppuccin = {
     enable = true;
     settings = {
@@ -47,14 +50,25 @@
     mouse = "a";
   };
 
+  diagnostics = {
+    signs = {
+      text = {
+        "[vim.diagnostic.severity.ERROR]" = "✘";
+        "[vim.diagnostic.severity.WARN]" = "▲";
+        "[vim.diagnostic.severity.HINT]" = "⚑";
+        "[vim.diagnostic.severity.INFO]" = "»";
+      };
+    };
+  };
+
   plugins = {
-    # Enable lazy loading
+    # # Enable lazy loading
     lazy.enable = true;
-
-    # Enable error lens
+    #
+    # # Enable error lens
     trouble.enable = true;
-
-    # Auto close bracket
+    #
+    # # Auto close bracket
     nvim-autopairs.enable = true;
   };
 
