@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
 
   # Other plugins for support
   plugins = {
@@ -12,20 +12,20 @@
     friendly-snippets.enable = true;
     lspkind = {
       enable = true;
-      menu = {
-        luasnip = "[Snip]";
-        nvim_lsp = "[LSP]";
-        buffer = "[Buff]";
-        async_path = "[Path]";
-      };
       cmp = {
         enable = true;
         after = # lua
           ''
-          function(entry, vim_item, kind)
-            return vim_item
-          end
+            function(entry, vim_item, kind)
+              return vim_item
+            end
           '';
+        menu = {
+          luasnip = "[Snip]";
+          nvim_lsp = "[LSP]";
+          buffer = "[Buff]";
+          async_path = "[Path]";
+        };
       };
     };
   };
@@ -43,9 +43,9 @@
       snippet = {
         expand = # lua
           ''
-          function(args)
-            require("luansip").expand(args.body)
-          end
+            function(args)
+              require("luansip").expand(args.body)
+            end
           '';
       };
       mapping = {

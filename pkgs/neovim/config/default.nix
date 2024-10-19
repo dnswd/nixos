@@ -1,6 +1,5 @@
-{
-  pkgs,
-  ...
+{ pkgs
+, ...
 }: {
 
   viAlias = true;
@@ -36,7 +35,7 @@
   globals = {
     mapleader = " ";
     maplocalleader = " ";
-  };   
+  };
 
   opts = {
     signcolumn = "yes";
@@ -57,6 +56,9 @@
     # Disable wrapping 
     wrap = false;
 
+    # Disable folding
+    foldenable = false;
+
     # Disable backup
     swapfile = false;
     backup = false;
@@ -74,21 +76,21 @@
 
     # Scroll line threshold
     scrolloff = 8;
-    
+
     updatetime = 50;
     mouse = "a";
   };
 
-  diagnostics = {
-    signs = {
-      text = {
-        "[vim.diagnostic.severity.ERROR]" = "✘";
-        "[vim.diagnostic.severity.WARN]" = "▲";
-        "[vim.diagnostic.severity.HINT]" = "⚑";
-        "[vim.diagnostic.severity.INFO]" = "»";
-      };
-    };
-  };
+  # diagnostics = {
+  #   signs = {
+  #     text = {
+  #       "[vim.diagnostic.severity.ERROR]" = "✘";
+  #       "[vim.diagnostic.severity.WARN]" = "▲";
+  #       "[vim.diagnostic.severity.HINT]" = "⚑";
+  #       "[vim.diagnostic.severity.INFO]" = "»";
+  #     };
+  #   };
+  # };
 
   plugins = {
     # # Enable lazy loading

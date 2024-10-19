@@ -45,7 +45,7 @@ in {
 
   plugins.otter = {
     enable = true;
-    autoActivate = true;
+    # autoActivate = true;
   };
 
 }
