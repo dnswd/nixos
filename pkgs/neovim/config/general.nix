@@ -38,9 +38,9 @@
   };
 
   extraConfigLuaPre = # Lua
-  ''
-  vim.o.undodir = vim.fn.expand("~/.vim/undodir");
-  '';
+    ''
+      vim.o.undodir = vim.fn.expand("~/.vim/undodir");
+    '';
 
   opts = {
     signcolumn = "yes";
@@ -106,6 +106,15 @@
 
     # Auto close bracket
     nvim-autopairs.enable = true;
+
+    # use nvim-tree
+    nvim-tree = {
+      enable = true;
+      autoReloadOnWrite = true;
+      disableNetrw = true;
+      hijackNetrw = true;
+      openOnSetup = true;
+    };
   };
 
   # Lua helper

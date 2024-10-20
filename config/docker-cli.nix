@@ -1,3 +1,3 @@
 { pkgs, ... }: {
-  home.packages = [ pkgs.my.dry-docker ];
+  home.packages = [ pkgs.lazydocker ];
 }
