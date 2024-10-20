@@ -1,8 +1,8 @@
-{
-  pkgs,
-  lib,
-  ...
+{ pkgs
+, ...
 }: {
+
+  home.packages = [ pkgs.tmux-sessionizer ];
   programs.tmux = {
     enable = true;
     catppuccin.enable = true;
@@ -13,10 +13,7 @@
     shell = "${pkgs.zsh}/bin/zsh";
     sensibleOnTop = true;
     terminal = "screen-256color";
-    extraConfig =
-      /*
-      sh
-      */
+    extraConfig = # sh
       ''
         set-option -g renumber-windows on
 
@@ -56,8 +53,6 @@
         bind -n M-j select-pane -D
         bind -n M-h select-pane -L
         bind -n M-l select-pane -R
-
-        # Enter copy mode
       '';
 
     plugins = with pkgs; [
