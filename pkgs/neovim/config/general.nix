@@ -107,14 +107,13 @@
     # Auto close bracket
     nvim-autopairs.enable = true;
 
-    # use nvim-tree
-    nvim-tree = {
-      enable = true;
-      autoReloadOnWrite = true;
-      disableNetrw = true;
-      hijackNetrw = true;
-      openOnSetup = true;
-    };
+    # Lazygit integration
+    lazygit.enable = true;
+
+    # Git signs
+    gitsigns.enable = true;
+    gitsigns.settings.current_line_blame = true;
+
   };
 
   # Lua helper

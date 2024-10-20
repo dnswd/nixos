@@ -1,12 +1,15 @@
-{ my, ... }:let
+{ my, ... }:
+let
   inherit (my) importFrom;
-in {
+in
+{
 
   # Import language server settings
   imports = importFrom ../lang;
 
   plugins.lsp = {
     enable = true;
+    inlayHints = true;
     capabilities = "capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)";
     keymaps = {
       silent = true;
@@ -30,7 +33,7 @@ in {
 
       extra = [
         {
-          mode = ["n" "x"];
+          mode = [ "n" "x" ];
           key = "<F3>";
           action = "<cmd>lua vim.lsp.buf.format({async = true})<cr>";
         }
