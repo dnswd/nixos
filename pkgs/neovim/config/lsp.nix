@@ -30,11 +30,10 @@ in
         "<F2>" = "rename";
         "<F4>" = "code_action";
       };
-
       extra = [
         {
           mode = [ "n" "x" ];
-          key = "<F3>";
+          key = "<leader>f";
           action = "<cmd>lua vim.lsp.buf.format({async = true})<cr>";
         }
       ];

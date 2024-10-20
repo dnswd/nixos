@@ -44,7 +44,7 @@ in
 
     # CLI shenanigans
     # sessionizer doesn't work yet 
-    (mkKeymap "n" "<C-f>" "<cmd>silent !tmux neww tmux-sessionizer<CR>" "Create new tmux session")
+    (mkKeymap "n" "<C-f>" "<cmd>silent !tmux neww tms<CR>" "Call tmux sessionizer")
     (mkKeymap "n" "<leader>x" "<cmd>!chmod +x %<CR>" "Make current file executable")
   ];
 }
