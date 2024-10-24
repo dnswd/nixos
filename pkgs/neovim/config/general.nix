@@ -43,7 +43,11 @@
     '';
 
   opts = {
+    # Always show sugn column
     signcolumn = "yes";
+
+    # Enable pasting with system clipboard
+    clipboard = "unnamedplus";
 
     # Line numbers
     number = true;
@@ -53,10 +57,12 @@
     tabstop = 4;
     softtabstop = 4;
     shiftwidth = 4;
-    smartindent = true;
-    # Use spaces instead tabs
     smarttab = true;
-    expandtab = true;
+    expandtab = true; # use spaces
+
+    # Indentation
+    smartindent = true;
+    breakindent = true; # auto indent when breaking
 
     # Disable wrapping 
     wrap = false;
@@ -79,8 +85,9 @@
     # Colors
     termguicolors = true;
 
-    # Scroll line threshold
-    scrolloff = 8;
+    # Scroll threshold
+    scrolloff = 8; # numbers of line to keep above/below cursor
+    sidescrolloff = 8; # numbers of line to keep left/right of cursor
 
     updatetime = 50;
     mouse = "a";
