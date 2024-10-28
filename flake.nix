@@ -11,7 +11,7 @@
 
     # Neovim stuff
     nixvim.url = "github:nix-community/nixvim";
-    nixvim.inputs.nixpkgs.follows = "nixpkgs";
+    # nixvim.inputs.nixpkgs.follows = "nixpkgs";
     ts-comments = {
       url = "github:folke/ts-comments.nvim";
       flake = false;
@@ -29,28 +29,29 @@
     polymc.url = "github:PolyMC/PolyMC";
   };
 
-  outputs = {
-    nixpkgs,
-    home-manager,
-    catppuccin,
-    ...
-  } @ inputs: let
-    system = "x86_64-linux";
-    hostname = "ikigai";
-    username = "halcyon";
+  outputs =
+    { nixpkgs
+    , home-manager
+    , catppuccin
+    , ...
+    } @ inputs:
+    let
+      system = "x86_64-linux";
+      hostname = "ikigai";
+      username = "halcyon";
 
-    lib = nixpkgs.lib.extend (final: prev: {
-      # custom libs under lib.my
-      my = import ./lib {
-        inherit pkgs inputs;
-        lib = final;
-      };
-    });
+      lib = nixpkgs.lib.extend (final: prev: {
+        # custom libs under lib.my
+        my = import ./lib {
+          inherit pkgs inputs;
+          lib = final;
+        };
+      });
 
-    pkgs = import nixpkgs ({
+      pkgs = import nixpkgs ({
         config.allowUnfree = true;
         config.warnUndeclaredOptions = true;
-        localSystem = {inherit system;};
+        localSystem = { inherit system; };
       }
       // {
         overlays = [
@@ -61,38 +62,39 @@
                 inherit inputs system;
                 inherit (lib) my;
               });
-            })
+          })
           inputs.polymc.overlay
         ];
       });
 
-    extraSpecialArgs = {
-      inherit pkgs system hostname username;
-      inherit (lib) my;
-    };
-  in {
-    formatter.${system} = pkgs.alejandra;
+      extraSpecialArgs = {
+        inherit pkgs system hostname username;
+        inherit (lib) my;
+      };
+    in
+    {
+      formatter.${system} = pkgs.alejandra;
 
-    nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
-      inherit system;
-      modules = [
-        (import ./configuration.nix (extraSpecialArgs // {inherit lib;}))
-        catppuccin.nixosModules.catppuccin
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.users.${username} = {
-            imports =
-              [
-                ./home.nix
-                catppuccin.homeManagerModules.catppuccin
-              ]
-              ++ lib.my.importFrom ./config;
-          };
-          home-manager.extraSpecialArgs = extraSpecialArgs;
-        }
-      ];
+      nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          (import ./configuration.nix (extraSpecialArgs // { inherit lib; }))
+          catppuccin.nixosModules.catppuccin
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.${username} = {
+              imports =
+                [
+                  ./home.nix
+                  catppuccin.homeManagerModules.catppuccin
+                ]
+                ++ lib.my.importFrom ./config;
+            };
+            home-manager.extraSpecialArgs = extraSpecialArgs;
+          }
+        ];
+      };
     };
-  };
 }

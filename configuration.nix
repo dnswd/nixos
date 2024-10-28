@@ -1,7 +1,8 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
 in {
   imports = [
     # Include the results of the hardware scan.
@@ -44,7 +45,7 @@ in {
   services.xserver.enable = true;
 
   # Use GPU to render X11
-  services.xserver.videoDrivers = ["amdgpu"];
+  services.xserver.videoDrivers = [ "amdgpu" ];
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -99,6 +100,7 @@ in {
       "docker"
       "libvirtd"
       "qemu-libvirtd"
+      "wireshark"
     ];
     packages = with pkgs; [
       #  thunderbird
@@ -109,7 +111,7 @@ in {
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
   environment = {
-    shells = [pkgs.bashInteractive pkgs.zsh];
+    shells = [ pkgs.bashInteractive pkgs.zsh ];
     shellInit = ''
       export GPG_TTY="$(tty)"
     '';
@@ -118,7 +120,7 @@ in {
   # Fonts
   fonts = {
     packages = with pkgs; [
-      (nerdfonts.override {fonts = ["FantasqueSansMono"];})
+      (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
     ];
     fontconfig.subpixel.rgba = "rgb";
   };
@@ -142,10 +144,10 @@ in {
   nixpkgs.config.allowUnfree = true;
 
   # Enable Flakes
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Trusted users
-  nix.settings.trusted-users = ["root" "@wheel" "halcyon"];
+  nix.settings.trusted-users = [ "root" "@wheel" "halcyon" ];
 
   # Linker (nix-ld)
   programs.nix-ld.enable = true;
@@ -225,7 +227,7 @@ in {
   # udev rule to recognize vial devices and allow them to be configured
   services.udev.extraRules =
     /*
-    udev
+      udev
     */
     ''
       KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
