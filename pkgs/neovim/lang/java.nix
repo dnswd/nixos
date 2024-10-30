@@ -1,70 +1,65 @@
 { pkgs, ... }: {
-  # You need to enable java in home-manager, sadly nixvim and home-manager config can
-  # plugins.nvim-jdtls = {
-  #   enable = true;
-  #   data = "~/.cache/jdtls/workspace";
-  #   configuration = "~/.cache/jdtls/config";
-  #   rootDir = { __raw = "require('jdtls.setup').find_root({'.git', 'mvnw', 'gradlew'})"; };
-  #   initOptions = {
-  #     bundles = [
-  #       "${pkgs.vscode-extensions.vscjava.vscode-java-debug}/share/vscode/extensions/vscjava.vscode-java-debug/server/com.microsoft.java.debug.plugin-0.50.0.jar"
-  #     ];
-  #   };
-  # };
+  plugins.nvim-jdtls = {
+    enable = true;
+    data.__raw = ''os.getenv("XDG_CACHE_HOME") .. '/jdtls/workspace' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t') '';
+    configuration.__raw = ''os.getenv("XDG_CACHE_HOME") .. '/jdtls/config' '';
+    initOptions = {
+      bundles =
+        let
+          base_path = "${pkgs.vscode-extensions.vscjava.vscode-java-debug}/share/vscode/extensions/vscjava.vscode-java-debug";
+          package_json = builtins.fromJSON (builtins.readFile "${base_path}/package.json");
+          jar_paths = builtins.map (e: "${base_path}/${e}") package_json.contributes.javaExtensions;
+        in
+        jar_paths;
+    };
 
-  # plugins.nvim-jdtls = {
-  #   enable = true;
-  #   # sneak into `.idea` project folder
-  #   data = ".idea/nvim-jdtls";
-  # };
+    # extraOptions = {
+    #   capabilities.__raw = "require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())";
+    # };
 
-  # plugins.nvim-jdtls = {
-  # plugins.nvim-jdtls = {
-  #   enable = true;
-  #   cmd = [
-  #     "${pkgs.jdt-language-server}/bin/jdtls"
-  #   ];
-  #   # configuration = "/path/to/configuration";
-  #   data = "~/.cache/jdtls/workspace";
-  #   settings = {
-  #     java = {
-  #       signatureHelp = true;
-  #       completion = true;
-  #     };
-  #   };
-  #   initOptions = {
-  #     bundles = [
-  #       "${java-test}"
-  #       "${java-debug}"
-  #     ];
-  #   };
-  # };
+    settings = {
+      java = {
+        implementationsCodeLens.enable = true;
+        referenceCodeLens.enable = true;
+        signatureHelp.enable = true;
 
-  # extraPlugins = with pkgs.vimPlugins; [
-  #   nvim-jdtls
-  # ];
-  #
-  # # plugins.lsp.servers.jdtls = {
-  # #   enable = true;
-  # # };
-  #
-  # extraFiles = {
-  #   "ftplugin/java.lua".text = ''
-  #     local config = {
-  #       cmd = {'${pkgs.jdt-language-server}/bin/jdtls', '--jvm-arg=-javaagent:${pkgs.lombok}/share/java/lombok.jar', '--jvm-arg=-Xbootclasspath/a:${pkgs.lombok}/share/java/lombok.jar'},
-  #       root_dir = vim.fs.dirname(vim.fs.find({'gradlew', '.git', 'mvnw'}, { upward = true })[1]),
-  #     }
-  #     require('jdtls').start_or_attach(config)
-  #   '';
-  # };
-  #
-  #
-  # plugins.lsp.servers.java_language_server = {
-  #   enable = true;
-  #   # package = pkgs."jdt-language-server";
-  # };
+        # TODO fernflower isn't in nixpkgs rn https://github.com/NixOS/nixpkgs/issues/208672
+        # contentProvider.preferred = "fernflower"; # decompilation
+        configuration.updateBuildConfiguration = "interactive"; # default
+        import = { gradle.enabled = true; maven.enabled = true; };
+        saveActions.organizeImports = true;
 
-  # plugins.nvim-jdtls = {
-  #   enable = true;
-  # };
+        codeGeneration = {
+          useBlocks = true;
+          generateComments = true;
+          hashCodeEquals = { useInstanceof = true; useJava7Objects = true; };
+          # toString = {
+          #   # codeStyle?: string;
+          #   # limitElements?: number;
+          #   # listArrayContents?: boolean;
+          #   # skipNullValues?: boolean;
+          #   # template?: string;
+          # };
+        };
+
+        configuration.runtimes = [
+          {
+            name = "JavaSE-11";
+            path = "${pkgs.temurin-bin-11}";
+          }
+          {
+            name = "JavaSE-17";
+            path = "${pkgs.temurin-bin-17}";
+            default = true;
+          }
+          {
+            name = "JavaSE-21";
+            path = "${pkgs.temurin-bin-21}";
+          }
+        ];
+        home = { };
+        format.settings = { }; # url profile
+      };
+    };
+  };
 }

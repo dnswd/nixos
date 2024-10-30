@@ -121,6 +121,8 @@
     gitsigns.enable = true;
     gitsigns.settings.current_line_blame = true;
 
+    # Icons
+    web-devicons.enable = true;
   };
 
   # Lua helper

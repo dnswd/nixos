@@ -1,6 +1,5 @@
-{
-  pkgs,
-  ...
+{ pkgs
+, ...
 }: {
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
@@ -50,41 +49,5 @@
   # Catppuccin theme
   catppuccin.flavor = "mocha";
 
-  # Vscode
-  programs.vscode = {
-    enable = true;
-    package = pkgs.vscode.fhs;
-  };
 
-  # Mise
-  programs.mise = {
-    enable = true;
-    enableZshIntegration = true;
-  };
-
-  # Fuzzy finder
-  programs.fzf = {
-    enable = true;
-  };
-
-  # Regex find directory
-  programs.ripgrep.enable = true;
-
-  # Fuzzy find directory
-  programs.fd = {
-    enable = true;
-    ignores = [".git/*" "node_modules/*"];
-  };
-
-  # Zoxide for fuzzy cd
-  programs.zoxide = {
-    enable = true;
-    enableZshIntegration = true;
-  };
-
-  # Direnv
-  programs.direnv = {
-    enable = true;
-    enableZshIntegration = true;
-  };
 }
