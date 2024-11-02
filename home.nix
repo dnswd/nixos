@@ -51,5 +51,8 @@
 
   home.packages = with pkgs; [
     google-chrome
+
+    # debug configs
+    nix-inspect
   ];
 }

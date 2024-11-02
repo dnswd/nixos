@@ -9,6 +9,7 @@
     cmp-async-path.enable = true;
 
     # Non-cmp plugins
+    # somehow cmp was called first before luasnip, making it broken. Moving it to extraConfigLuaPre
     luasnip.enable = true;
     friendly-snippets.enable = true;
     lspkind = {
@@ -46,14 +47,14 @@
         expand = # lua
           ''
             function(args)
-              require("luansip").expand(args.body)
+              require("luasnip").expand(args.body)
             end
           '';
       };
       mapping = {
         "<C-d>" = "cmp.mapping.scroll_docs(-4)";
         "<C-f>" = "cmp.mapping.scroll_docs(4)";
-        "<C-Space>" = "cmp.mapping.complete()";
+        "<C-Tab>" = "cmp.mapping.complete()";
         "<C-e>" = "cmp.mapping.abort()";
         "<CR>" = "cmp.mapping.confirm({ select = false })";
         "<Tab>" = # lua

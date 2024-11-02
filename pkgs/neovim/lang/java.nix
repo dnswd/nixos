@@ -1,8 +1,32 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
   plugins.nvim-jdtls = {
     enable = true;
-    data.__raw = ''os.getenv("XDG_CACHE_HOME") .. '/jdtls/workspace' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t') '';
-    configuration.__raw = ''os.getenv("XDG_CACHE_HOME") .. '/jdtls/config' '';
+    data = ''os.getenv("XDG_CACHE_HOME") .. '/jdtls/workspace' .. vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')'';
+    configuration = ''os.getenv("XDG_CACHE_HOME") .. '/jdtls/config'';
+    extraOptions = {
+      cmd = [
+        (lib.getExe pkgs.jdt-language-server)
+        "-data"
+        (lib.nixvim.mkRaw ''os.getenv("XDG_CACHE_HOME") .. "/jdtls/workspace/" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")'')
+        "-configuration"
+        (lib.nixvim.mkRaw ''os.getenv("XDG_CACHE_HOME") .. "/jdtls/config"'')
+        "-jar"
+        (lib.nixvim.mkRaw ''vim.fn.glob("${pkgs.jdt-language-server}/share/java/jdtls/plugins/org.eclipse.equinox.launcher_*.jar")'')
+        "-Declipse.application=org.eclipse.jdt.ls.core.id1"
+        "-Dosgi.bundles.defaultStartLevel=4"
+        "-Declipse.product=org.eclipse.jdt.ls.core.product"
+        "-Dlog.protocol=true"
+        "-Dlog.level=ALL"
+        "-Xms1g"
+        "-Xmx2G"
+        "-javaagent:${pkgs.lombok}/share/java/lombok.jar"
+        "--add-modules=ALL-SYSTEM"
+        "--add-opens java.base/java.util=ALL-UNNAMED"
+        "--add-opens java.base/java.lang=ALL-UNNAMED"
+
+      ];
+    };
+
     initOptions = {
       bundles =
         let
@@ -13,9 +37,9 @@
         jar_paths;
     };
 
-    # extraOptions = {
-    #   capabilities.__raw = "require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())";
-    # };
+    extraOptions = {
+      capabilities.__raw = "require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())";
+    };
 
     settings = {
       java = {
