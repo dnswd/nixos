@@ -21,19 +21,20 @@ in
       };
 
       lspBuf = {
-        K = "hover";
-        gd = "definition";
-        gD = "references";
-        gi = "implementation";
-        gt = "type_definition";
-        gs = "signature_help";
-        "<F2>" = "rename";
-        "<F4>" = "code_action";
+        gd = "definition"; # go definitions
+        gD = "declaration"; # go Declaration
+        gi = "implementation"; # go implementation
+        gt = "type_definition"; # go to type
+        gr = "declaration"; # go references
+        K = "hover"; # quick Knowledge
+        "<C-k>" = "signature_help"; # Knowledge
+        "<leader>rn" = "rename"; # rename
+        "<leader>ca" = "code_action"; # code action
       };
       extra = [
         {
           mode = [ "n" "x" ];
-          key = "<leader>f";
+          key = "<leader>f"; # format
           action = "<cmd>lua vim.lsp.buf.format({async = true})<cr>";
         }
       ];

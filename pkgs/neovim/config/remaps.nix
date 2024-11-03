@@ -4,8 +4,8 @@ let
 in
 {
   keymaps = [
-    (mkKeymap "n" "<leader>v" ":NvimTreeToggle<CR>" "Open nvim-tree.lua")
-    (mkKeymap "n" "<leader>lg" "<cmd>LazyGit<CR>" "Open lazygit")
+    (mkKeymap "n" "<leader>v" ":NvimTreeToggle<CR>" "Open nvim-tree.lua") # view
+    (mkKeymap "n" "<leader>gg" "<cmd>LazyGit<CR>" "Open lazygit") # go git
 
     (mkKeymap "v" "J" ":m '>+1<CR>gv=gv" "Move selected lines upwards")
     (mkKeymap "v" "K" ":m '<-2<CR>gv=gv" "Move selected lines downwards")
