@@ -9,7 +9,6 @@
     cmp-async-path.enable = true;
 
     # Non-cmp plugins
-    # somehow cmp was called first before luasnip, making it broken. Moving it to extraConfigLuaPre
     luasnip.enable = true;
     friendly-snippets.enable = true;
     lspkind = {
@@ -47,14 +46,14 @@
         expand = # lua
           ''
             function(args)
-              require("luasnip").expand(args.body)
+              require("luasnip").lsp_expand(args.body)
             end
           '';
       };
       mapping = {
         "<C-d>" = "cmp.mapping.scroll_docs(-4)";
         "<C-f>" = "cmp.mapping.scroll_docs(4)";
-        "<C-Tab>" = "cmp.mapping.complete()";
+        "<C-i>" = "cmp.mapping.complete()";
         "<C-e>" = "cmp.mapping.abort()";
         "<CR>" = "cmp.mapping.confirm({ select = false })";
         "<Tab>" = # lua
@@ -62,6 +61,8 @@
             cmp.mapping(function(fallback)
               if cmp.visible() then
                 cmp.select_next_item()
+              elseif require("luasnip").expand_or_jumpable() then
+                require("luasnip").expand_or_jump()
               else
                 fallback()
               end
@@ -72,12 +73,23 @@
             cmp.mapping(function(fallback)
               if cmp.visible() then
                 cmp.select_prev_item()
+              elseif require("luasnip").jumpable(-1) then
+                require("luasnip").jump(-1)
               else
                 fallback()
               end
             end, { 'i', 's' })
           '';
       };
+      completion = {
+        completeopt = "menu,menuone,noinsert,noselect";
+        autocomplete = [
+          "cmp.TriggerEvent.TextChanged"
+          "cmp.TriggerEvent.InsertEnter"
+        ];
+        keyword_length = 0;
+      };
     };
   };
 }
+

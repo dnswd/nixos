@@ -54,5 +54,8 @@
 
     # debug configs
     nix-inspect
+
+    # recording
+    obs-studio
   ];
 }
