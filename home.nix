@@ -1,4 +1,5 @@
 { pkgs
+, inputs
 , ...
 }: {
   # Home Manager needs a bit of information about you and the
@@ -57,5 +58,8 @@
 
     # recording
     obs-studio
+
+    # proton launcher for non-steam games
+    # umu
   ];
 }
