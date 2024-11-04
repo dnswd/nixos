@@ -26,6 +26,7 @@
           nvim_lsp = "[LSP]";
           buffer = "[Buff]";
           async_path = "[Path]";
+          codeium = "[AI]";
         };
       };
     };
@@ -41,6 +42,7 @@
         { name = "async_path"; }
         { name = "buffer"; }
         { name = "luasnip"; }
+        { name = "codeium"; }
       ];
       snippet = {
         expand = # lua
