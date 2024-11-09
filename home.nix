@@ -60,6 +60,12 @@
     obs-studio
 
     # proton launcher for non-steam games
-    # umu
+    steamtinkerlaunch
+
+    # image editing
+    gimp
+
+    # send files from phone
+    localsend
   ];
 }
