@@ -1,9 +1,13 @@
 { pkgs, lib, ... }: {
   plugins.codeium-nvim = {
-    enable = true;
+    enable = true; # TODO fix cmp issue
     settings = {
+      enable_cmp_source = true;
       enable_chat = true;
-      virtual_text.enabled = true;
+      # virtual_text = {
+      #   enabled = true;
+      #   key_bindings.accept = false; # handled by nvim-cmp
+      # };
       tools = {
         curl = lib.getExe pkgs.curl;
         gzip = lib.getExe pkgs.gzip;
@@ -12,4 +16,16 @@
       };
     };
   };
+
+  keymaps = [
+    {
+      mode = "n";
+      key = "<leader>C";
+      action = "<cmd>Codeium Chat<CR>";
+      options = {
+        silent = true;
+        desc = "Open codeium chat";
+      };
+    }
+  ];
 }

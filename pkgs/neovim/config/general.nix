@@ -138,6 +138,9 @@
 
     # Icons
     web-devicons.enable = true;
+
+    # which_key
+    which-key.enable = true;
   };
 
   # Lua helper

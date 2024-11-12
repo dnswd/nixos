@@ -101,3 +101,8 @@ vim.api.nvim_set_keymap('n', '<leader>cs', ':lua combined_search()<CR>', { norem
 - [x] Mapping dismiss notification
 - [x] Mapping toggle notification history
 - [ ] LSP errors window
+- [ ] Unify and test jetbrains and neovim keymaps
+    - **Project Wide**: `<space>+p+key` or `ctrl+shift+p+key`
+    - **File/Buffer Wide**: `<space>+f+key` or `alt+f+key`
+    - **Scope/Block Wide**: `<space>+s+key` or `ctrl+s+key`
+    - **Line Wide**: `<space>+l+key` or `ctrl+shift+l+key`
