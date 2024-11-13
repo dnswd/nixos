@@ -1,13 +1,8 @@
-{
-  pkgs,
-  lib,
-  ...
-}: {
+{ pkgs, ... }: {
   programs.zsh = {
     enable = true;
     defaultKeymap = "viins";
     dotDir = ".config/zsh";
-    # initExtraFirst = builtins.readFile ~/.config/zsh/initExtraFirst.zsh;
 
     # Quality of life
     autocd = true;
@@ -31,10 +26,7 @@
       cd = "z";
     };
 
-    initExtra =
-      /*
-      Bash
-      */
+    initExtra = # bash
       ''
         # Case insensitive completion
         zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'

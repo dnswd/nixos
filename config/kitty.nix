@@ -20,8 +20,24 @@
       italic_font = "auto";
       bold_italic_font = "auto";
 
-      # Disable shortcuts (terminal operation moved to tmux)
+      # Reset all default shortcuts (terminal operation moved to tmux)
       clear_all_shortcuts = true;
+    };
+
+    # Essentials
+    keybindings = {
+      # paste
+      "ctrl+shift+v" = "paste_from_clipboard";
+      # font
+      "ctrl+shift+equal" = "change_font_size all +2.0";
+      "ctrl+shift+plus" = "change_font_size all +2.0";
+      "ctrl+shift+minus" = "change_font_size all -2.0";
+      "ctrl+shift+backspace" = "change_font_size all 0";
+      # url
+      "ctrl+shift+e" = "open_url_with_hints";
+      # fullscreen (zen)
+      "ctrl+shift+f" = "toggle_fullscreen";
+
     };
   };
 }
