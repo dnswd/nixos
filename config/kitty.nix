@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: {
+{ ... }: {
   programs.kitty = {
     enable = true;
     catppuccin.enable = true;
@@ -23,11 +19,9 @@
       bold_font = "auto";
       italic_font = "auto";
       bold_italic_font = "auto";
-    };
-    keybindings = {
-      "cmd+w" = "no_op";
-      "cmd+t" = "no_op";
-      "cmd+enter" = "no_op";
+
+      # Disable shortcuts (terminal operation moved to tmux)
+      clear_all_shortcuts = true;
     };
   };
 }
