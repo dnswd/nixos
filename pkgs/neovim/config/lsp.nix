@@ -25,7 +25,7 @@ in
         gD = "declaration"; # go Declaration
         gi = "implementation"; # go implementation
         gt = "type_definition"; # go to type
-        gr = "declaration"; # go references
+        gr = "references"; # go references
         K = "hover"; # quick Knowledge
         "<C-k>" = "signature_help"; # Knowledge
         "<leader>rn" = "rename"; # rename

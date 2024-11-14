@@ -5,7 +5,7 @@ in
 {
   keymaps = [
     (mkKeymap "n" "<leader>v" ":NvimTreeToggle<CR>" "Open nvim-tree.lua") # view
-    (mkKeymap "n" "<leader>gg" "<cmd>LazyGit<CR>" "Open lazygit") # go git
+    (mkKeymap "n" "<leader>gg" ":LazyGit<CR>" "Open lazygit") # go git
 
     (mkKeymap "v" "J" ":m '>+1<CR>gv=gv" "Move highlighted lines upwards")
     (mkKeymap "v" "K" ":m '<-2<CR>gv=gv" "Move highlighted lines downwards")
@@ -34,17 +34,17 @@ in
     (mkKeymap "n" "Q" "<nop>" "Do nothing")
 
     # Quick fix
-    (mkKeymap "n" "<C-k>" "<cmd>cnext<CR>zz" "Go to next error in quickfix list")
-    (mkKeymap "n" "<C-j>" "<cmd>cprev<CR>zz" "Go to previous error in quickfix list")
-    (mkKeymap "n" "<leader>k" "<cmd>lnext<CR>zz" "Go to next error")
-    (mkKeymap "n" "<leader>j" "<cmd>lprev<CR>zz" "Go to previous error")
+    (mkKeymap "n" "<C-k>" ":cnext<CR>zz" "Go to next error in quickfix list")
+    (mkKeymap "n" "<C-j>" ":cprev<CR>zz" "Go to previous error in quickfix list")
+    (mkKeymap "n" "<leader>k" ":lnext<CR>zz" "Go to next error")
+    (mkKeymap "n" "<leader>j" ":lprev<CR>zz" "Go to previous error")
 
     # Helper to substitute current word
     (mkKeymap "n" "<leader>s" '':%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>'' "Substitute current word")
 
     # CLI shenanigans
     # sessionizer doesn't work yet 
-    (mkKeymap "n" "<C-f>" "<cmd>silent !tmux neww tms<CR>" "Call tmux sessionizer")
-    (mkKeymap "n" "<leader>x" "<cmd>!chmod +x %<CR>" "Make current file executable")
+    (mkKeymap "n" "<C-f>" ":silent !tmux neww tms<CR>" "Call tmux sessionizer")
+    (mkKeymap "n" "<leader>x" ":!chmod +x %<CR>" "Make current file executable")
   ];
 }
