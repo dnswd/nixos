@@ -7,8 +7,8 @@ in
     (mkKeymap "n" "<leader>v" ":NvimTreeToggle<CR>" "Open nvim-tree.lua") # view
     (mkKeymap "n" "<leader>gg" "<cmd>LazyGit<CR>" "Open lazygit") # go git
 
-    (mkKeymap "v" "J" ":m '>+1<CR>gv=gv" "Move selected lines upwards")
-    (mkKeymap "v" "K" ":m '<-2<CR>gv=gv" "Move selected lines downwards")
+    (mkKeymap "v" "J" ":m '>+1<CR>gv=gv" "Move highlighted lines upwards")
+    (mkKeymap "v" "K" ":m '<-2<CR>gv=gv" "Move highlighted lines downwards")
 
     (mkKeymap "n" "J" "mzJ`z" "Prepend this line with the line below")
 

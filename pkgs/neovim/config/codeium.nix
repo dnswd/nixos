@@ -21,7 +21,7 @@
     {
       mode = "n";
       key = "<leader>C";
-      action = "<cmd>Codeium Chat<CR>";
+      action = ":Codeium Chat<CR>";
       options = {
         silent = true;
         desc = "Open codeium chat";

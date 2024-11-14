@@ -8,6 +8,6 @@ in
   };
 
   keymaps = [
-    (mkKeymap "n" "<leader>u" /* lua */ ''UndotreeToggle'' "Toggle undotree sidebar")
+    (mkKeymap "n" "<leader>u" /* lua */ '':UndotreeToggle<CR>'' "Toggle undotree sidebar")
   ];
 }
