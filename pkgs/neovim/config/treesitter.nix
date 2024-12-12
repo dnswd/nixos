@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   plugins.treesitter = {
     enable = true;
     settings = {
@@ -6,6 +6,13 @@
         additional_vim_regex_highlighting = false;
         enable = true;
       };
+    };
+  };
+
+  plugins.treesitter-textobjects = {
+    enable = true;
+    lspInterop = {
+      enable = true;
     };
   };
 }

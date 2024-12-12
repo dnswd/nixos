@@ -225,10 +225,7 @@ in {
   ];
 
   # udev rule to recognize vial devices and allow them to be configured
-  services.udev.extraRules =
-    /*
-      udev
-    */
+  services.udev.extraRules = # udev
     ''
       KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
     '';
@@ -244,11 +241,19 @@ in {
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
+  # Enable fail2ban
+  services.fail2ban.enable = true;
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [
+    51515 # neovim
+    53317 # localsend (http)
+  ];
+  networking.firewall.allowedUDPPorts = [
+    53317 # localsend (multicast)
+  ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 

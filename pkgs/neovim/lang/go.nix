@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 let
   buildFlags = "-tags=unit,integration,e2e,bdd,dind";
 in
@@ -48,4 +48,11 @@ in
       };
     };
   };
+
+  # go.nvim
+  extraPlugins = [ pkgs.vimPlugins.go-nvim ];
+  extraConfigLua = # lua
+    ''
+      require('go').setup()
+    '';
 }
