@@ -212,6 +212,12 @@ in
 
   # Enable 32-bit support on 64-bit machine
   hardware.opengl.driSupport32Bit = true;
+  # Hyprland mesa issue (https://wiki.hyprland.org/Nix/Hyprland-on-NixOS/)
+  hardware.opengl = {
+    package = pkgs.mesa.drivers;
+    package32 = pkgs.pkgsi686Linux.mesa.drivers;
+  };
+
 
   # ====== Libvirt GPU Passhtough ======
 

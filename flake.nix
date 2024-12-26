@@ -9,6 +9,9 @@
     # Theme
     catppuccin.url = "github:catppuccin/nix";
 
+    # Hyprland
+    hyprland.url = "github:hyprwm/Hyprland";
+
     # Neovim stuff
     nixvim.url = "github:nix-community/nixvim";
     # nixvim.inputs.nixpkgs.follows = "nixpkgs";
@@ -62,6 +65,7 @@
                 inherit inputs system;
                 inherit (lib) my;
               });
+            hyprland = inputs.hyprland.packages.${system};
           })
           inputs.polymc.overlay
         ];

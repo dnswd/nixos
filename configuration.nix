@@ -57,6 +57,17 @@ in {
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
 
+  # Enable Hyperland Desktop Environment
+  programs.hyprland = {
+    enable = true;
+    # set the flake package
+    package = pkgs.hyprland.hyprland;
+    # make sure to also set the portal package, so that they are in sync
+    portalPackage = pkgs.hyprland.xdg-desktop-portal-hyprland.override {
+      inherit (pkgs) mesa;
+    };
+  };
+
   # Enable automatic login for the user.
   services.displayManager = {
     autoLogin.enable = true;
@@ -222,6 +233,29 @@ in {
 
     # Slack
     slack
+
+    # Helper to execute stuff in FHS environemnt
+    (
+      let base = pkgs.appimageTools.defaultFhsEnvArgs; in
+      pkgs.buildFHSUserEnv (base // {
+        name = "fhs";
+        targetPkgs = pkgs:
+          # pkgs.buildFHSUserEnv provides only a minimal FHS environment,
+          # lacking many basic packages needed by most software.
+          # Therefore, we need to add them manually.
+          #
+          # pkgs.appimageTools provides basic packages required by most software.
+          (base.targetPkgs pkgs) ++ (with pkgs; [
+            pkg-config
+            ncurses
+            # Feel free to add more packages here if needed.
+          ]
+          );
+        profile = "export FHS=1";
+        runScript = "bash";
+        extraOutputsToInstall = [ "dev" ];
+      })
+    )
   ];
 
   # udev rule to recognize vial devices and allow them to be configured
