@@ -7,6 +7,7 @@
         enable = true;
       };
     };
+    luaConfig.post = builtins.readFile ./config.lua;
   };
 
   plugins.treesitter-textobjects = {

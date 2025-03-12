@@ -9,7 +9,11 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    historySubstringSearch.enable = true;
+    historySubstringSearch = {
+      enable = true;
+      searchUpKey = [ "^[[A" "^[OA" ];
+      searchDownKey = [ "^[[B" "^[OB" ];
+    };
     history = {
       ignoreDups = true;
       ignoreSpace = true;
@@ -22,7 +26,7 @@
       cd = "z";
     };
 
-    initExtra = builtins.readFile "./initExtra.zsh";
+    initExtra = builtins.readFile ./initExtra.zsh;
 
     plugins = [
       {
