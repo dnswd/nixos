@@ -1,7 +1,6 @@
-{
-  pkgs,
-  lib,
-  ...
+{ pkgs
+, lib
+, ...
 }: {
   programs.git = {
     enable = true;
@@ -30,6 +29,7 @@
       # remote
       r = "remote -v"; # show remotes (verbose)
     };
+
     extraConfig = {
       core = {
         editor = "nvim";
@@ -62,4 +62,11 @@
       enable = true;
     };
   };
+
+  home.packages = with pkgs; [
+    # git-stack helps with viewing your PR's parent commit for rebasing PRs
+    # e.g. If you want to move the parent of your PR from A to B
+    # you can do "git rebase A --onto B"
+    git-stack
+  ];
 }

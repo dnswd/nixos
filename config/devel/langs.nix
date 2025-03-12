@@ -15,7 +15,7 @@
     ];
 
   # JDK Setup (https://whichjdk.com/)
-  programs.java = { enable = true; package = pkgs.temurin-bin-21; };
+  programs.java = { enable = true; package = pkgs.zulu17; };
 
   home.sessionPath = [ "${config.home.homeDirectory}/.jdks" ];
   # Kudos to @TLATER https://discourse.nixos.org/t/nix-language-question-linking-a-list-of-packages-to-home-files/38520
@@ -24,5 +24,5 @@
       name = ".jdks/jdk-${builtins.elemAt (builtins.splitVersion jdk.version) 0}";
       value = { source = jdk; };
     })
-    (with pkgs; [ temurin-bin-17 temurin-bin-21 temurin-bin ])));
+    (with pkgs; [ zulu17 ])));
 }

@@ -32,10 +32,7 @@
 
   # Manage shell aliases, if you need to enable zsh feature use `programs.zsh.shellAliases`.
   home.shellAliases = {
-    clear =
-      /*
-      Bash
-      */
+    clear = # bash
       ''printf "\033[2J\033[3J\033[1;1H"'';
   };
 

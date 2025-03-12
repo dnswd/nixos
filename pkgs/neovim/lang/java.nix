@@ -68,17 +68,9 @@
 
         configuration.runtimes = [
           {
-            name = "JavaSE-11";
-            path = "${pkgs.temurin-bin-11}";
-          }
-          {
             name = "JavaSE-17";
-            path = "${pkgs.temurin-bin-17}";
+            path = "${pkgs.zulu17}";
             default = true;
-          }
-          {
-            name = "JavaSE-21";
-            path = "${pkgs.temurin-bin-21}";
           }
         ];
         home = { };
