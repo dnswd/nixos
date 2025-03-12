@@ -16,4 +16,7 @@
       enable = true;
     };
   };
+
+  # handle embedded document
+  plugins.otter.enable = true;
 }

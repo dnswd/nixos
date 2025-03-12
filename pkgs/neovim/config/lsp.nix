@@ -45,10 +45,4 @@ in
     enable = true;
     lspServersToEnable = "all";
   };
-
-  plugins.otter = {
-    enable = true;
-    # autoActivate = true;
-  };
-
 }
