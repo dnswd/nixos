@@ -1,13 +1,13 @@
 { ... }: {
   plugins.typescript-tools = {
     enable = true;
-    onAttach = ''
-      function(client, bufnr)
-        client.server_capabilities.documentFormattingProvider = false
-        client.server_capabilities.documentRangeFormattingProvider = false
-      end
-    '';
     settings = {
+      on_attach = ''
+        function(client, bufnr)
+          client.server_capabilities.documentFormattingProvider = false
+          client.server_capabilities.documentRangeFormattingProvider = false
+        end
+      '';
       ## spawn additional tsserver instance to calculate diagnostics on it
       separate_diagnostic_server = true;
       ## "change"|"insert_leave" determine when the client asks the server about diagnostic

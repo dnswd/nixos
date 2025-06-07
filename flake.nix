@@ -103,7 +103,7 @@
               imports =
                 [
                   ./home.nix
-                  catppuccin.homeManagerModules.catppuccin
+                  catppuccin.homeModules.catppuccin
                 ]
                 ++ lib.my.importFrom ./config;
             };

@@ -1,7 +1,6 @@
 { ... }: {
   programs.starship = {
     enable = true;
-    catppuccin.enable = true;
 
     # All supported shells are enabled by default
     # Disable unused shells
@@ -20,4 +19,6 @@
       };
     };
   };
+
+  catppuccin.starship.enable = true;
 }

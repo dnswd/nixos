@@ -108,7 +108,7 @@
     mouse = "a";
   };
 
-  diagnostics = {
+  diagnostic.config = {
     signs = {
       text = {
         "[vim.diagnostic.severity.ERROR]" = "✘";

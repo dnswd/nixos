@@ -85,7 +85,7 @@ in {
 
   # Enable sound with pipewire.
   # sound.enable = true;
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -250,7 +250,7 @@ in {
     # Helper to execute stuff in FHS environemnt
     (
       let base = pkgs.appimageTools.defaultFhsEnvArgs; in
-      pkgs.buildFHSUserEnv (base // {
+      pkgs.buildFHSEnv (base // {
         name = "fhs";
         targetPkgs = pkgs:
           # pkgs.buildFHSUserEnv provides only a minimal FHS environment,

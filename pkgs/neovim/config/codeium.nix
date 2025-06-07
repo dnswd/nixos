@@ -1,5 +1,5 @@
 { pkgs, lib, ... }: {
-  plugins.codeium-nvim = {
+  plugins.windsurf-nvim = {
     enable = true; # TODO fix cmp issue
     settings = {
       enable_cmp_source = true;
