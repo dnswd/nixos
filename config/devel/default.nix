@@ -34,9 +34,9 @@
     lazygit
   ]
   # custom standalone variant of nixvim
-  ++ [ pkgs.my.neovim ]
+  ++ [ pkgs.my.neovim ];
   # trying out cursor
-  ++ [ pkgs.my.cursor-editor ];
+  # ++ [ pkgs.my.cursor-editor ];
 
   home.sessionVariables.EDITOR = "nvim";
 

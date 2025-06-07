@@ -63,9 +63,15 @@ in {
     # set the flake package
     package = pkgs.hyprland.hyprland;
     # make sure to also set the portal package, so that they are in sync
-    portalPackage = pkgs.hyprland.xdg-desktop-portal-hyprland.override {
-      inherit (pkgs) mesa;
-    };
+    # portalPackage = pkgs.hyprland.xdg-desktop-portal-hyprland.override {
+    #   inherit (pkgs) mesa;
+    # };
+  };
+
+  # XDG portal needed for hyprland
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
   # Enable automatic login for the user.
@@ -131,7 +137,8 @@ in {
   # Fonts
   fonts = {
     packages = with pkgs; [
-      (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
+      nerd-fonts.fantasque-sans-mono
+      # (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
     ];
     fontconfig.subpixel.rgba = "rgb";
   };
@@ -154,11 +161,17 @@ in {
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # Enable Flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings = {
+    show-trace = true;
+    # Enable flakes
+    experimental-features = [ "nix-command" "flakes" ];
+    trusted-users = [ "root" "halcyon" "@wheel" ];
 
-  # Trusted users
-  nix.settings.trusted-users = [ "root" "@wheel" "halcyon" ];
+    # TEMPORARY TODO DELETE ME
+    # Throttle build bcus it's crashing my pc
+    max-jobs = 2;
+    cores = 7; # 16 cores, use 7*2=14 cores only
+  };
 
   # Linker (nix-ld)
   programs.nix-ld.enable = true;
@@ -211,10 +224,10 @@ in {
     steam-run
 
     # Minecraft
-    polymc
+    # polymc
 
     # Input-leap KVM
-    input-leap
+    # input-leap
 
     # Epic Games Store
     (lutris.override {

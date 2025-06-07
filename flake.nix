@@ -1,8 +1,19 @@
 {
   description = "A very basic flake";
 
+  nixConfig = {
+    extra-substituters = [
+      "https://nix-community.cachix.org"
+      "https://nixpkgs-wayland.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
+    ];
+  };
+
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -29,7 +40,7 @@
     };
 
     # Minecraft
-    polymc.url = "github:PolyMC/PolyMC";
+    # polymc.url = "github:PolyMC/PolyMC";
   };
 
   outputs =
@@ -67,7 +78,7 @@
               });
             hyprland = inputs.hyprland.packages.${system};
           })
-          inputs.polymc.overlay
+          # inputs.polymc.overlay
         ];
       });
 

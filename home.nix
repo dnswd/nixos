@@ -64,5 +64,8 @@
 
     # send files from phone
     localsend
+
+    # financing
+    gnucash
   ];
 }
