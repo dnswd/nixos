@@ -2,17 +2,39 @@
   # Enable hyprland
   wayland.windowManager.hyprland = {
     enable = true;
-    package = pkgs.hyprland.hyprland;
+    package = null;
+    portalPackage = null;
     xwayland.enable = true;
     # withSystemd = true;
     settings = {
       "$mod" = "SUPER";
       bind =
         [
-          "$mod, F, exec, firefox"
-          ", Print, exec, grimblast copy area"
+          # App Lauchers
+          "$mod, Return, exec, kitty" # Super+Enter for terminal
+          "$mod, D, exec, wofi --show drun" # Super+d for app launcher
+          "$mod, F, exec, firefox" # Super+f for firefox
+
+          # Window management
+          "$mod, Q, killactive"
+          "$mod, M, fullscreen"
+          "$mod, V, togglefloating"
+          "$mod, P, pseudo"
+          "$mod, J, togglesplit"
+
+          # Move focus
+          "$mod, left, movefocus, l"
+          "$mod, right, movefocus, r"
+          "$mod, up, movefocus, u"
+          "$mod, down, movefocus, d"
+
+          # Session management
+          "$mod SHIFT, Q, exit" # logout
+
+          # Screenshot
+          ", Print, exec, flameshot gui"
         ] ++ (
-          # workspaces
+          # Workspaces
           # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
           builtins.concatLists (builtins.genList
             (i:
@@ -24,6 +46,9 @@
             )
             9)
         );
+      debug = {
+        disable_logs = true;
+      };
     };
   };
 
@@ -41,5 +66,15 @@
 
   # Enable QT
   qt.enable = true;
+
+  # Install programs/packages for configs
+  # TODO move to dedicated nix files/folders
+  home.packages = with pkgs; [
+    grim
+    slurp
+    wl-clipboard
+    flameshot
+  ];
+  programs.wofi.enable = true;
 }
 

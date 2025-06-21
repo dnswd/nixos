@@ -206,6 +206,7 @@ in
   hardware.graphics.extraPackages = with pkgs; [
     rocmPackages.clr
   ];
+  drivers.amdgpu.enable = true;
   systemd.tmpfiles.rules = [
     "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
   ];

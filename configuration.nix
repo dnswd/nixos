@@ -223,12 +223,6 @@ in {
     # Steam games /w FHS environment
     steam-run
 
-    # Minecraft
-    # polymc
-
-    # Input-leap KVM
-    # input-leap
-
     # Epic Games Store
     (lutris.override {
       extraPkgs = pkgs: [
@@ -246,6 +240,9 @@ in {
 
     # Slack
     slack
+
+    # Whiteboard
+    lorien
 
     # Helper to execute stuff in FHS environemnt
     (
