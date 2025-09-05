@@ -63,9 +63,9 @@
     gimp
 
     # send files from phone
-    localsend
+    # localsend
 
     # financing
-    gnucash
+    # gnucash
   ];
 }

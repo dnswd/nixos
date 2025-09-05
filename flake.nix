@@ -13,7 +13,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/faf1678c1fd04363c456c5a191cce69087cf3c97";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -21,11 +21,11 @@
     catppuccin.url = "github:catppuccin/nix";
 
     # Hyprland
-    hyprland.url = "github:hyprwm/Hyprland";
+    # hyprland.url = "github:hyprwm/Hyprland";
 
     # Neovim stuff
     nixvim.url = "github:nix-community/nixvim";
-    # nixvim.inputs.nixpkgs.follows = "nixpkgs";
+    nixvim.inputs.nixpkgs.follows = "nixpkgs";
     ts-comments = {
       url = "github:folke/ts-comments.nvim";
       flake = false;
@@ -38,9 +38,6 @@
       url = "github:yaocccc/nvim-hl-mdcodeblock.lua";
       flake = false;
     };
-
-    # Minecraft
-    # polymc.url = "github:PolyMC/PolyMC";
   };
 
   outputs =
@@ -76,9 +73,8 @@
                 inherit inputs system;
                 inherit (lib) my;
               });
-            hyprland = inputs.hyprland.packages.${system};
+            # hyprland = inputs.hyprland.packages.${system};
           })
-          # inputs.polymc.overlay
         ];
       });
 

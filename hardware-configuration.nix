@@ -194,57 +194,70 @@ in
     "amdgpu"
 
     # VFIO Passtrough
-    "vfio_pci"
-    "vfio_iommu_type1"
-    "vfio"
+    # "vfio_pci"
+    # "vfio_iommu_type1"
+    # "vfio"
   ];
 
-  boot.kernelModules = [ "kvm-amd" "k10temp" ];
-  boot.extraModulePackages = [ ];
+  boot.kernelModules = [ "kvm-amd" "k10temp" "v4l2loopback" ];
+  boot.extraModulePackages = [
+    # video card loopback to allow read video from apps instead of video card (for changing conference call bg)
+    config.boot.kernelPackages.v4l2loopback
+  ];
 
   # RoCM
   hardware.graphics.extraPackages = with pkgs; [
     rocmPackages.clr
+    rocmPackages.clr.icd
+    amdvlk
   ];
-  drivers.amdgpu.enable = true;
+  hardware.graphics.extraPackages32 = with pkgs; [
+    driversi686Linux.amdvlk
+  ];
   systemd.tmpfiles.rules = [
     "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"
   ];
 
   # Enable 32-bit support on 64-bit machine
-  hardware.graphics.enable32Bit = true;
   # Hyprland mesa issue (https://wiki.hyprland.org/Nix/Hyprland-on-NixOS/)
   hardware.graphics = {
+    enable = true; # enable hardware acceleration
+    enable32Bit = true; # enable support for 32-bit programs (e.g. Wine)
     package = pkgs.mesa;
     package32 = pkgs.pkgsi686Linux.mesa;
   };
 
+  # Logitech mouse support
+  hardware.logitech.wireless = {
+    enable = true;
+    enableGraphical = true;
+  };
 
   # ====== Libvirt GPU Passhtough ======
 
   # GPU passthrough with VFIO
   # Ref https://github.com/j-brn/nixos-vfio/blob/bafcff87efa32ec8b014519d2b073484ebaeba5c/modules/vfio/default.nix
-  services.udev.extraRules = ''
-    SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"
-  '';
+  # services.udev.extraRules = ''
+  #   SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"
+  # '';
 
   # Find PCI ID for devices you want to passtrough, my case 1002:73df is my GPU and the other is my audio.
-  boot.kernelParams = [
-    "amd_iommu=on"
-    "iommu=pt"
-    "vfio-pci.ids=1002:73df,1002:ab28,1022:1482,1022:1483,1002:1478,1002:1479"
-  ];
+  # boot.kernelParams = [
+  #   "amd_iommu=on"
+  #   "iommu=pt"
+  #   "vfio-pci.ids=1002:73df,1002:ab28,1022:1482,1022:1483,1002:1478,1002:1479"
+  # ];
 
-  systemd.services."libvirt-nosleep@" = {
-    description = "Preventing sleep while libvirt domain \"%i\" is running";
-    serviceConfig = {
-      ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=sleep --why=\"Libvirt domain '%i' is running\" --who=%U --mode=block sleep infinity";
-      Type = "simple";
-    };
-  };
+  # systemd.services."libvirt-nosleep@" = {
+  #   description = "Preventing sleep while libvirt domain \"%i\" is running";
+  #   serviceConfig = {
+  #     ExecStart = "${pkgs.systemd}/bin/systemd-inhibit --what=sleep --why=\"Libvirt domain '%i' is running\" --who=%U --mode=block sleep infinity";
+  #     Type = "simple";
+  #   };
+  # };
 
   # Qemu hook
-  virtualisation.libvirtd.hooks.qemu."win10" = "${customHookScript}";
+  # virtualisation.libvirtd.hooks.qemu."win10" = "${customHookScript}";
 
   # ====================================
 

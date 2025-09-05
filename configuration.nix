@@ -61,17 +61,19 @@ in {
   programs.hyprland = {
     enable = true;
     # set the flake package
-    package = pkgs.hyprland.hyprland;
+    package = pkgs.hyprland;
     # make sure to also set the portal package, so that they are in sync
     # portalPackage = pkgs.hyprland.xdg-desktop-portal-hyprland.override {
     #   inherit (pkgs) mesa;
     # };
   };
+  programs.hyprlock.enable = true;
 
   # XDG portal needed for hyprland
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
+    configPackages = [ pkgs.hyprland ];
   };
 
   # Enable automatic login for the user.
@@ -177,11 +179,11 @@ in {
   programs.nix-ld.enable = true;
 
   # Enable virtualization
-  virtualisation.libvirtd = {
-    enable = true;
-  };
+  # virtualisation.libvirtd = {
+  #   enable = true;
+  # };
   virtualisation.docker.enable = true;
-  programs.virt-manager.enable = true;
+  # programs.virt-manager.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -189,7 +191,7 @@ in {
     bind
     wget
     git
-    btop
+    btop-rocm
     coreutils-full
     zip
     unzip
@@ -220,17 +222,23 @@ in {
     python3
     devenv
 
+    # Drivers
+    vulkan-tools
+    rocmPackages.rocm-smi
+    rocmPackages.rocminfo
+    rocmPackages.rocrand
+
     # Steam games /w FHS environment
     steam-run
 
     # Epic Games Store
-    (lutris.override {
-      extraPkgs = pkgs: [
-        # List package dependencies here
-        wineWowPackages.stable
-        winetricks
-      ];
-    })
+    # (lutris.override {
+    #   extraPkgs = pkgs: [
+    #     # List package dependencies here
+    #     wineWowPackages.stable
+    #     winetricks
+    #   ];
+    # })
 
     # Keyboard mapping
     vial
@@ -242,9 +250,10 @@ in {
     slack
 
     # Whiteboard
-    lorien
+    # lorien
 
     # Helper to execute stuff in FHS environemnt
+    # Usage: fhs <program> <program arg> 
     (
       let base = pkgs.appimageTools.defaultFhsEnvArgs; in
       pkgs.buildFHSEnv (base // {
@@ -287,16 +296,16 @@ in {
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   # Enable fail2ban
-  services.fail2ban.enable = true;
+  # services.fail2ban.enable = true;
 
   # Open ports in the firewall.
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [
-    51515 # neovim
-    53317 # localsend (http)
+    # 51515 # neovim
+    # 53317 # localsend (http)
   ];
   networking.firewall.allowedUDPPorts = [
-    53317 # localsend (multicast)
+    # 53317 # localsend (multicast)
   ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
