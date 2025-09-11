@@ -5,11 +5,25 @@
     package = null;
     portalPackage = null;
     xwayland.enable = true;
-    # withSystemd = true;
+    systemd = {
+      enable = true;
+      enableXdgAutostart = true;
+    };
+    plugins = with pkgs.hyprlandPlugins; [
+      xtra-dispatchers # close all hidden windows
+      # hyprsplit # awesome-like split workspace controls for multiple monitor
+      hyprspace # gnome / macos like workspace overview with app drag n drop
+      # hypr-dynamic-cursors # shake to find cursor (need to disable defaults)
+      # hy3 # i3 like tiling management (need to learn hyprland native limitations)
+      csgo-vulkan-fix # force app with fake resolution
+
+    ];
     settings = {
       "$mod" = "SUPER";
       bind =
         [
+          # Swith two most recent workspace $mod TAB
+          # Pad active workspace with empty workspace
           # App Lauchers
           "$mod, Return, exec, kitty" # Super+Enter for terminal
           "$mod, D, exec, wofi --show drun" # Super+d for app launcher

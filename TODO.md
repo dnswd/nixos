@@ -1,0 +1,3 @@
+- [ ] Investigate Hypridle crash on boot
+- [ ] Investigate crashes during playing steam games
+- [ ] Install hyperland properly

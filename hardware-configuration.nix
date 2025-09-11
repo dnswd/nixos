@@ -269,10 +269,16 @@ in
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/38DC-1458";
     fsType = "vfat";
-    options = [ "fmask=0022" "dmask=0022" ];
+    # /boot should root only accessible https://discourse.nixos.org/t/security-warning-when-installing-nixos-23-11/37636/2
+    options = [ "fmask=0077" "dmask=0077" ];
   };
 
-  swapDevices = [ ];
+  swapDevices = [
+    {
+      device = "/swapfile";
+      size = 16 * 1024; # 16GB
+    }
+  ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
