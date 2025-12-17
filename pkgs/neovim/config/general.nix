@@ -108,16 +108,16 @@
     mouse = "a";
   };
 
-  diagnostic.config = {
-    signs = {
-      text = {
-        "[vim.diagnostic.severity.ERROR]" = "✘";
-        "[vim.diagnostic.severity.WARN]" = "▲";
-        "[vim.diagnostic.severity.HINT]" = "⚑";
-        "[vim.diagnostic.severity.INFO]" = "»";
-      };
-    };
-  };
+  # diagnostic.config = {
+  #   signs = {
+  #     text = {
+  #       "[vim.diagnostic.severity.ERROR]" = "✘";
+  #       "[vim.diagnostic.severity.WARN]" = "▲";
+  #       "[vim.diagnostic.severity.HINT]" = "⚑";
+  #       "[vim.diagnostic.severity.INFO]" = "»";
+  #     };
+  #   };
+  # };
 
   plugins = {
     # Enable lazy loading

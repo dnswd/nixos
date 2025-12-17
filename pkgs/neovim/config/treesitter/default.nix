@@ -12,8 +12,8 @@
 
   plugins.treesitter-textobjects = {
     enable = true;
-    lspInterop = {
-      enable = true;
+    settings = { 
+      lsp_interop.enable = true;
     };
   };
 

@@ -13,21 +13,24 @@
     friendly-snippets.enable = true;
     lspkind = {
       enable = true;
-      cmp = {
-        enable = true;
-        after = # lua
-          ''
-            function(entry, vim_item, kind)
-              return vim_item
-            end
-          '';
-        menu = {
-          luasnip = "[Snip]";
-          nvim_lsp = "[LSP]";
-          buffer = "[Buff]";
-          async_path = "[Path]";
-          codeium = "[AI]";
-        };
+      settings = {
+        cmp = {
+          enable = true;
+          after = # lua
+            ''
+              function(entry, vim_item, kind)
+                return vim_item
+              end
+            '';
+          menu = {
+            luasnip = "[Snip]";
+            nvim_lsp = "[LSP]";
+            buffer = "[Buff]";
+            async_path = "[Path]";
+            codeium = "[AI]";
+          };
+      };
+          
       };
     };
   };

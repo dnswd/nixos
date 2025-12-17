@@ -13,7 +13,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/faf1678c1fd04363c456c5a191cce69087cf3c97";
+    nixpkgs.url = "github:nixos/nixpkgs/3c9922cd1a959342b353453573d36cf6eb655301";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 

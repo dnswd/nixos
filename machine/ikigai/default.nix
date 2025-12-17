@@ -24,5 +24,24 @@
       ];
       homeConfig = ../../home/halcyon.nix;
     }
+    {
+      username = "miha";
+      description = "Miha";
+      isPrimaryUser = false;
+      shell = "zsh";
+      extraGroups = [
+        "networkmanager"
+        "wheel"
+        "video"
+        "render"
+        "audio"
+        "disk"
+        "docker"
+        "libvirtd"
+        "qemu-libvirtd"
+        "wireshark"
+      ];
+      homeConfig = ../../home/miha.nix;
+    }
   ];
 }

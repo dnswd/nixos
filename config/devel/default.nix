@@ -7,7 +7,7 @@
   # Manual Installations
   home.packages = with pkgs; [
     # jetbrains
-    jetbrains.idea-community
+    jetbrains.idea-oss
 
     # devenv
     # devenv.packages."${pkgs.system}".devenv

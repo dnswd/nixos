@@ -209,10 +209,8 @@ in
   hardware.graphics.extraPackages = with pkgs; [
     rocmPackages.clr
     rocmPackages.clr.icd
-    amdvlk
   ];
   hardware.graphics.extraPackages32 = with pkgs; [
-    driversi686Linux.amdvlk
   ];
   systemd.tmpfiles.rules = [
     "L+    /opt/rocm/hip   -    -    -     -    ${pkgs.rocmPackages.clr}"

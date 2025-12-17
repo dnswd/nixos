@@ -3,11 +3,13 @@
   plugins = {
     nvim-tree = {
       enable = true;
-      autoReloadOnWrite = true;
-      disableNetrw = true;
-      hijackNetrw = true;
       openOnSetup = true;
-      view.float.enable = true;
+      settings = {
+        view.float.enable = true;
+        auto_reload_on_write = true;
+        hijack_netrw = true;
+        disable_netrw = true;
+      };
     };
   };
 
