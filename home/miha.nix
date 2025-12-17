@@ -1,0 +1,46 @@
+{ pkgs
+, inputs
+, ...
+}: {
+  imports = [
+    ../config/zsh
+    ../config/hyprland.nix
+    ../config/kitty.nix
+    ../config/notification.nix
+    ../config/scripts.nix
+    ../config/starship.nix
+    ../config/tmux.nix
+    ../config/devel
+  ];
+
+  home.username = "miha";
+  home.homeDirectory = "/home/miha";
+
+  home.stateVersion = "24.05";
+
+  programs.home-manager.enable = true;
+
+  home.sessionVariables = {
+    TERMINAL = "kitty";
+    BROWSER = "firefox";
+  };
+
+  home.shellAliases = {
+    clear = # bash
+      ''printf "\033[2J\033[3J\033[1;1H"'';
+  };
+
+  xdg = {
+    enable = true;
+    mime.enable = true;
+    userDirs.enable = true;
+    userDirs.createDirectories = true;
+  };
+
+  catppuccin.flavor = "mocha";
+
+  home.packages = with pkgs; [
+    firefox
+    kitty
+  ];
+}

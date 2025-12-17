@@ -17,11 +17,12 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    # macOS support
+    nix-darwin.url = "github:nix-darwin/nix-darwin/master";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+
     # Theme
     catppuccin.url = "github:catppuccin/nix";
-
-    # Hyprland
-    # hyprland.url = "github:hyprwm/Hyprland";
 
     # Neovim stuff
     nixvim.url = "github:nix-community/nixvim";
@@ -43,69 +44,54 @@
   outputs =
     { nixpkgs
     , home-manager
+    , nix-darwin
     , catppuccin
     , ...
     } @ inputs:
     let
-      system = "x86_64-linux";
-      hostname = "ikigai";
-      username = "halcyon";
-
       lib = nixpkgs.lib.extend (final: prev: {
         # custom libs under lib.my
         my = import ./lib {
-          inherit pkgs inputs;
+          inherit inputs;
           lib = final;
+          pkgs = {}; # populated in ./lib/hosts
         };
       });
 
-      pkgs = import nixpkgs ({
-        config.allowUnfree = true;
-        config.warnUndeclaredOptions = true;
-        localSystem = { inherit system; };
-      }
-      // {
-        overlays = [
-          (final: prev: {
-            # custom packages under pkgs.my
-            my = lib.my.mapModules ./pkgs (p:
-              prev.callPackage p {
-                inherit inputs system;
-                inherit (lib) my;
-              });
-            # hyprland = inputs.hyprland.packages.${system};
-          })
-        ];
-      });
+      # Load all machines from machine/ directory
+      machines = lib.my.loadMachines ./machine;
 
-      extraSpecialArgs = {
-        inherit pkgs system hostname username;
-        inherit (lib) my;
+      # Separate machines by OS type (defaults to linux if not specified)
+      linuxMachines = lib.filterAttrs (name: cfg: (cfg.metadata.osType or "linux") != "darwin") machines;
+      darwinMachines = lib.filterAttrs (name: cfg: (cfg.metadata.osType or "linux") == "darwin") machines;
+
+      # Generate configurations for all machines
+      nixosConfigurations = lib.my.generateConfigurations {
+        machines = linuxMachines;
+        inherit nixpkgs home-manager catppuccin;
+        inherit lib inputs;
+        my = lib.my;
+        pkgsDir = ./pkgs;
+      };
+
+      darwinConfigurations = lib.my.generateDarwinConfigurations {
+        machines = darwinMachines;
+        inherit nix-darwin nixpkgs home-manager catppuccin;
+        inherit lib inputs;
+        my = lib.my;
+        pkgsDir = ./pkgs;
+      };
+
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        # this pkgs only used in this flake, per system pkgs see ./lib/hosts.nix
+        config.allowUnfree = true;
+        localSystem = { inherit system; };
       };
     in
     {
       formatter.${system} = pkgs.alejandra;
 
-      nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-          (import ./configuration.nix (extraSpecialArgs // { inherit lib; }))
-          catppuccin.nixosModules.catppuccin
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.users.${username} = {
-              imports =
-                [
-                  ./home.nix
-                  catppuccin.homeModules.catppuccin
-                ]
-                ++ lib.my.importFrom ./config;
-            };
-            home-manager.extraSpecialArgs = extraSpecialArgs;
-          }
-        ];
-      };
+      inherit nixosConfigurations darwinConfigurations;
     };
 }
