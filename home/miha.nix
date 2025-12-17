@@ -4,7 +4,7 @@
 }: {
   imports = [
     ../config/zsh
-    ../config/hyprland.nix
+    ../config/hyprland
     ../config/kitty.nix
     ../config/notification.nix
     ../config/scripts.nix

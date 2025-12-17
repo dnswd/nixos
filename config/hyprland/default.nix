@@ -1,14 +1,38 @@
 { pkgs, ... }: {
-  # Enable hyprland
+  
+  # Import packages needed for hyprland to work
+  imports = [
+    ./hyprpolkit.nix
+    ./wlogout.nix
+    ./dunst.nix
+    ./wofi.nix
+  ];
+
+  # Packages not yet configurable with nix files but supports hyprland
+  home.packages = with pkgs; [
+    grim
+    slurp
+    wl-clipboard
+    flameshot
+  ];
+
+  # Optional, hint Electron apps to use Wayland:
+  home.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  # Enable QT
+  qt.enable = true;
+
   wayland.windowManager.hyprland = {
     enable = true;
     package = null;
     portalPackage = null;
     xwayland.enable = true;
+
     systemd = {
       enable = true;
       enableXdgAutostart = true;
     };
+
     plugins = with pkgs.hyprlandPlugins; [
       xtra-dispatchers # close all hidden windows
       # hyprsplit # awesome-like split workspace controls for multiple monitor
@@ -16,10 +40,11 @@
       # hypr-dynamic-cursors # shake to find cursor (need to disable defaults)
       # hy3 # i3 like tiling management (need to learn hyprland native limitations)
       csgo-vulkan-fix # force app with fake resolution
-
     ];
+
     settings = {
       "$mod" = "SUPER";
+      debug.disable_logs = true;
       bind =
         [
           # Swith two most recent workspace $mod TAB
@@ -44,9 +69,10 @@
 
           # Session management
           "$mod SHIFT, Q, exit" # logout
+          "CTRL ALT, Delete, exec, wlogout" # use wlogout
 
           # Screenshot
-          ", Print, exec, flameshot gui"
+          "Print, exec, flameshot gui"
         ] ++ (
           # Workspaces
           # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
@@ -60,35 +86,7 @@
             )
             9)
         );
-      debug = {
-        disable_logs = true;
-      };
     };
   };
-
-  # Optional, hint Electron apps to use Wayland:
-  home.sessionVariables.NIXOS_OZONE_WL = "1";
-
-  # Critical softwares
-  services = {
-    dunst.enable = true;
-    # pipewire and wireplumber
-    # xdg portal xdg.portal = { enable = true; extraPortals = [ pkgs.xdg-desktop-portal-gtk ]; };
-    hyprpolkitagent.enable = true;
-    # Enable qt 5/6
-  };
-
-  # Enable QT
-  qt.enable = true;
-
-  # Install programs/packages for configs
-  # TODO move to dedicated nix files/folders
-  home.packages = with pkgs; [
-    grim
-    slurp
-    wl-clipboard
-    flameshot
-  ];
-  programs.wofi.enable = true;
 }
 
