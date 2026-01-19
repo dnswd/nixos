@@ -63,17 +63,36 @@ in {
     # set the flake package
     package = pkgs.hyprland;
     # make sure to also set the portal package, so that they are in sync
-    # portalPackage = pkgs.hyprland.xdg-desktop-portal-hyprland.override {
-    #   inherit (pkgs) mesa;
-    # };
+    portalPackage = pkgs.xdg-desktop-portal-hyprland;
   };
   programs.hyprlock.enable = true;
 
   # XDG portal needed for hyprland
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
-    configPackages = [ pkgs.hyprland ];
+    xdgOpenUsePortal = true;
+    extraPortals = [
+      pkgs.gnome-keyring
+      pkgs.xdg-desktop-portal-gnome
+      pkgs.xdg-desktop-portal-hyprland
+      pkgs.xdg-desktop-portal-gtk # hyprland doesn't import gtk portal automatically
+    ];
+
+    configPackages = [ pkgs.gnome-session pkgs.hyprland pkgs.gtk3 ];
+    config = {
+      common.default = "*"; # Let portals auto-detect
+      gnome = {
+        default = [ "gnome" "gtk" ];
+        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+      };
+      hyprland = {
+        default = [ "hyprland" "gtk" ];
+        "org.freedesktop.impl.portal.FileChooser" = [ "termfilechooser" ];
+        "org.freedesktop.impl.portal.OpenURI" = [ "gtk" ];
+        "org.freedesktop.impl.portal.Notification" = [ "gtk" ];
+        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+      };
+    };
   };
 
   # User and autologin config generated from machine/ikigai/default.nix
@@ -90,8 +109,7 @@ in {
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
+    jack.enable = true;
 
     # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
@@ -116,9 +134,16 @@ in {
   fonts = {
     packages = with pkgs; [
       nerd-fonts.fantasque-sans-mono
-      # (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
     ];
-    fontconfig.subpixel.rgba = "rgb";
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        serif = [ "Noto Serif" ];
+        sansSerif = [ "Noto Sans" ];
+        monospace = [ "FantasqueSansMono" ];
+      };
+      subpixel.rgba = "rgb";
+    };
   };
 
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
@@ -158,7 +183,7 @@ in {
   # virtualisation.libvirtd = {
   #   enable = true;
   # };
-  virtualisation.docker.enable = true;
+  # virtualisation.docker.enable = true;
   # programs.virt-manager.enable = true;
 
   # List packages installed in system profile. To search, run:
@@ -192,29 +217,30 @@ in {
     patch
     gcc
     binutils
-
-    direnv
-    nix-direnv
+    
     python3
-    devenv
 
-    # Drivers
+    # Essential
+    libnotify
+    nautilus # file manager
+    # blueberry # bluetooth manager
+    clipse # clipboard manager
+    # fzf # fuzzy finder, moved to home-manager
+    # zoxide # cd replacement, moved to home-manager
+    # ripgrep # grep replacement, moved to home-manager
+    # eza # ls replacement, moved to home-manager
+
+    # Driver stuff
     vulkan-tools
     rocmPackages.rocm-smi
     rocmPackages.rocminfo
     rocmPackages.rocrand
 
+    # XDG helpers
+    xdg-utils
+
     # Steam games /w FHS environment
     steam-run
-
-    # Epic Games Store
-    # (lutris.override {
-    #   extraPkgs = pkgs: [
-    #     # List package dependencies here
-    #     wineWowPackages.stable
-    #     winetricks
-    #   ];
-    # })
 
     # Keyboard mapping
     vial
@@ -224,9 +250,6 @@ in {
 
     # Slack
     slack
-
-    # Whiteboard
-    # lorien
 
     # Helper to execute stuff in FHS environemnt
     # Usage: fhs <program> <program arg> 
@@ -273,6 +296,8 @@ in {
   services.openssh.enable = true;
   # Enable fail2ban
   # services.fail2ban.enable = true;
+  # Enable DNS daemon
+  services.resolved.enable = true;
 
   # Open ports in the firewall.
   networking.firewall.enable = true;

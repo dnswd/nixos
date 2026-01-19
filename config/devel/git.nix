@@ -9,7 +9,8 @@
         name = "Dennis Al Baihaqi Walangadi";
         email = "dennis.walangadi@gmail.com";
       };
-      aliases = {
+
+      alias = {
         # commit
         c = "commit"; # commit
         cm = "commit -m"; # commit with message
@@ -23,6 +24,7 @@
         sw = "switch";
         pl = "pull";
         ps = "push";
+        psf = "push --force-with-lease";
         # mt = "mergetool"; # fire up the merge tool
 
         # rebase
@@ -31,12 +33,25 @@
 
         # remote
         r = "remote -v"; # show remotes (verbose)
+
+        # MONOREPO: incomplete clone aliases
+        clone-only-recent = "clone --filter=blob:none";
+        clone-only-files = "clone --filter=tree:0";
       };
+
+      # git to leverage column view up to terminal width
+      column.ui = "auto";
+
+      # show recently worked branches
+      branch.sort = "-committerdate";
+
 
       extraConfig = {
         core = {
           editor = "nvim";
           autocrlf = "input";
+          pager = "${pkgs.lib.getExe pkgs.diff-so-fancy} | less --tabs=4 -RFX";
+          fsmonitor = true; # MONOREPO: efficient changes detection
         };
 
         # Force SSH on GitHub
@@ -45,11 +60,20 @@
         # };
         "url \"git@github.com:\"".insteadOf = "https://github.com/";
 
+        # Fetch strats
+        fetch = {
+          # MONOREPO: Prebuild log graph during fetch/prefetch
+          writeCommitGraph = true;
+        };
+
         # Pull request stuffs
         pull = {
           ff = "only";
           rebase = false;
         };
+
+        # enable rerere
+        rerere.enabled = true;
 
         # Auto-set upstream branch
         push = {

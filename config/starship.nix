@@ -19,6 +19,4 @@
       };
     };
   };
-
-  catppuccin.starship.enable = true;
 }

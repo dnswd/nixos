@@ -2,30 +2,40 @@
   
   # Import packages needed for hyprland to work
   imports = [
+    ./autostart.nix
+    ./bindings.nix
+    ./env.nix
+    ./hypridle.nix
+    ./hyprlock.nix
+    ./hyprpaper.nix
     ./hyprpolkit.nix
+    ./input.nix
+    ./visual.nix
+    ./windows.nix
     ./wlogout.nix
-    ./dunst.nix
-    ./wofi.nix
   ];
 
   # Packages not yet configurable with nix files but supports hyprland
-  home.packages = with pkgs; [
-    grim
-    slurp
-    wl-clipboard
-    flameshot
-  ];
+  # home.packages = with pkgs; [
+  #   grim
+  #   slurp
+  #   wl-clipboard
+  #   flameshot
+  # ];
 
   # Optional, hint Electron apps to use Wayland:
   home.sessionVariables.NIXOS_OZONE_WL = "1";
 
   # Enable QT
   qt.enable = true;
+  
+  # GUI popup that shows the password prompt for priveledge escalation
+  services.hyprpolkitagent.enable = true;
 
   wayland.windowManager.hyprland = {
     enable = true;
-    package = null;
-    portalPackage = null;
+    package = null; # use nixos definition, see ikigai/configurations.nix
+    portalPackage = null; # use nixos definition
     xwayland.enable = true;
 
     systemd = {
@@ -44,48 +54,15 @@
 
     settings = {
       "$mod" = "SUPER";
+      "$terminal" = "kitty";
+      "$fileManager" = "nautilus --new-window";
+      "$browser" = "chromium --new-window --ozone-platform=wayland";
+      "$music" = "spotify";
+      "$passwordManager" = "1password";
+      "$messenger" = "slack";
+      "$webapp" = "$browser --app";
+
       debug.disable_logs = true;
-      bind =
-        [
-          # Swith two most recent workspace $mod TAB
-          # Pad active workspace with empty workspace
-          # App Lauchers
-          "$mod, Return, exec, kitty" # Super+Enter for terminal
-          "$mod, D, exec, wofi --show drun" # Super+d for app launcher
-          "$mod, F, exec, firefox" # Super+f for firefox
-
-          # Window management
-          "$mod, Q, killactive"
-          "$mod, M, fullscreen"
-          "$mod, V, togglefloating"
-          "$mod, P, pseudo"
-          "$mod, J, togglesplit"
-
-          # Move focus
-          "$mod, left, movefocus, l"
-          "$mod, right, movefocus, r"
-          "$mod, up, movefocus, u"
-          "$mod, down, movefocus, d"
-
-          # Session management
-          "$mod SHIFT, Q, exit" # logout
-          "CTRL ALT, Delete, exec, wlogout" # use wlogout
-
-          # Screenshot
-          "Print, exec, flameshot gui"
-        ] ++ (
-          # Workspaces
-          # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
-          builtins.concatLists (builtins.genList
-            (i:
-              let ws = i + 1;
-              in [
-                "$mod, code:1${toString i}, workspace, ${toString ws}"
-                "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
-              ]
-            )
-            9)
-        );
     };
   };
 }

@@ -1,5 +1,4 @@
 { ... }: {
-  catppuccin.kitty.enable = true;
   programs.kitty = {
     enable = true;
     font.name = "FantasqueSansM Nerd Font";

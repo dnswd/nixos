@@ -1,4 +1,5 @@
 { config, pkgs, ... }: {
+  
   imports = [
     ./langs.nix
     ./git.nix
@@ -16,7 +17,7 @@
     # wiggle
 
     # LLM (ChatGPT)
-    shell-gpt
+    # shell-gpt
 
     ## Testing
     postman
@@ -35,8 +36,6 @@
   ]
   # custom standalone variant of nixvim
   ++ [ pkgs.my.neovim ];
-  # trying out cursor
-  # ++ [ pkgs.my.cursor-editor ];
 
   home.sessionVariables.EDITOR = "nvim";
 
@@ -44,12 +43,6 @@
   programs.vscode = {
     enable = true;
     package = pkgs.vscode.fhs;
-  };
-
-  # Mise
-  programs.mise = {
-    enable = true;
-    enableZshIntegration = true;
   };
 
   # Fuzzy finder
@@ -70,11 +63,20 @@
   programs.zoxide = {
     enable = true;
     enableZshIntegration = true;
+    enableBashIntegration = true;
+  };
+
+  # Eza for colored ls
+  programs.eza = {
+    enable = true;
+    enableZshIntegration = true;
+    enableBashIntegration = true;
   };
 
   # Direnv
   programs.direnv = {
     enable = true;
+    nix-direnv.enable = true;
     enableZshIntegration = true;
   };
 }

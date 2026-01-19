@@ -22,7 +22,7 @@
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     # Theme
-    catppuccin.url = "github:catppuccin/nix";
+    nix-colors.url = "github:misterio77/nix-colors";
 
     # Neovim stuff
     nixvim.url = "github:nix-community/nixvim";
@@ -45,7 +45,7 @@
     { nixpkgs
     , home-manager
     , nix-darwin
-    , catppuccin
+    , nix-colors
     , ...
     } @ inputs:
     let
@@ -68,7 +68,7 @@
       # Generate configurations for all machines
       nixosConfigurations = lib.my.generateConfigurations {
         machines = linuxMachines;
-        inherit nixpkgs home-manager catppuccin;
+        inherit nixpkgs home-manager nix-colors;
         inherit lib inputs;
         my = lib.my;
         pkgsDir = ./pkgs;
@@ -76,7 +76,7 @@
 
       darwinConfigurations = lib.my.generateDarwinConfigurations {
         machines = darwinMachines;
-        inherit nix-darwin nixpkgs home-manager catppuccin;
+        inherit nix-darwin nixpkgs home-manager nix-colors;
         inherit lib inputs;
         my = lib.my;
         pkgsDir = ./pkgs;

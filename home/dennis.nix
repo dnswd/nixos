@@ -15,7 +15,6 @@
   };
 
   home.packages = with pkgs; [
-    vim
     btop
   ];
 }

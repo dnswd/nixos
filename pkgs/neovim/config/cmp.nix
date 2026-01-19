@@ -5,11 +5,11 @@
     cmp-nvim-lsp.enable = true;
     cmp-nvim-lsp-signature-help.enable = true;
     cmp-buffer.enable = true;
-    cmp_luasnip.enable = true;
+    # cmp_luasnip.enable = true;
     cmp-async-path.enable = true;
 
     # Non-cmp plugins
-    luasnip.enable = true;
+    # luasnip.enable = true;
     friendly-snippets.enable = true;
     lspkind = {
       enable = true;
@@ -23,7 +23,7 @@
               end
             '';
           menu = {
-            luasnip = "[Snip]";
+            # luasnip = "[Snip]";
             nvim_lsp = "[LSP]";
             buffer = "[Buff]";
             async_path = "[Path]";
@@ -44,16 +44,16 @@
         { name = "nvim_lsp_signature_help"; }
         { name = "async_path"; }
         { name = "buffer"; }
-        { name = "luasnip"; }
+        # { name = "luasnip"; }
         { name = "codeium"; }
       ];
       snippet = {
-        expand = # lua
-          ''
-            function(args)
-              require("luasnip").lsp_expand(args.body)
-            end
-          '';
+        # expand = # lua
+        #   ''
+        #     function(args)
+        #       require("luasnip").lsp_expand(args.body)
+        #     end
+        #   '';
       };
       mapping = {
         "<C-d>" = "cmp.mapping.scroll_docs(-4)";
@@ -66,8 +66,8 @@
             cmp.mapping(function(fallback)
               if cmp.visible() then
                 cmp.select_next_item()
-              elseif require("luasnip").expand_or_jumpable() then
-                require("luasnip").expand_or_jump()
+              -- elseif require("luasnip").expand_or_jumpable() then
+              --   require("luasnip").expand_or_jump()
               else
                 fallback()
               end
@@ -78,8 +78,8 @@
             cmp.mapping(function(fallback)
               if cmp.visible() then
                 cmp.select_prev_item()
-              elseif require("luasnip").jumpable(-1) then
-                require("luasnip").jump(-1)
+              -- elseif require("luasnip").jumpable(-1) then
+              --   require("luasnip").jump(-1)
               else
                 fallback()
               end

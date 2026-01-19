@@ -3,7 +3,6 @@
 }: {
 
   home.packages = [ pkgs.tmux-sessionizer ];
-  catppuccin.tmux.enable = true;
   programs.tmux = {
     enable = true;
     prefix = "C-Space"; # use Ctrl+Space as prefix

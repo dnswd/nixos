@@ -44,8 +44,7 @@
     userDirs.createDirectories = true;
   };
 
-  # Catppuccin theme
-  catppuccin.flavor = "mocha";
+
 
   home.packages = with pkgs; [
     google-chrome

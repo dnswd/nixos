@@ -24,6 +24,7 @@
     shellAliases = {
       # use zoxide by default
       cd = "z";
+      ls = "eza";
     };
 
     initContent = builtins.readFile ./initExtra.zsh;

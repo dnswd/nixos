@@ -8,27 +8,16 @@
   # Disable providers
   withRuby = false;
 
-  colorschemes.catppuccin = {
+  colorschemes.base16 = {
     enable = true;
+    colorscheme = "catppuccin-macchiato";
     settings = {
-      flavor = "macchiato";
-      integrations = {
-        cmp = true;
-        # gitsigns = true;
-        treesitter = true;
-        # notify = true;
-        harpoon = true;
-        # neotree = true;
-        # noice = true;
-        # telescope = { enabled = true; };
-        # which_key = true;
-      };
-      transparent_background = true;
-      background = {
-        dark = "macchiato";
-        light = "macchiato";
-      };
-
+      cmp = true;
+      telescope = true;
+      indentblankline = true;
+      notify = true;
+      ts_rainbow = true;
+      mini_completion = true;
     };
   };
 
@@ -140,7 +129,7 @@
     web-devicons.enable = true;
 
     # which_key
-    which-key.enable = true;
+    # which-key.enable = true;
   };
 
   # Lua helper

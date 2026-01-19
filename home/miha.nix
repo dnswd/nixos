@@ -5,10 +5,13 @@
   imports = [
     ../config/zsh
     ../config/hyprland
-    ../config/kitty.nix
-    ../config/notification.nix
+    ../config/ghostty.nix
+    ../config/mako.nix
     ../config/scripts.nix
     ../config/starship.nix
+    ../config/theme.nix
+    ../config/waybar.nix
+    ../config/wofi.nix
     ../config/tmux.nix
     ../config/devel
   ];
@@ -37,7 +40,7 @@
     userDirs.createDirectories = true;
   };
 
-  catppuccin.flavor = "mocha";
+  colorScheme = inputs.nix-colors.colorSchemes.catppuccin-mocha;
 
   home.packages = with pkgs; [
     firefox

@@ -91,7 +91,7 @@ rec {
     };
 
   # Generate all nixosConfigurations from machines
-  generateConfigurations = {machines, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my}:
+  generateConfigurations = {machines, nixpkgs, home-manager, nix-colors, lib, inputs, pkgsDir, my}:
     mapAttrs (hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
@@ -123,7 +123,10 @@ rec {
         # Build home-manager configs from user homeConfig paths
         homeManagerConfigs = listToAttrs (map (user:
           nameValuePair user.username {
-            imports = [user.homeConfig catppuccin.homeModules.catppuccin];
+            imports = [
+              nix-colors.homeManagerModules.default
+              user.homeConfig
+            ];
           }
         ) machineConfig.users);
       in
@@ -132,7 +135,6 @@ rec {
         modules = [
           # Use _machineDir to resolve configuration.nix
           (import "${machineConfig._machineDir}/configuration.nix" specialArgs)
-          catppuccin.nixosModules.catppuccin
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
@@ -146,7 +148,7 @@ rec {
     ) machines;
 
   # Generate all darwinConfigurations from machines
-  generateDarwinConfigurations = {machines, nix-darwin, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my}:
+  generateDarwinConfigurations = {machines, nix-darwin, nixpkgs, home-manager, nix-colors, lib, inputs, pkgsDir, my}:
     mapAttrs (hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
@@ -175,7 +177,10 @@ rec {
         # Build home-manager configs from user homeConfig paths
         homeManagerConfigs = listToAttrs (map (user:
           nameValuePair user.username {
-            imports = [user.homeConfig catppuccin.homeModules.catppuccin];
+            imports = [
+              nix-colors.homeManagerModules.default
+              user.homeConfig
+            ];
           }
         ) machineConfig.users);
       in
@@ -184,7 +189,6 @@ rec {
         modules = [
           # Use _machineDir to resolve darwin-configuration.nix
           (import "${machineConfig._machineDir}/darwin-configuration.nix" specialArgs)
-          catppuccin.nixosModules.catppuccin
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
