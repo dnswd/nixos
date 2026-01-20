@@ -2,20 +2,11 @@
   config,
   pkgs,
   ...
-}:
-let
-  cfg = config.omarchy;
-in
-{
+}: {
   services.mako = {
     enable = true;
 
     settings = {
-      background-color = "#${config.colorScheme.palette.base00}";
-      text-color = "#${config.colorScheme.palette.base05}";
-      border-color = "#${config.colorScheme.palette.base04}";
-      progress-color = "#${config.colorScheme.palette.base0D}";
-
       width = 420;
       height = 110;
       padding = "10";

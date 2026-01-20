@@ -27,7 +27,14 @@
   home.sessionVariables.NIXOS_OZONE_WL = "1";
 
   # Enable QT
-  qt.enable = true;
+  # TODO: Check https://github.com/SX-9/nix-conf/blob/6df2934c2ce646b86e308f1334e264af38a70122/rice/home.nix#L179
+  qt = {
+    enable = true;
+    platformTheme.name = "kvantum";
+    style = {
+      name = "kvantum";
+    };
+  };
   
   # GUI popup that shows the password prompt for priveledge escalation
   services.hyprpolkitagent.enable = true;

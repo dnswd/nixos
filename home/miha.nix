@@ -10,7 +10,7 @@
     ../config/scripts.nix
     ../config/starship.nix
     ../config/theme.nix
-    ../config/waybar.nix
+    ../config/waybar
     ../config/wofi.nix
     ../config/tmux.nix
     ../config/devel
@@ -39,8 +39,6 @@
     userDirs.enable = true;
     userDirs.createDirectories = true;
   };
-
-  colorScheme = inputs.nix-colors.colorSchemes.catppuccin-mocha;
 
   home.packages = with pkgs; [
     firefox

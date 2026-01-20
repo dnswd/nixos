@@ -8,6 +8,7 @@
     ../config/notification.nix
     ../config/scripts.nix
     ../config/starship.nix
+    ../config/theme.nix
     ../config/tmux.nix
     ../config/devel
   ];

@@ -1,21 +1,11 @@
-inputs:
 {
   config,
   pkgs,
   lib,
   ...
-}:
-let
-  palette = config.colorScheme.palette;
-  convert = inputs.nix-colors.lib.conversions.hexToRGBString;
+}: let
   selected_wallpaper_path = "~/Pictures/Wallpapers/lockscreen.png";
-
-  backgroundRgb = "rgba(${convert ", " palette.base00}, 0.8)";
-  surfaceRgb = "rgb(${convert ", " palette.base02})";
-  foregroundRgb = "rgb(${convert ", " palette.base05})";
-  foregroundMutedRgb = "rgb(${convert ", " palette.base04})";
-in
-{
+in {
   programs.hyprlock = {
     enable = true;
     settings = {
@@ -29,8 +19,6 @@ in
       background = {
         monitor = "";
         path = selected_wallpaper_path;
-        # blur_passes = 3;
-        # brightness = 0.5;
       };
 
       input-field = {
@@ -40,17 +28,12 @@ in
         halign = "center";
         valign = "center";
 
-        inner_color = surfaceRgb;
-        outer_color = foregroundRgb; # #d3c6aa
         outline_thickness = 4;
 
         font_family = "FantasqueSansMono";
         font_size = 32;
-        font_color = foregroundRgb;
 
-        placeholder_color = foregroundMutedRgb;
-        placeholder_text = "  Enter Password 󰈷 ";
-        check_color = "rgba(131, 192, 146, 1.0)";
+        placeholder_text = "  Enter Password 󰈷 ";
         fail_text = "Wrong";
 
         rounding = 0;
@@ -62,7 +45,6 @@ in
         monitor = "";
         text = "\$FPRINTPROMPT";
         text_align = "center";
-        color = "rgb(211, 198, 170)";
         font_size = 24;
         font_family = "CaskaydiaMono Nerd Font";
         position = "0, -100";

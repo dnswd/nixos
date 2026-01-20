@@ -1,20 +1,12 @@
-{ inputs, ... }: let 
+{ pkgs, ... }: {
 
-  theme = {
-    base16-theme = "kanagawa";
-    vscode-theme = "Kanagawa";
-  };
-  
-in {
-
-  colorScheme = inputs.nix-colors.colorSchemes.${theme.base16-theme};
-
-  gtk = {
+  catppuccin = {
     enable = true;
-    theme = {
-      name = "Adwaita:dark";
-      package = pkgs.gnome-themes-extra;
-    };
+    flavor = "mocha";
+    accent = "blue";
+    gtk.icon.enable = true;
   };
+
+  gtk.enable = true;
 
 }

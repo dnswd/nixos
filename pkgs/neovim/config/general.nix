@@ -8,16 +8,17 @@
   # Disable providers
   withRuby = false;
 
-  colorschemes.base16 = {
+  colorschemes.catppuccin = {
     enable = true;
-    colorscheme = "catppuccin-macchiato";
     settings = {
-      cmp = true;
-      telescope = true;
-      indentblankline = true;
-      notify = true;
-      ts_rainbow = true;
-      mini_completion = true;
+      flavor = "mocha";
+      default_integrations = true;
+      integrations = {
+        cmp = true;
+        treesitter = true;
+        harpoon = true;
+      };
+      transparent_background = true;
     };
   };
 

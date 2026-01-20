@@ -91,7 +91,7 @@ rec {
     };
 
   # Generate all nixosConfigurations from machines
-  generateConfigurations = {machines, nixpkgs, home-manager, nix-colors, lib, inputs, pkgsDir, my}:
+  generateConfigurations = {machines, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my}:
     mapAttrs (hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
@@ -114,9 +114,9 @@ rec {
           ];
         };
 
-        # Unified specialArgs for both system and home-manager
+        # Unified specialArgs for both system and home-manager (without pkgs)
         specialArgs = {
-          inherit pkgs system inputs osType;
+          inherit system inputs osType;
           hostname = machineConfig.metadata.hostname;
         };
 
@@ -124,7 +124,7 @@ rec {
         homeManagerConfigs = listToAttrs (map (user:
           nameValuePair user.username {
             imports = [
-              nix-colors.homeManagerModules.default
+              catppuccin.homeModules.catppuccin
               user.homeConfig
             ];
           }
@@ -133,8 +133,13 @@ rec {
       nixpkgs.lib.nixosSystem {
         inherit system specialArgs;
         modules = [
-          # Use _machineDir to resolve configuration.nix
-          (import "${machineConfig._machineDir}/configuration.nix" specialArgs)
+          # Properly set nixpkgs attributes for read-only module
+          {
+            nixpkgs.pkgs = pkgs;
+            nixpkgs.hostPlatform = system;
+          }
+          # Use _machineDir to resolve configuration.nix (as module, not direct import)
+          "${machineConfig._machineDir}/configuration.nix"
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
@@ -148,7 +153,7 @@ rec {
     ) machines;
 
   # Generate all darwinConfigurations from machines
-  generateDarwinConfigurations = {machines, nix-darwin, nixpkgs, home-manager, nix-colors, lib, inputs, pkgsDir, my}:
+  generateDarwinConfigurations = {machines, nix-darwin, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my}:
     mapAttrs (hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
@@ -168,9 +173,9 @@ rec {
           ];
         };
 
-        # Unified specialArgs for both system and home-manager
+        # Unified specialArgs for both system and home-manager (without pkgs)
         specialArgs = {
-          inherit pkgs system inputs osType;
+          inherit system inputs osType;
           hostname = machineConfig.metadata.hostname;
         };
 
@@ -178,7 +183,7 @@ rec {
         homeManagerConfigs = listToAttrs (map (user:
           nameValuePair user.username {
             imports = [
-              nix-colors.homeManagerModules.default
+              catppuccin.homeModules.catppuccin
               user.homeConfig
             ];
           }
@@ -187,8 +192,10 @@ rec {
       nix-darwin.lib.darwinSystem {
         inherit system specialArgs;
         modules = [
-          # Use _machineDir to resolve darwin-configuration.nix
-          (import "${machineConfig._machineDir}/darwin-configuration.nix" specialArgs)
+          # Set pkgs properly for Darwin
+          { nixpkgs.pkgs = pkgs; }
+          # Use _machineDir to resolve darwin-configuration.nix (as module)
+          "${machineConfig._machineDir}/darwin-configuration.nix"
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;

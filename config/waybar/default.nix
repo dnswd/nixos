@@ -1,32 +1,12 @@
-inputs:
 {
   config,
   pkgs,
   ...
-}:
-let
-  palette = config.colorScheme.palette;
-  convert = inputs.nix-colors.lib.conversions.hexToRGBString;
-  backgroundRgb = "rgb(${convert ", " palette.base00})";
-  foregroundRgb = "rgb(${convert ", " palette.base05})";
-in
-{
+}: {
   home.file = {
     ".config/waybar/" = {
-      source = ../../config/waybar;
+      source = ./css;
       recursive = true;
-    };
-    ".config/waybar/theme.css" = {
-      text = ''
-        @define-color background ${backgroundRgb};
-        * {
-          color: ${foregroundRgb}; 
-        }
-
-        window#waybar {
-          background-color: ${backgroundRgb};
-        }
-      '';
     };
   };
 
@@ -155,14 +135,13 @@ in
           on-click = "blueberry";
         };
         wireplumber = {
-          # Changed from "pulseaudio"
-          "format" = "";
+          "format" = "";
           format-muted = "󰝟";
           scroll-step = 5;
           on-click = "pavucontrol";
           tooltip-format = "Playing at {volume}%";
-          on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; # Updated command
-          max-volume = 150; # Optional: allow volume over 100%
+          on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          max-volume = 150;
         };
         tray = {
           spacing = 13;
@@ -177,15 +156,6 @@ in
             performance = "󰡴";
           };
         };
-        # "custom/dropbox" = {
-        #   format = "";
-        #   on-click = "nautilus ~/Dropbox";
-        #   exec = "dropbox-cli status";
-        #   return-type = "text";
-        #   interval = 5;
-        #   tooltip = true;
-        #   tooltip-format = "{}";
-        # };
       }
     ];
   };
