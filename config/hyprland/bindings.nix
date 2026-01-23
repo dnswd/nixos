@@ -18,7 +18,7 @@
       "SUPER SHIFT, ESCAPE, exit,"
       "SUPER CTRL, ESCAPE, exec, reboot"
       "SUPER SHIFT CTRL, ESCAPE, exec, systemctl poweroff"
-      "SUPER, K, exec, ~/.local/share/omarchy/bin/omarchy-show-keybindings"
+      "SUPER, K, exec, show-keybind"
 
       # Control tiling
       "SUPER, J, togglesplit, # dwindle"
@@ -94,6 +94,22 @@
 
       # Clipse
       "CTRL SUPER, V, exec, ghostty --class clipse -e clipse"
+    ] ++ [
+        "SUPER, A, exec, $webapp=https://news.ycombinator.com"
+        "SUPER SHIFT, A, exec, $webapp=https://claude.com"
+        "SUPER, Y, exec, $webapp=https://youtube.com/"
+        "SUPER SHIFT, G, exec, $webapp=https://web.whatsapp.com/"
+
+        "SUPER, return, exec, $terminal"
+        "SUPER, F, exec, $fileManager"
+        "SUPER, B, exec, $browser"
+        "SUPER, M, exec, $music"
+        "SUPER, N, exec, $terminal -e nvim"
+        "SUPER, T, exec, $terminal -e btop"
+        "SUPER, D, exec, $terminal -e lazydocker"
+        "SUPER, G, exec, $messenger"
+        "SUPER, O, exec, obsidian -disable-gpu"
+        "SUPER, slash, exec, $passwordManager"
     ];
 
     bindm = [

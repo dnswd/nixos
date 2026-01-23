@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 # A script to display Hyprland keybindings defined in your configuration
 # using wofi for an interactive search menu.
-USER_HYPRLAND_CONF="$HOME/.config/hypr/hyprland.conf"
+
+USER_HYPRLAND_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprland.conf"
+
+if [[ ! -f "$USER_HYPRLAND_CONF" ]]; then
+  notify-send "show-keybind" "Config not found: $USER_HYPRLAND_CONF"
+  exit 1
+fi
 
 # Process the configuration file to extract and format keybindings
 # Updated to handle both "bind =" and "bind=" formats from Home Manager
@@ -37,4 +43,4 @@ grep -h '^[[:space:]]*bind' "$USER_HYPRLAND_CONF" |
         printf "%-35s → %s\n", key_combo, action;
     }
 }' |
-flock --nonblock /tmp/.wofi.lock -c "wofi -dmenu -i --width 50% --height 40% -p 'Hyprland Keybindings' -O alphabetical"
+wofi -dmenu -i --width 50% --height 40% -p 'Hyprland Keybindings' -O alphabetical 2>/dev/null || notify-send "show-keybind" "wofi is already running"

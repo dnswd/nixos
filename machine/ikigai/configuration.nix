@@ -222,6 +222,7 @@ in {
     # Essential
     libnotify
     nautilus # file manager
+    chromium # browser
     # blueberry # bluetooth manager
     clipse # clipboard manager
     # fzf # fuzzy finder, moved to home-manager

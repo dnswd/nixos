@@ -61,7 +61,7 @@
 
     settings = {
       "$mod" = "SUPER";
-      "$terminal" = "kitty";
+      "$terminal" = "ghostty";
       "$fileManager" = "nautilus --new-window";
       "$browser" = "chromium --new-window --ozone-platform=wayland";
       "$music" = "spotify";

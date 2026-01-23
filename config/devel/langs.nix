@@ -7,6 +7,7 @@
 
       # Nix
       nixd
+      nixfmt
       nixpkgs-fmt
       nixpkgs-lint
 
