@@ -1,7 +1,9 @@
-{ pkgs
-, inputs
-, ...
-}: {
+{
+  pkgs,
+  inputs,
+  ...
+}:
+{
   imports = [
     ../config/zsh
     ../config/kitty.nix
@@ -11,6 +13,7 @@
     ../config/theme.nix
     ../config/tmux.nix
     ../config/devel
+    ../config/bitwarden.nix
   ];
 
   # Home Manager needs a bit of information about you and the

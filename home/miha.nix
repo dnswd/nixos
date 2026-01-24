@@ -1,7 +1,9 @@
-{ pkgs
-, inputs
-, ...
-}: {
+{
+  pkgs,
+  inputs,
+  ...
+}:
+{
   imports = [
     ../config/zsh
     ../config/hyprland
@@ -14,6 +16,7 @@
     ../config/wofi.nix
     ../config/tmux.nix
     ../config/devel
+    ../config/bitwarden.nix
   ];
 
   home.username = "miha";

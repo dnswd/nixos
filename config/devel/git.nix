@@ -1,13 +1,18 @@
-{ pkgs
-, lib
-, ...
-}: {
+{
+  pkgs,
+  lib,
+  ...
+}:
+let
+  personal = import ../identity.nix;
+in
+{
   programs.git = {
     enable = true;
     settings = {
       user = {
-        name = "Dennis Al Baihaqi Walangadi";
-        email = "dennis.walangadi@gmail.com";
+        name = personal.name;
+        email = personal.email.primary;
       };
 
       alias = {
@@ -44,7 +49,6 @@
 
       # show recently worked branches
       branch.sort = "-committerdate";
-
 
       extraConfig = {
         core = {

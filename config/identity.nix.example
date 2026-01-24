@@ -1,0 +1,8 @@
+{
+  # Centralized personal/sensitive data
+  name = "John Doe";
+  email = {
+    primary = "abc@xyz.com";
+    bitwarden = "abc@xyz.com";
+  };
+}
