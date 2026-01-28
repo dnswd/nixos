@@ -4,6 +4,7 @@ let
 in
 {
   keymaps = [
+    (mkKeymap "n" "-" "<cmd>Oil<CR>" "Open parent directory (Oil)")
     (mkKeymap "n" "<leader>v" ":NvimTreeToggle<CR>" "Open nvim-tree.lua") # view
     (mkKeymap "n" "<leader>gg" ":LazyGit<CR>" "Open lazygit") # go git
 

@@ -31,6 +31,7 @@
         "editor.fontSize" = 14;
         "editor.lineNumbers" = "relative";
         "editor.minimap.enabled" = false;
+        "editor.autoSave" = "onFocusChange";
         "editor.formatOnSave" = true;
         "editor.tabSize" = 2;
         "editor.workbench.startupEditor" = "none";

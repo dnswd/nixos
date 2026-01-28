@@ -72,5 +72,8 @@
 
     # image editing
     gimp
+
+    # ai
+    amp-cli
   ];
 }

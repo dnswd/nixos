@@ -28,36 +28,27 @@
     # Neovim stuff
     nixvim.url = "github:nix-community/nixvim";
     nixvim.inputs.nixpkgs.follows = "nixpkgs";
-    ts-comments = {
-      url = "github:folke/ts-comments.nvim";
-      flake = false;
-    };
-    nvim-md = {
-      url = "github:ixru/nvim-markdown";
-      flake = false;
-    };
-    nvim-hl-md = {
-      url = "github:yaocccc/nvim-hl-mdcodeblock.lua";
-      flake = false;
-    };
   };
 
   outputs =
-    { nixpkgs
-    , home-manager
-    , nix-darwin
-    , catppuccin
-    , ...
-    } @ inputs:
+    {
+      nixpkgs,
+      home-manager,
+      nix-darwin,
+      catppuccin,
+      ...
+    }@inputs:
     let
-      lib = nixpkgs.lib.extend (final: prev: {
-        # custom libs under lib.my
-        my = import ./lib {
-          inherit inputs;
-          lib = final;
-          pkgs = {}; # populated in ./lib/hosts
-        };
-      });
+      lib = nixpkgs.lib.extend (
+        final: prev: {
+          # custom libs under lib.my
+          my = import ./lib {
+            inherit inputs;
+            lib = final;
+            pkgs = { }; # populated in ./lib/hosts
+          };
+        }
+      );
 
       # Load all machines from machine/ directory
       machines = lib.my.loadMachines ./machine;
@@ -77,7 +68,12 @@
 
       darwinConfigurations = lib.my.generateDarwinConfigurations {
         machines = darwinMachines;
-        inherit nix-darwin nixpkgs home-manager catppuccin;
+        inherit
+          nix-darwin
+          nixpkgs
+          home-manager
+          catppuccin
+          ;
         inherit lib inputs;
         my = lib.my;
         pkgsDir = ./pkgs;
