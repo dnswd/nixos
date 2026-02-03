@@ -8,6 +8,7 @@
     stylua
     # Format nix
     nixfmt
+
   ];
 
   # Autoformat
@@ -35,6 +36,8 @@
       formatters_by_ft = {
         lua = [ "stylua" ];
         nix = [ "nixfmt" ];
+        # Java uses jdtls LSP formatting (reads project-local Eclipse formatter settings)
+        java = [ "lsp" ];
         # Conform can also run multiple formatters sequentially
         # python = [ "isort "black" ];
         #

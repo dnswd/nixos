@@ -28,6 +28,9 @@
     # Neovim stuff
     nixvim.url = "github:nix-community/nixvim";
     nixvim.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Pinned nixpkgs for jdtls 1.43.0 (last version with Java 17 bytecode, compatible with Gradle 6.x)
+    nixpkgs-jdtls.url = "github:nixos/nixpkgs/21808d22b1cda1898b71cf1a1beb524a97add2c4";
   };
 
   outputs =

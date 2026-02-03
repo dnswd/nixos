@@ -90,25 +90,7 @@
         };
       };
 
-      # Java lsp
-      jdtls = {
-        enable = true;
-        settings = {
-          java = {
-            configuration.runtimes = [
-              {
-                name = "JavaSE-1.8";
-                path = "${pkgs.jdk8}/lib/openjdk";
-              }
-              {
-                name = "JavaSE-17";
-                path = "${pkgs.jdk17}/lib/openjdk";
-                default = true;
-              }
-            ];
-          };
-        };
-      };
+      # Java LSP is handled by nvim-jdtls in lang/java.nix
     };
 
     keymaps = {
