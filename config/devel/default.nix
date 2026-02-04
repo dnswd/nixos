@@ -5,6 +5,7 @@
     ./langs.nix
     ./git.nix
     ./vscode.nix
+    ./pi-mono
   ];
 
   # Fuzzy finder

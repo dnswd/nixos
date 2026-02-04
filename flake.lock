@@ -137,6 +137,22 @@
         "type": "github"
       }
     },
+    "pi-mono": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1770168833,
+        "narHash": "sha256-XRNlA7AGJEbtaZSn31um6Vh4O1uSpsihxEX1qFmZFQ8=",
+        "owner": "badlogic",
+        "repo": "pi-mono",
+        "rev": "6cc1676eaee664472e5de9e34609ef4caf6d8470",
+        "type": "github"
+      },
+      "original": {
+        "owner": "badlogic",
+        "repo": "pi-mono",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "catppuccin": "catppuccin",
@@ -144,7 +160,8 @@
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs",
         "nixpkgs-jdtls": "nixpkgs-jdtls",
-        "nixvim": "nixvim"
+        "nixvim": "nixvim",
+        "pi-mono": "pi-mono"
       }
     },
     "systems": {
