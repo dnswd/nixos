@@ -27,7 +27,7 @@ let
     lastChangelogVersion = packageJson.version;
     defaultProvider = "anthropic";
     defaultModel = "claude-opus-4-5";
-    defaultThinkingLevel = "off";
+    defaultThinkingLevel = "medium";
   };
 
   defaultKeybindings = {
@@ -48,11 +48,13 @@ let
     ];
   };
 
-  buildExtensions = import ./nix/extensions.nix;
+  buildExtensions = import ./extensions.nix;
   builtExtensions = lib.optionalAttrs (cfg.extensions.monorepoPath != null) (buildExtensions {
-    inherit pkgs;
+    inherit pkgs lib;
     extensions-src = cfg.extensions.monorepoPath;
-    pi-mono-src = pi-mono-src;
+    inherit pi-mono-src;
+    nodePkg = cfg.extensions.nodePackage;
+    pnpmPkg = cfg.extensions.pnpmPackage;
   });
 
 in

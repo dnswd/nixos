@@ -16,7 +16,7 @@ let
     .version;
 
   extSrc = pkgs.lib.cleanSourceWith {
-    src = extensions-src + "/extensions";
+    src = extensions-src;
     filter =
       p: _t:
       let
@@ -51,8 +51,42 @@ let
       external: ["@mariozechner/*", ...peerDeps],
     });
   '';
+
+  pnpmDeps = pkgs.stdenvNoCC.mkDerivation {
+    pname = "pi-mono-extensions-pnpm-deps";
+    version = "1.0.0";
+    src = extSrc;
+
+    nativeBuildInputs = [ nodejs pnpm pkgs.cacert ];
+
+    outputHashMode = "recursive";
+    outputHashAlgo = "sha256";
+    outputHash = "sha256-ZjlZEgJXhK/tHMCEtEYkb5F3Iy6/6IziHGt1NDyOA5Q=";
+
+    buildPhase = ''
+      runHook preBuild
+      export HOME=$TMPDIR
+
+      # Remove packageManager to prevent pnpm self-update attempts
+      ${pkgs.jq}/bin/jq 'del(.packageManager)' package.json > package.json.tmp
+      mv package.json.tmp package.json
+
+      pnpm config set store-dir $TMPDIR/pnpm-store
+      pnpm install --frozen-lockfile --ignore-scripts
+      runHook postBuild
+    '';
+
+    dontFixup = true;
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out
+      cp -r . $out/
+      runHook postInstall
+    '';
+  };
 in
-pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
+pkgs.stdenvNoCC.mkDerivation {
   pname = "pi-mono-extensions";
   version = "1.0.0";
 
@@ -63,18 +97,12 @@ pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
     pnpm
   ];
 
-  # Use pnpm.configHook and pnpm.fetchDeps with better caching
-  pnpmDeps = pnpm.fetchDeps {
-    inherit (finalAttrs) pname version src;
-    # No hash needed - it will be calculated automatically
-  };
-
   buildPhase = ''
     runHook preBuild
 
     export HOME=$TMPDIR
-    pnpm config set store-dir $TMPDIR/pnpm-store
-    pnpm install --offline --frozen-lockfile --ignore-scripts
+    cp -r ${pnpmDeps}/* .
+    chmod -R u+w .
 
     declaredVersion=$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).devDependencies['@mariozechner/pi-coding-agent']")
     if [ "${piVersion}" != "$declaredVersion" ]; then
@@ -98,4 +126,4 @@ pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
 
     runHook postInstall
   '';
-})
+}

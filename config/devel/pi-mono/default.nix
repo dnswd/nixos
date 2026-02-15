@@ -27,5 +27,13 @@
         ];
       };
     };
+    voiceInput = {
+      device = "alsa_input.usb-DCMT_Technology_USB_Condenser_Microphone_214b206000000178-00.mono-fallback";
+      language = "en";
+    };
+    agentsMd.source = ./AGENTS.md;
+    extensions.monorepoPath = ./extensions;
+    skills = ./skills;
+    prompts = ./prompts;
   };
 }
