@@ -1,5 +1,9 @@
 { pkgs, osType, hostname, ... }:
 {
+  imports = [
+    ../config/devel/jetbrains.nix
+  ];
+
   home.username = "oydennisalbaihaqi";
   home.homeDirectory = 
     if osType == "darwin"
