@@ -51,7 +51,7 @@
     with pkgs;
     [
       # jetbrains
-      jetbrains.idea-oss
+      # jetbrains.idea-oss
       # devenv
       # devenv.packages."${pkgs.system}".devenv
       # git-crypt
