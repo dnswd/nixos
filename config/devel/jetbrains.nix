@@ -23,6 +23,9 @@
         set ideajoin
         set idearefactormode=keep
 
+        """ Ideavim plugins
+        set which-key
+
         let mapleader=" "
 
         """ Config reload
