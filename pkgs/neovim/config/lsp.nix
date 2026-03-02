@@ -29,6 +29,20 @@
     };
   };
 
+  # A plugin that configures LSP embedded in other language, for example
+  #  HTML inside Markdown or Lua inside Nix.
+  #  https://nix-community.github.io/nixvim/plugins/otter/index.html
+  plugins.otter = {
+    enable = true;
+    autoActivate = true;
+    autoLoad = true;
+  };
+  # Otter have treesitter as dependency
+  plugins.treesitter = {
+    enable = true;
+    highlight.enable = true;
+  };
+
   # https://nix-community.github.io/nixvim/plugins/lsp/index.html `:help lsp-vs-treesitter`
   plugins.lsp = {
     enable = true;
@@ -46,9 +60,9 @@
       # clangd = {
       #   enable = true;
       # };
-      # gopls = {
-      #   enable = true;
-      # };
+      gopls = {
+        enable = true;
+      };
       # pyright = {
       #   enable = true;
       # };
