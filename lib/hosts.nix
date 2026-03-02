@@ -173,9 +173,11 @@ rec {
           ];
         };
 
+        self = inputs.self;
+
         # Unified specialArgs for both system and home-manager (without pkgs)
         specialArgs = {
-          inherit system inputs osType;
+          inherit system inputs osType self;
           hostname = machineConfig.metadata.hostname;
         };
 

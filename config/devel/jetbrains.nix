@@ -1,6 +1,6 @@
-{ pkgs, ... }:
+{ pkgs, osType, lib, ... }:
 {
-  home.packages = [
+  home.packages = lib.optionals (osType != "darwin") [
     pkgs.jetbrains.idea-oss
   ];
 

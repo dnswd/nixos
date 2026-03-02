@@ -5,10 +5,11 @@
   ];
 
   home.username = "oydennisalbaihaqi";
-  home.homeDirectory = 
-    if osType == "darwin"
-    then "/Users/oydennisalbaihaqi"
-    else "/home/oydennisalbaihaqi";
+  home.homeDirectory = "/Users/oydennisalbaihaqi";
+  # home.homeDirectory = 
+  #   if osType == "darwin"
+  #   then "/Users/oydennisalbaihaqi"
+  #   else "/home/oydennisalbaihaqi";
   
   home.stateVersion = "24.05";
 

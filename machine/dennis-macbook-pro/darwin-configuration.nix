@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ self, pkgs, ... }:
 {
 
   # List packages installed in system profile. To search by name, run:
@@ -28,7 +28,10 @@
   # The platform the configuration will be used on.
   nixpkgs.hostPlatform = "aarch64-darwin";
 
-  # allow unfree pkgs
-  nixpkgs.config.allowUnfree = true;
+  # Declare user so home-manager can resolve homeDirectory
+  users.users.oydennisalbaihaqi = {
+    name = "oydennisalbaihaqi";
+    home = "/Users/oydennisalbaihaqi";
+  };
 
 }
