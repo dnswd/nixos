@@ -52,7 +52,7 @@
     [
       # jetbrains
       # jetbrains.idea-oss
-      # devenv
+      devenv
       # devenv.packages."${pkgs.system}".devenv
       # git-crypt
       # meld
