@@ -24,7 +24,8 @@
         set idearefactormode=keep
 
         """ Ideavim plugins
-        set which-key
+        set which-key " https://github.com/TheBlob42/idea-which-key
+        set notimeout " disable the timeout option to display which-key
 
         let mapleader=" "
 
