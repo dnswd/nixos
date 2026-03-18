@@ -2,6 +2,7 @@
 {
   imports = [
     ../config/devel/jetbrains.nix
+    ../config/devel/pi-mono
   ];
 
   home.username = "oydennisalbaihaqi";
