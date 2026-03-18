@@ -2,8 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running 'nixos-help').
 { pkgs, lib, ... }:
-let
-in {
+{
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -78,15 +77,25 @@ in {
       pkgs.xdg-desktop-portal-gtk # hyprland doesn't import gtk portal automatically
     ];
 
-    configPackages = [ pkgs.gnome-session pkgs.hyprland pkgs.gtk3 ];
+    configPackages = [
+      pkgs.gnome-session
+      pkgs.hyprland
+      pkgs.gtk3
+    ];
     config = {
       common.default = "*"; # Let portals auto-detect
       gnome = {
-        default = [ "gnome" "gtk" ];
+        default = [
+          "gnome"
+          "gtk"
+        ];
         "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
       hyprland = {
-        default = [ "hyprland" "gtk" ];
+        default = [
+          "hyprland"
+          "gtk"
+        ];
         "org.freedesktop.impl.portal.FileChooser" = [ "termfilechooser" ];
         "org.freedesktop.impl.portal.OpenURI" = [ "gtk" ];
         "org.freedesktop.impl.portal.Notification" = [ "gtk" ];
@@ -121,10 +130,25 @@ in {
 
   # User accounts generated from machine/ikigai/default.nix via lib.my.buildUsersConfig
 
+  # User groups
+  users.groups = {
+    render.members = [
+      "halcyon"
+      "qemu-libvirtd"
+    ];
+    video.members = [
+      "halcyon"
+      "qemu-libvirtd"
+    ];
+  };
+
   # Use zsh as default shell
   programs.zsh.enable = true;
   environment = {
-    shells = [ pkgs.bashInteractive pkgs.zsh ];
+    shells = [
+      pkgs.bashInteractive
+      pkgs.zsh
+    ];
     shellInit = ''
       export GPG_TTY="$(tty)"
     '';
@@ -166,8 +190,15 @@ in {
   nix.settings = {
     show-trace = true;
     # Enable flakes
-    experimental-features = [ "nix-command" "flakes" ];
-    trusted-users = [ "root" "halcyon" "@wheel" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+    trusted-users = [
+      "root"
+      "halcyon"
+      "@wheel"
+    ];
 
     # TEMPORARY TODO DELETE ME
     # Throttle build bcus it's crashing my pc
@@ -179,11 +210,17 @@ in {
   programs.nix-ld.enable = true;
 
   # Enable virtualization
-  # virtualisation.libvirtd = {
-  #   enable = true;
-  # };
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      package = pkgs.qemu_kvm;
+      runAsRoot = false;
+      swtpm.enable = true;
+      # ovmf.enable = true; # all ovmf images with qemu now available by default
+    };
+  };
   # virtualisation.docker.enable = true;
-  # programs.virt-manager.enable = true;
+  programs.virt-manager.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -216,7 +253,7 @@ in {
     patch
     gcc
     binutils
-    
+
     python3
 
     # Essential
@@ -251,28 +288,38 @@ in {
     # Slack
     slack
 
+    # vm stuff
+    qemu_kvm
+    virtiofsd
+
     # Helper to execute stuff in FHS environemnt
-    # Usage: fhs <program> <program arg> 
+    # Usage: fhs <program> <program arg>
     (
-      let base = pkgs.appimageTools.defaultFhsEnvArgs; in
-      pkgs.buildFHSEnv (base // {
-        name = "fhs";
-        targetPkgs = pkgs:
-          # pkgs.buildFHSUserEnv provides only a minimal FHS environment,
-          # lacking many basic packages needed by most software.
-          # Therefore, we need to add them manually.
-          #
-          # pkgs.appimageTools provides basic packages required by most software.
-          (base.targetPkgs pkgs) ++ (with pkgs; [
-            pkg-config
-            ncurses
-            # Feel free to add more packages here if needed.
-          ]
-          );
-        profile = "export FHS=1";
-        runScript = "bash";
-        extraOutputsToInstall = [ "dev" ];
-      })
+      let
+        base = pkgs.appimageTools.defaultFhsEnvArgs;
+      in
+      pkgs.buildFHSEnv (
+        base
+        // {
+          name = "fhs";
+          targetPkgs =
+            pkgs:
+            # pkgs.buildFHSUserEnv provides only a minimal FHS environment,
+            # lacking many basic packages needed by most software.
+            # Therefore, we need to add them manually.
+            #
+            # pkgs.appimageTools provides basic packages required by most software.
+            (base.targetPkgs pkgs)
+            ++ (with pkgs; [
+              pkg-config
+              ncurses
+              # Feel free to add more packages here if needed.
+            ]);
+          profile = "export FHS=1";
+          runScript = "bash";
+          extraOutputsToInstall = [ "dev" ];
+        }
+      )
     )
   ];
 
@@ -298,6 +345,9 @@ in {
   # services.fail2ban.enable = true;
   # Enable DNS daemon
   services.resolved.enable = true;
+
+  # Enable tailscale
+  services.tailscale.enable = true;
 
   # Open ports in the firewall.
   networking.firewall.enable = true;

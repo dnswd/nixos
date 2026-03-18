@@ -7,7 +7,6 @@
 {
   imports = [
     ../config/devel/jetbrains.nix
-    ../config/tailscale.nix
     ../config/devel/pi-mono
   ];
 

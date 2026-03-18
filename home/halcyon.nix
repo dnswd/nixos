@@ -13,7 +13,6 @@
     ../config/theme.nix
     ../config/tmux.nix
     ../config/devel
-    ../config/tailscale.nix
     ../config/bitwarden.nix
   ];
 
