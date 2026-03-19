@@ -12,7 +12,7 @@
     };
     models = {
       providers.ollama = {
-        baseUrl = "http://localhost:11434/v1";
+        baseUrl = "http://100.122.233.72:11434/v1";
         api = "openai-completions";
         apiKey = "ollama";
         models = [
