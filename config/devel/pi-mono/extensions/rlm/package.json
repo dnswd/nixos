@@ -1,5 +1,5 @@
 {
-  "name": "pi-extension-notify",
+  "name": "pi-extension-rlm",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,9 +9,8 @@
     ]
   },
   "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*"
-  },
-  "scripts": {
-    "build": "node ../../nix/scripts/build.mjs"
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*",
+    "@sinclair/typebox": "*"
   }
 }
