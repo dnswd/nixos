@@ -25,7 +25,7 @@
       language = "en";
     };
     agentsMd.source = ./AGENTS.md;
-    extensions.monorepoPath = ./extensions;
+    extensions = ./extensions;
     skills = ./skills;
     prompts = ./prompts;
   };

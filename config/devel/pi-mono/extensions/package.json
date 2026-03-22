@@ -6,7 +6,6 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --project tsconfig.json",
-    "build": "pnpm -r run build",
     "check": "pnpm run lint && pnpm run typecheck"
   },
   "devDependencies": {
@@ -16,9 +15,9 @@
     "@sinclair/typebox": "^0.34.48",
     "@types/node": "^22.19.15",
     "@types/ws": "^8.18.1",
-    "esbuild": "^0.25.12",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.34.0"
   }
 }

@@ -1,4 +1,5 @@
 import importPlugin from "eslint-plugin-import";
+import tseslint from "typescript-eslint";
 
 const coreModules = [
   "@mariozechner/pi-coding-agent",
@@ -7,9 +8,15 @@ const coreModules = [
   "@sinclair/typebox",
 ];
 
-export default [
+export default tseslint.config(
   {
     files: ["**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        project: "./tsconfig.json",
+      },
+    },
     plugins: {
       import: importPlugin,
     },
@@ -25,4 +32,7 @@ export default [
       ],
     },
   },
-];
+  {
+    ignores: ["node_modules/", "dist/", ".direnv/"],
+  }
+);

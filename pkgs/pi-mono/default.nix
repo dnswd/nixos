@@ -48,15 +48,6 @@ let
     ];
   };
 
-  buildExtensions = import ./extensions.nix;
-  builtExtensions = lib.optionalAttrs (cfg.extensions.monorepoPath != null) (buildExtensions {
-    inherit pkgs lib;
-    extensions-src = cfg.extensions.monorepoPath;
-    inherit pi-mono-src;
-    nodePkg = cfg.extensions.nodePackage;
-    pnpmPkg = cfg.extensions.pnpmPackage;
-  });
-
 in
 {
   options.programs.pi-mono = {
@@ -122,18 +113,14 @@ in
       };
     };
 
-    extensions = {
-      monorepoPath = mkOption {
-        type = types.nullOr types.path;
-        default = null;
-        description = ''
-          Path to the extensions workspace (monorepo containing multiple extensions).
-          Will be built and symlinked to ~/.pi/agent/extensions
-        '';
-      };
-
-      nodePackage = mkPackageOption pkgs "nodejs_24" { nullable = true; };
-      pnpmPackage = mkPackageOption pkgs "pnpm_10" { nullable = true; };
+    extensions = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = ''
+        Path to the extensions directory.
+        Will be symlinked to ~/.pi/agent/extensions.
+        Pi-mono loads TypeScript directly via jiti, no build step needed.
+      '';
     };
 
     skills = mkOption {
@@ -196,8 +183,8 @@ in
     // optionalAttrs (cfg.agentsMd.source != null) {
       ".pi/agent/AGENTS.md".source = cfg.agentsMd.source;
     }
-    // optionalAttrs (cfg.extensions.monorepoPath != null) {
-      ".pi/agent/extensions".source = builtExtensions;
+    // optionalAttrs (cfg.extensions != null) {
+      ".pi/agent/extensions".source = cfg.extensions;
     }
     // optionalAttrs (cfg.skills != null) {
       ".pi/agent/skills".source = cfg.skills;

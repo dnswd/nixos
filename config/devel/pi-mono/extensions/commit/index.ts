@@ -129,7 +129,7 @@ ${COMMIT_FORMAT_GUIDE}`,
 			),
 		}),
 
-		async execute(_toolCallId, params, _onUpdate, ctx, signal) {
+		async execute(_toolCallId, params, signal, _onUpdate, ctx) {
 			if (!ctx.hasUI) {
 				return {
 					content: [{ type: "text", text: "Error: UI not available (running in non-interactive mode)" }],
