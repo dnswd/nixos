@@ -81,11 +81,59 @@ importers:
         specifier: '*'
         version: 0.60.0(zod@4.3.6)
 
+  find-thread:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.60.0
+
   footer:
     dependencies:
       '@mariozechner/pi-coding-agent':
         specifier: '*'
         version: 0.60.0(zod@4.3.6)
+
+  handoff:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.60.0
+
+  librarian:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.60.0
+
+  look-at:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.60.0
 
   loop:
     dependencies:
@@ -102,6 +150,42 @@ importers:
         specifier: '*'
         version: 0.34.48
 
+  mermaid:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.60.0
+
+  oracle:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.60.0
+
+  painter:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.60.0
+
   permission-gate:
     dependencies:
       '@mariozechner/pi-coding-agent':
@@ -116,6 +200,18 @@ importers:
       '@mariozechner/pi-coding-agent':
         specifier: '*'
         version: 0.60.0(zod@4.3.6)
+
+  read-thread:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.60.0(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.60.0
 
   reveal:
     dependencies:
