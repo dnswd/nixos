@@ -7,29 +7,20 @@
   programs.pi-mono = {
     enable = true;
     settings = {
-      defaultProvider = "ollama";
+      defaultProvider = "llamacpp";
       defaultModel = "qwen3-coder:latest";
     };
     models = {
-      providers.ollama = {
+      providers.llamacpp = {
         baseUrl = "http://100.122.233.72:11434/v1";
         api = "openai-completions";
-        apiKey = "ollama";
+        apiKey = "none";
         models = [
           { 
-            id = "qwen3-coder:latest";
-            compat = {
-              supportsDeveloperRole = false;
-              supportsUsageInStreaming = false;
-              supportsStrictMode = false;
-            };
+            id = "Qwen3.5-35B-A3B-GGUF";
           }
         ];
       };
-    };
-    voiceInput = {
-      device = "alsa_input.usb-DCMT_Technology_USB_Condenser_Microphone_214b206000000178-00.mono-fallback";
-      language = "en";
     };
     agentsMd.source = ./AGENTS.md;
     extensions = ./extensions;

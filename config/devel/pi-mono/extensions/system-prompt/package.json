@@ -1,0 +1,10 @@
+{
+  "name": "system-prompt",
+  "version": "1.0.0",
+  "description": "System prompt extension with dynamic context information",
+  "main": "index.ts",
+  "type": "module",
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.0"
+  }
+}
