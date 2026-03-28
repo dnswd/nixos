@@ -5,4 +5,8 @@
     primary = "dennis.walangadi@gmail.com";
     bitwarden = "dennisaw2000@gmail.com";
   };
+
+  apiKeys = {
+    anthropic = "CHANGE_ME";
+  };
 }

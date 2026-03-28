@@ -1,4 +1,7 @@
 { pkgs, ... }:
+let
+  personal = import ../../identity.nix;
+in
 {
   imports = [
     ../../../pkgs/pi-mono
@@ -8,7 +11,7 @@
     enable = true;
     settings = {
       defaultProvider = "llamacpp";
-      defaultModel = "qwen3-coder:latest";
+      defaultModel = "Qwen3.5-35B-A3B-GGUF";
     };
     models = {
       providers.llamacpp = {
@@ -19,6 +22,14 @@
           { 
             id = "Qwen3.5-35B-A3B-GGUF";
           }
+        ];
+      };
+      providers.anthropic = {
+        apiKey = personal.apiKeys.anthropic;
+        models = [
+          { id = "claude-opus-4-6"; }
+          { id = "claude-sonnet-4-6"; }
+          { id = "claude-haiku-4-5"; }
         ];
       };
     };
