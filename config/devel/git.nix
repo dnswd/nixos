@@ -4,19 +4,8 @@
   config,
   ...
 }:
-let
-  identityPath = "/run/agenix/identity";
-in
 {
-  home.activation.git-identity = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if [ -f "${identityPath}" ]; then
-      NAME=$(${pkgs.jq}/bin/jq -r '.name' "${identityPath}")
-      EMAIL=$(${pkgs.jq}/bin/jq -r '.email.primary' "${identityPath}")
-      
-      $DRY_RUN_CMD ${pkgs.git}/bin/git config --global user.name "$NAME"
-      $DRY_RUN_CMD ${pkgs.git}/bin/git config --global user.email "$EMAIL"
-    fi
-  '';
+  imports = [ ../../secrets/agenix-home.nix ];
 
   programs.git = {
     enable = true;
@@ -51,6 +40,10 @@ in
 
       column.ui = "auto";
       branch.sort = "-committerdate";
+
+      include = {
+        path = config.age.secrets.gitconfig.path;
+      };
 
       extraConfig = {
         core = {
