@@ -1,8 +1,18 @@
-{
-  # Centralized personal/sensitive data
-  name = "John Doe";
-  email = {
-    primary = "abc@xyz.com";
-    bitwarden = "abc@xyz.com";
-  };
-}
+# DEPRECATED: Identity data is now managed by agenix
+#
+# See secrets/README.md for setup instructions.
+#
+# Identity is stored encrypted in secrets/identity.json.age
+# and decrypted at activation time to /run/agenix/identity
+#
+# JSON structure (see secrets/identity.json.example):
+# {
+#   "name": "John Doe",
+#   "email": {
+#     "primary": "abc@xyz.com",
+#     "bitwarden": "abc@xyz.com"
+#   },
+#   "apiKeys": {
+#     "anthropic": "sk-ant-xxxxx"
+#   }
+# }

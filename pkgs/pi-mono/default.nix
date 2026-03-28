@@ -189,9 +189,6 @@ in
     // optionalAttrs (cfg.skills != null) {
       ".pi/agent/skills".source = cfg.skills;
     }
-    // optionalAttrs (cfg.models != null) {
-      ".pi/agent/models.json".source = jsonFormat.generate "models.json" cfg.models;
-    }
     // optionalAttrs (cfg.prompts != null) (
       mapAttrs' (
         name: _:
