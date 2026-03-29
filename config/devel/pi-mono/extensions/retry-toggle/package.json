@@ -1,0 +1,8 @@
+{
+  "name": "retry-toggle",
+  "version": "1.0.0",
+  "description": "Manual retry keybinding for failed requests",
+  "type": "module",
+  "main": "index.ts",
+  "dependencies": {}
+}
