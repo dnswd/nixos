@@ -8,11 +8,9 @@ let
   users = [ dennis halcyon ];
 in
 {
-  # Legacy - contains all identity info in one file
-  "identity.json.age".publicKeys = users;
-  
   # Program-specific secrets (decrypt directly to where programs expect them)
   "gitconfig.age".publicKeys = users;
   "rbw-config.json.age".publicKeys = users;
   "pi-auth.json.age".publicKeys = users;
+  "fireworks-api-key.age".publicKeys = users;
 }

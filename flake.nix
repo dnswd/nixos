@@ -77,7 +77,6 @@
         inherit lib inputs;
         my = lib.my;
         pkgsDir = ./pkgs;
-        agenixConfig = ./secrets/agenix.nix;
       };
 
       darwinConfigurations = lib.my.generateDarwinConfigurations {
@@ -91,7 +90,6 @@
         inherit lib inputs;
         my = lib.my;
         pkgsDir = ./pkgs;
-        agenixConfig = ./secrets/agenix.nix;
       };
 
       system = "x86_64-linux";

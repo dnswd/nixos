@@ -5,7 +5,12 @@
   ...
 }:
 {
-  imports = [ ../../secrets/agenix-home.nix ];
+  imports = [ ../agenix.nix ];
+
+  age.secrets.gitconfig = {
+    file = ../../secrets/gitconfig.age;
+    path = "${config.home.homeDirectory}/.config/git/config.secret";
+  };
 
   programs.git = {
     enable = true;
