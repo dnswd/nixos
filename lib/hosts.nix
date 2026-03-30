@@ -107,7 +107,7 @@ rec {
               # custom packages under pkgs.my
               my = my.mapModules pkgsDir (p:
                 prev.callPackage p {
-                  inherit inputs system;
+                  inherit inputs system osType;
                   inherit (lib) my;
                 });
             })
@@ -173,7 +173,7 @@ rec {
               # custom packages under pkgs.my
               my = my.mapModules pkgsDir (p:
                 prev.callPackage p {
-                  inherit inputs system;
+                  inherit inputs system osType;
                   inherit (lib) my;
                 });
             })
