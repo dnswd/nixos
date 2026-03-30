@@ -68,7 +68,8 @@
       # act
       # Locals
       # lazydocker
-      # lazygit
+      lazygit
+      gh
     ]
     # custom standalone variant of nixvim
     ++ [ pkgs.my.neovim ];

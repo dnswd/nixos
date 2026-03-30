@@ -1,0 +1,37 @@
+{
+  "name": "pi-non-interactive",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Prevent agent hangs on interactive commands — sets GIT_EDITOR=true, PAGER=cat, etc. for all bash executions",
+  "main": "./index.ts",
+  "keywords": [
+    "pi",
+    "pi-extension",
+    "pi-package",
+    "non-interactive",
+    "pager",
+    "git-editor"
+  ],
+  "author": "Edmund Miller <edmundmiller@hey.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edmundmiller/dotfiles.git",
+    "directory": "pi-packages/pi-non-interactive"
+  },
+  "files": [
+    "index.ts",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

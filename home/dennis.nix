@@ -6,8 +6,7 @@
 }:
 {
   imports = [
-    ../config/devel/jetbrains.nix
-    ../config/devel/pi-mono
+    ../config/devel
   ];
 
   home.username = "oydennisalbaihaqi";
