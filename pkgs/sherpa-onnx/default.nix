@@ -33,9 +33,9 @@ in stdenv.mkDerivation rec {
 
   nativeBuildInputs = lib.optionals stdenv.isLinux [ autoPatchelfHook ];
 
-  buildInputs = with pkgs; [
+  buildInputs = lib.optionals stdenv.isLinux (with pkgs; [
     alsa-lib
-  ];
+  ]);
 
   sourceRoot = ".";
 
