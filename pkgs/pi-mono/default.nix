@@ -200,8 +200,20 @@ in
     // optionalAttrs (cfg.agentsMd.source != null) {
       ".pi/agent/AGENTS.md".source = cfg.agentsMd.source;
     }
-    // optionalAttrs (cfg.extensions != null) {
-      ".pi/agent/extensions".source = cfg.extensions;
+      // optionalAttrs (cfg.extensions != null) {
+      ".pi/agent/extensions".source = pkgs.runCommand "pi-extensions-with-deps"
+        { buildInputs = [ pkgs.nodejs ]; }
+        ''
+          mkdir -p $out
+          cp -r ${cfg.extensions}/* $out/
+          
+          # Install npm deps for pi-listen if present
+          if [ -d "$out/pi-listen" ]; then
+            cd $out/pi-listen
+            # Install only production deps (skip optional sherpa-onnx-node for now)
+            npm ci --omit=optional 2>/dev/null || npm install --omit=optional 2>/dev/null || true
+          fi
+        '';
     }
     // optionalAttrs (cfg.skills != null) {
       ".pi/agent/skills".source = cfg.skills;
