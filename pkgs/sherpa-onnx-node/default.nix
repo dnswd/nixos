@@ -23,12 +23,21 @@ stdenv.mkDerivation rec {
     export HOME=$TMPDIR
     export npm_config_cache=$TMPDIR/npm-cache
     # Install including optional deps which downloads prebuilds
-    npm install --include=optional 2>&1 || true
+    npm install --include=optional 2>&1 || npm install --force 2>&1 || true
   '';
 
   installPhase = ''
     mkdir -p $out/lib/sherpa-onnx-node
     cp -r . $out/lib/sherpa-onnx-node/
+    
+    # Verify the native binding exists
+    if [ ! -f "$out/lib/sherpa-onnx-node/node_modules/sherpa-onnx-darwin-arm64/sherpa-onnx.node" ] && \
+       [ ! -f "$out/lib/sherpa-onnx-node/node_modules/sherpa-onnx-darwin-x64/sherpa-onnx.node" ] && \
+       [ ! -f "$out/lib/sherpa-onnx-node/node_modules/sherpa-onnx-linux-arm64/sherpa-onnx.node" ] && \
+       [ ! -f "$out/lib/sherpa-onnx-node/node_modules/sherpa-onnx-linux-x64/sherpa-onnx.node" ]; then
+      echo "Warning: Native binding not found in expected location"
+      find $out -name "sherpa-onnx.node" || true
+    fi
   '';
 
   meta = with lib; {
