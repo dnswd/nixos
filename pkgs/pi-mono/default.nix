@@ -208,7 +208,9 @@ in
         { buildInputs = [ pkgs.nodejs ]; }
         ''
           mkdir -p $out
-          cp -r ${cfg.extensions}/* $out/
+          # Copy with permissions preserved, then make writable
+          cp -rL ${cfg.extensions}/* $out/
+          chmod -R u+w $out/
           
           # Install npm deps for pi-listen if present
           if [ -d "$out/pi-listen" ]; then
