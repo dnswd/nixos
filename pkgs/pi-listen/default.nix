@@ -41,10 +41,10 @@ stdenv.mkDerivation rec {
     # Copy node_modules with native bindings
     cp -r node_modules $out/lib/pi-listen/
 
-    # Remove unnecessary files to save space
+    # Remove unnecessary files to save space (keep .pnpm for symlinks)
     rm -rf $out/lib/pi-listen/node_modules/.cache 2>/dev/null || true
     rm -rf $out/lib/pi-listen/node_modules/.bin 2>/dev/null || true
-    rm -rf $out/lib/pi-listen/node_modules/.pnpm 2>/dev/null || true
+    # Note: Don't remove .pnpm - it contains the actual packages that symlinks point to
   '';
 
   meta = with lib; {
