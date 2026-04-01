@@ -15,17 +15,14 @@ let
   sherpa-onnx = pkgs.callPackage ../sherpa-onnx { };
 
   # pi-listen npm extension (voice input for pi)
-  pi-listen = pkgs.buildNpmPackage rec {
+  pi-listen = pkgs.stdenv.mkDerivation rec {
     pname = "pi-listen";
     version = "5.0.5";
-    src = pkgs.fetchFromGitHub {
-      owner = "codexstar69";
-      repo = "pi-listen";
-      rev = "v${version}";
+    src = pkgs.fetchurl {
+      url = "https://registry.npmjs.org/@codexstar/pi-listen/-/pi-listen-${version}.tgz";
       hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
-    npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-    dontNpmBuild = true;
+    sourceRoot = "package";
     installPhase = ''
       mkdir -p $out/lib/pi-listen
       cp -r . $out/lib/pi-listen/
