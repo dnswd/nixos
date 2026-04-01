@@ -1,16 +1,30 @@
-{ lib, pkgs, stdenv }:
+{ lib, pkgs, stdenv, nodejs }:
 
-# sherpa-onnx-node npm package with pre-built binaries
+# sherpa-onnx-node with native bindings
 stdenv.mkDerivation rec {
   pname = "sherpa-onnx-node";
   version = "1.12.34";
 
   src = pkgs.fetchurl {
     url = "https://registry.npmjs.org/sherpa-onnx-node/-/sherpa-onnx-node-${version}.tgz";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    hash = "sha256-vxjFf6Rn6lFMS9osl+P2w+xYByv6QLcSKNzj+kVaN8I=";
   };
 
+  nativeBuildInputs = [ nodejs pkgs.cacert ];
+
+  unpackPhase = ''
+    tar -xzf $src
+  '';
+
   sourceRoot = "package";
+
+  # Run npm install to download prebuilt binaries
+  buildPhase = ''
+    export HOME=$TMPDIR
+    export npm_config_cache=$TMPDIR/npm-cache
+    # Install including optional deps which downloads prebuilds
+    npm install --include=optional 2>&1 || true
+  '';
 
   installPhase = ''
     mkdir -p $out/lib/sherpa-onnx-node
