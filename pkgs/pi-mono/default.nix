@@ -11,6 +11,21 @@ let
   cfg = config.programs.pi-mono;
   jsonFormat = pkgs.formats.json { };
 
+  # Vosk Python package (not in nixpkgs)
+  vosk = pkgs.callPackage ./vosk.nix {
+    inherit (pkgs.python3Packages) buildPythonPackage cffi requests tqdm websockets srt;
+  };
+
+  # Python environment with vosk for voice extension
+  pythonWithVosk = pkgs.python3.withPackages (ps: with ps; [
+    vosk
+  ]);
+
+  # Wrapper script for Python with vosk (used by voice extension)
+  pythonWithVoskWrapper = pkgs.writeShellScriptBin "python3-vosk" ''
+    exec ${pythonWithVosk}/bin/python3 "$@"
+  '';
+
   pi-mono-src = inputs.pi-mono;
 
   packageJson = builtins.fromJSON (
@@ -54,18 +69,13 @@ in
     enable = mkEnableOption "pi-mono coding agent";
 
     voiceInput = {
+      enable = mkEnableOption "voice input functionality (requires sox for recording)";
+
       device = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = "PulseAudio/PipeWire input device for voice recording. Auto-detected if null.";
+        description = "Audio input device for voice recording. Auto-detected if null.";
         example = "alsa_input.platform-sound.HiFi__Headset__source";
-      };
-
-      language = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        description = "ISO-639-1/3 language code for speech recognition.";
-        example = "en";
       };
     };
 
@@ -162,16 +172,17 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ piMono ];
-
-    home.sessionVariables = mkMerge [
-      (mkIf (cfg.voiceInput.device != null) {
-        PULSE_INPUT_DEVICE = cfg.voiceInput.device;
-      })
-      (mkIf (cfg.voiceInput.language != null) {
-        ELEVENLABS_LANGUAGE = cfg.voiceInput.language;
-      })
+    home.packages = [ piMono ] ++ lib.optionals cfg.voiceInput.enable [
+      pkgs.sox
+      pythonWithVosk
+      pythonWithVoskWrapper
     ];
+
+    home.sessionVariables = mkIf cfg.voiceInput.enable ({
+      PI_PYTHON_VOSK = "${pythonWithVoskWrapper}/bin/python3-vosk";
+    } // lib.optionalAttrs (cfg.voiceInput.device != null) {
+      PULSE_INPUT_DEVICE = cfg.voiceInput.device;
+    });
 
     home.activation.pi-mono-config = lib.hm.dag.entryAfter [ "writeBoundary" ] (
       let

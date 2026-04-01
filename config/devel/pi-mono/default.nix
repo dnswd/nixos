@@ -17,6 +17,7 @@
   # pi-mono auth.json is decrypted directly by agenix
   programs.pi-mono = {
     enable = true;
+    voiceInput.enable = true;
 
     settings = {
       defaultProvider = "fireworks";

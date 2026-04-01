@@ -11,8 +11,7 @@
       nixpkgs-fmt
       nixpkgs-lint
 
-      # Python
-      python3
+
     ];
 
   # JDK Setup (https://whichjdk.com/)
