@@ -14,94 +14,23 @@ let
   # Sherpa-onnx for pi-listen local models
   sherpa-onnx = pkgs.callPackage ../sherpa-onnx { };
 
-  # Vosk Python package (legacy - kept for backwards compatibility)
-  vosk = pkgs.callPackage ./vosk.nix {
-    inherit (pkgs.python3Packages) buildPythonPackage cffi requests tqdm websockets srt;
+  # pi-listen npm extension (voice input for pi)
+  pi-listen = pkgs.buildNpmPackage rec {
+    pname = "pi-listen";
+    version = "5.0.5";
+    src = pkgs.fetchFromGitHub {
+      owner = "codexstar69";
+      repo = "pi-listen";
+      rev = "v${version}";
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    };
+    npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    dontNpmBuild = true;
+    installPhase = ''
+      mkdir -p $out/lib/pi-listen
+      cp -r . $out/lib/pi-listen/
+    '';
   };
-
-  # Python environment with vosk for voice extension
-  pythonWithVosk = pkgs.python3.withPackages (ps: with ps; [
-    vosk
-  ]);
-
-  # Transcribe script content (vosk uses KaldiRecognizer, not Recognizer)
-  transcribePy = pkgs.writeText "transcribe.py" ''
-import sys
-import json
-import wave
-
-def transcribe_file(audio_path, model_path):
-    try:
-        from vosk import Model, KaldiRecognizer
-    except ImportError as e:
-        return {"error": f"vosk import failed: {e}"}
-
-    model = Model(model_path)
-    recognizer = KaldiRecognizer(model, 16000)
-
-    try:
-        wf = wave.open(audio_path, "rb")
-    except Exception as e:
-        return {"error": f"Failed to open audio: {e}"}
-
-    if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
-        return {"error": "Audio must be WAV mono 16-bit PCM"}
-
-    while True:
-        data = wf.readframes(4000)
-        if len(data) == 0:
-            break
-        recognizer.AcceptWaveform(data)
-
-    result = recognizer.FinalResult()
-    return json.loads(result)
-
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print(json.dumps({"error": "Usage: transcribe.py <audio_file> <model_path>"}))
-        sys.exit(1)
-    result = transcribe_file(sys.argv[1], sys.argv[2])
-    print(json.dumps(result))
-'';
-
-  # Live transcription script content
-  livePy = pkgs.writeText "live.py" ''
-import sys
-import json
-import vosk
-
-if len(sys.argv) != 2:
-    print(json.dumps({"error": "Usage: live.py <model_path>"}))
-    sys.exit(1)
-
-model_path = sys.argv[1]
-model = vosk.Model(model_path)
-recognizer = vosk.KaldiRecognizer(model, 16000)
-
-while True:
-    data = sys.stdin.buffer.read(4000)
-    if not data:
-        break
-    if recognizer.AcceptWaveform(data):
-        print(json.dumps(json.loads(recognizer.Result())))
-        sys.stdout.flush()
-    else:
-        partial = recognizer.PartialResult()
-        print(json.dumps({"partial": json.loads(partial).get("partial", "")}))
-        sys.stdout.flush()
-
-print(json.dumps(json.loads(recognizer.FinalResult())))
-'';
-
-  # Transcription script that bundles Python + vosk
-  voskTranscribe = pkgs.writeShellScriptBin "vosk-transcribe" ''
-    exec ${pythonWithVosk}/bin/python3 ${transcribePy} "$@"
-  '';
-
-  # Live transcription script
-  voskTranscribeLive = pkgs.writeShellScriptBin "vosk-transcribe-live" ''
-    exec ${pythonWithVosk}/bin/python3 ${livePy} "$@"
-  '';
 
   pi-mono-src = inputs.pi-mono;
 
@@ -290,7 +219,15 @@ in
       ".pi/agent/AGENTS.md".source = cfg.agentsMd.source;
     }
     // optionalAttrs (cfg.extensions != null) {
-      ".pi/agent/extensions".source = cfg.extensions;
+      ".pi/agent/extensions".source = pkgs.symlinkJoin {
+        name = "pi-extensions";
+        paths = [ cfg.extensions ] ++ lib.optionals cfg.voiceInput.enable [
+          (pkgs.runCommand "pi-listen-link" {} ''
+            mkdir -p $out
+            ln -s ${pi-listen}/lib/pi-listen $out/pi-listen
+          '')
+        ];
+      };
     }
     // optionalAttrs (cfg.skills != null) {
       ".pi/agent/skills".source = cfg.skills;
