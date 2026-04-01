@@ -336,16 +336,16 @@ export default function (pi: ExtensionAPI) {
         return {
           render: (w) => container.render(w),
           invalidate: () => {},
-          handleInput: async (data) => {
+          handleInput: (data) => {
             if (data === "\r" || data === "\n") {
               // Enter = confirm
               isComplete = true;
-              await live.stop();
+              live.stop();
             } else if (data === "\x1b") {
               // Escape = cancel
               isComplete = true;
               abortController.abort();
-              await live.stop();
+              live.stop();
               done(null);
             }
           }
