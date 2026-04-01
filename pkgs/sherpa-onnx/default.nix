@@ -11,11 +11,11 @@ let
       hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
     x86_64-darwin = {
-      system = "osx-x64";
+      system = "osx-universal2";
       hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
     aarch64-darwin = {
-      system = "osx-arm64";
+      system = "osx-universal2";
       hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
   };
@@ -24,10 +24,10 @@ let
 
 in stdenv.mkDerivation rec {
   pname = "sherpa-onnx";
-  version = "1.11.3";
+  version = "1.12.34";
 
   src = fetchurl {
-    url = "https://github.com/k2-fsa/sherpa-onnx/releases/download/v${version}/sherpa-onnx-v${version}-${platform.system}.tar.bz2";
+    url = "https://github.com/k2-fsa/sherpa-onnx/releases/download/v${version}/sherpa-onnx-v${version}-onnxruntime-1.15.0-${platform.system}-shared.tar.bz2";
     inherit (platform) hash;
   };
 
