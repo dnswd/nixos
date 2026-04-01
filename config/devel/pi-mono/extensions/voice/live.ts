@@ -34,9 +34,9 @@ export class LiveTranscription {
 
     return new Promise((resolve, reject) => {
       // Start Python script using nix-provided python with vosk
-      console.error("[voice] Starting vosk-transcribe-live...");
+      // Redirect stderr to /dev/null to avoid TUI pollution
       this.python = spawn("vosk-transcribe-live", [modelPath], {
-        stdio: ["pipe", "pipe", "pipe"] // stdin, stdout, stderr
+        stdio: ["pipe", "pipe", "ignore"] // stdin, stdout, ignore stderr
       });
 
       // Start sox recording to feed Python script
@@ -64,7 +64,6 @@ export class LiveTranscription {
           try {
             await fs.access(this.stopSignalFile);
             // Signal file exists, stop recording
-            console.error("[voice] Stop signal file detected");
             clearInterval(checkInterval);
             this.stop();
           } catch {
@@ -73,9 +72,8 @@ export class LiveTranscription {
         }
       }, 100); // Check every 100ms
 
-      // Handle Python stdout (JSON results)
+      // Handle Python stdout (JSON results) - silent operation
       let buffer = "";
-      let lineCount = 0;
       this.python!.stdout!.on("data", (chunk: Buffer) => {
         if (this.aborted) return;
 
@@ -85,10 +83,6 @@ export class LiveTranscription {
 
         for (const line of lines) {
           if (!line.trim()) continue;
-          lineCount++;
-          if (lineCount <= 5) {
-            console.error(`[voice] Received line ${lineCount}:`, line.slice(0, 100));
-          }
 
           try {
             const result = JSON.parse(line);
@@ -100,7 +94,6 @@ export class LiveTranscription {
 
             if (result.text !== undefined) {
               // Final result for this utterance
-              console.error(`[voice] Final result: ${result.text}`);
               if (result.text) {
                 this.accumulatedText += (this.accumulatedText ? " " : "") + result.text;
                 onFinal?.(result.text);
@@ -108,9 +101,6 @@ export class LiveTranscription {
               this.currentPartial = "";
             } else if (result.partial !== undefined) {
               // Partial result
-              if (lineCount <= 5 || result.partial) {
-                console.error(`[voice] Partial: ${result.partial}`);
-              }
               this.currentPartial = result.partial;
             }
 
@@ -126,24 +116,17 @@ export class LiveTranscription {
         }
       });
 
-      // Handle errors
-      this.python!.stderr!.on("data", (data) => {
-        console.error("[voice] Python stderr:", data.toString().slice(0, 200));
-      });
-
+      // Handle errors silently
       this.sox!.on("error", (err) => {
-        console.error("[voice] Sox error:", err.message);
         reject(new Error(`Sox error: ${err.message}`));
       });
 
       this.python!.on("error", (err) => {
-        console.error("[voice] Python error:", err.message);
         reject(new Error(`Python error: ${err.message}`));
       });
 
       // Handle Python exit
       this.python!.on("close", (code) => {
-        console.error(`[voice] Python exited with code ${code}`);
         clearInterval(checkInterval);
         // Cleanup signal file
         if (this.stopSignalFile) {
@@ -165,8 +148,7 @@ export class LiveTranscription {
       });
 
       // Handle sox exit (user stopped recording)
-      this.sox!.on("close", (code) => {
-        console.error(`[voice] Sox closed with code ${code}, ending Python stdin`);
+      this.sox!.on("close", () => {
         // Close Python stdin to signal end of audio
         this.python?.stdin?.end();
       });
@@ -174,25 +156,23 @@ export class LiveTranscription {
   }
 
   async stop(): Promise<void> {
-    console.error("[voice] Stopping recording...");
     this.aborted = true;
-    
+
     // Create signal file to trigger stop
     if (this.stopSignalFile) {
       try {
         await fs.writeFile(this.stopSignalFile, "stop");
-        console.error("[voice] Stop signal file created");
-      } catch (e) {
-        console.error("[voice] Failed to create stop signal:", e);
+      } catch {
+        // Ignore write errors
       }
     }
-    
+
     // Kill sox first to stop audio flow
     if (this.sox) {
       this.sox.kill("SIGTERM");
       this.sox = null;
     }
-    
+
     // Then close Python
     if (this.python) {
       this.python.stdin?.end();

@@ -289,29 +289,49 @@ export default function (pi: ExtensionAPI) {
         const abortController = new AbortController();
         const live = new LiveTranscription();
 
-        // Show recording UI
-        const container = new Container();
-        container.addChild(new DynamicBorder((s) => theme.fg("accent", s)));
-        container.addChild(new Text(theme.fg("accent", `🎙️ Live (${SUPPORTED_LANGUAGES[lang].name}) - Speak now...`), 1, 0));
-        container.addChild(new Text(theme.fg("dim", "Press Enter to confirm, Esc to cancel"), 1, 0));
+        // State for transcription text
+        let partialText = "";
+        let finalAccumulated = "";
+        let isComplete = false;
 
-        // Start live transcription
-        let lastText = "";
+        // Start live transcription - update editor directly
         live.start({
           modelPath,
           onPartial: (text) => {
-            if (text !== lastText) {
-              lastText = text;
-              ctx.ui.setEditorText(text);
+            // text is accumulated + partial combined
+            partialText = text;
+            // Set dimmed text in editor for live preview
+            const displayText = partialText || finalAccumulated;
+            if (displayText && !isComplete) {
+              ctx.ui.setEditorText(theme.fg("dim", displayText));
+            }
+          },
+          onFinal: (text) => {
+            // Final result for this utterance - add to accumulated
+            if (text) {
+              finalAccumulated += (finalAccumulated ? " " : "") + text;
+            }
+            partialText = "";
+            // Show accumulated text normally
+            if (finalAccumulated && !isComplete) {
+              ctx.ui.setEditorText(finalAccumulated);
             }
           },
           signal: abortController.signal
         }).then((result) => {
-          done(result);
+          isComplete = true;
+          done(result || finalAccumulated);
         }).catch((err) => {
-          ctx.ui.notify(`Live transcription error: ${err}`, "error");
+          isComplete = true;
+          ctx.ui.notify(`Transcription error: ${err.message}`, "error");
           done(null);
         });
+
+        // Simple static UI - just indicators, no dynamic content
+        const container = new Container();
+        container.addChild(new DynamicBorder((s) => theme.fg("accent", s)));
+        container.addChild(new Text(theme.fg("accent", `🎙️ Live (${SUPPORTED_LANGUAGES[lang].name}) - Speak now...`), 1, 0));
+        container.addChild(new Text(theme.fg("dim", "Press Enter to confirm, Esc to cancel"), 1, 0));
 
         return {
           render: (w) => container.render(w),
@@ -319,11 +339,11 @@ export default function (pi: ExtensionAPI) {
           handleInput: async (data) => {
             if (data === "\r" || data === "\n") {
               // Enter = confirm
-              console.error("[voice-ui] Enter pressed, stopping...");
+              isComplete = true;
               await live.stop();
             } else if (data === "\x1b") {
               // Escape = cancel
-              console.error("[voice-ui] Escape pressed, cancelling...");
+              isComplete = true;
               abortController.abort();
               await live.stop();
               done(null);
