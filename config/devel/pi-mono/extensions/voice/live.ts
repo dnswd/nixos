@@ -36,17 +36,21 @@ export class LiveTranscription {
       // Start sox recording to feed Python script
       console.error("[voice] Starting sox...");
       this.sox = spawn("sox", [
+        "-q",                      // Quiet mode (no status output)
         "-d",                       // Default input device
         "-r", "16000",             // 16kHz (Vosk requirement)
         "-c", "1",                 // Mono
         "-e", "signed-integer",    // 16-bit PCM
         "-b", "16",
-        "-t", "raw", "-",         // Output raw to stdout
-        "2>/dev/null"              // Suppress sox status output
-      ]);
+        "-t", "raw", "-"          // Output raw to stdout
+      ], {
+        stdio: ["ignore", "pipe", "ignore"] // Ignore stdin, pipe stdout, ignore stderr
+      });
 
       // Pipe sox output to Python stdin
-      this.sox.stdout!.pipe(this.python!.stdin);
+      if (this.sox.stdout) {
+        this.sox.stdout.pipe(this.python!.stdin);
+      }
 
       // Handle Python stdout (JSON results)
       let buffer = "";
@@ -135,8 +139,8 @@ export class LiveTranscription {
       });
 
       // Handle sox exit (user stopped recording)
-      this.sox!.on("close", () => {
-        console.error("[voice] Sox closed, ending Python stdin");
+      this.sox!.on("close", (code) => {
+        console.error(`[voice] Sox closed with code ${code}, ending Python stdin`);
         // Close Python stdin to signal end of audio
         this.python?.stdin?.end();
       });
