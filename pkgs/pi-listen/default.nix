@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
     hash = "sha256-mAemsCcWCgMhNw/kO3r8S2yd00HXZyVy5qX55q07XDM=";
   };
 
-  nativeBuildInputs = [ nodejs pkgs.pnpm ];
+  nativeBuildInputs = [ nodejs pkgs.pnpm pkgs.cacert ];
 
   # Don't use the sourceRoot trick since we need the full repo
   dontSetSourceRoot = true;
@@ -20,9 +20,11 @@ stdenv.mkDerivation rec {
     export HOME=$TMPDIR
     export PNPM_HOME=$TMPDIR/pnpm
     export PATH=$PNPM_HOME:$PATH
+    export NODE_OPTIONS="--use-openssl-ca"
 
     # Install dependencies (this downloads platform-specific sherpa-onnx-node)
-    pnpm install --frozen-lockfile 2>&1 || pnpm install 2>&1
+    # No frozen-lockfile since repo uses bun.lock not pnpm-lock.yaml
+    pnpm install 2>&1
 
     # Verify sherpa-onnx-node native binding was downloaded
     ls -la node_modules/sherpa-onnx-node/ || echo "sherpa-onnx-node not found"
