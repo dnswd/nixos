@@ -21,7 +21,7 @@ let
     vosk
   ]);
 
-  # Transcribe script content
+  # Transcribe script content (vosk uses KaldiRecognizer, not Recognizer)
   transcribePy = pkgs.writeText "transcribe.py" ''
 import sys
 import json
@@ -29,12 +29,12 @@ import wave
 
 def transcribe_file(audio_path, model_path):
     try:
-        from vosk import Model, Recognizer
-    except ImportError:
-        return {"error": "vosk not installed"}
+        from vosk import Model, KaldiRecognizer
+    except ImportError as e:
+        return {"error": f"vosk import failed: {e}"}
 
     model = Model(model_path)
-    recognizer = Recognizer(model, 16000)
+    recognizer = KaldiRecognizer(model, 16000)
 
     try:
         wf = wave.open(audio_path, "rb")

@@ -13,13 +13,13 @@ import wave
 def transcribe_file(audio_path: str, model_path: str) -> dict:
     """Transcribe audio file using Vosk."""
     try:
-        from vosk import Model, Recognizer
-    except ImportError:
-        return {"error": "vosk not installed. Run: pip install vosk"}
+        from vosk import Model, KaldiRecognizer
+    except ImportError as e:
+        return {"error": f"vosk import failed: {e}"}
 
     # Load model
     model = Model(model_path)
-    recognizer = Recognizer(model, 16000)
+    recognizer = KaldiRecognizer(model, 16000)
 
     # Open audio file
     try:

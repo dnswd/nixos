@@ -13,14 +13,14 @@ import json
 def transcribe_live(model_path: str):
     """Transcribe live audio from stdin using Vosk."""
     try:
-        from vosk import Model, Recognizer
-    except ImportError:
-        print(json.dumps({"error": "vosk not installed. Run: pip install vosk"}), flush=True)
+        from vosk import Model, KaldiRecognizer
+    except ImportError as e:
+        print(json.dumps({"error": f"vosk import failed: {e}"}), flush=True)
         sys.exit(1)
 
     # Load model
     model = Model(model_path)
-    recognizer = Recognizer(model, 16000)
+    recognizer = KaldiRecognizer(model, 16000)
 
     # Process audio in chunks from stdin
     CHUNK_SIZE = 4096  # ~256ms at 16kHz
