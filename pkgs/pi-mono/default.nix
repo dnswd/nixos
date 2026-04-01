@@ -11,11 +11,8 @@ let
   cfg = config.programs.pi-mono;
   jsonFormat = pkgs.formats.json { };
 
-  # Sherpa-onnx for pi-listen local models
-  sherpa-onnx = pkgs.callPackage ../sherpa-onnx { };
-  
-  # Node.js bindings for sherpa-onnx (optional dependency for pi-listen)
-  sherpa-onnx-node = pkgs.callPackage ../sherpa-onnx-node { };
+  # pi-listen voice input extension (includes sherpa-onnx-node with native bindings)
+  pi-listen = pkgs.callPackage ../pi-listen { };
 
   pi-mono-src = inputs.pi-mono;
 
@@ -204,24 +201,17 @@ in
       ".pi/agent/AGENTS.md".source = cfg.agentsMd.source;
     }
       // optionalAttrs (cfg.extensions != null) {
-      ".pi/agent/extensions".source = pkgs.runCommand "pi-extensions-with-deps"
-        { buildInputs = [ pkgs.nodejs ]; }
+      ".pi/agent/extensions".source = pkgs.runCommand "pi-extensions"
+        { }
         ''
           mkdir -p $out
-          # Copy with permissions preserved, then make writable
-          cp -rL ${cfg.extensions}/* $out/
-          chmod -R u+w $out/
+          # Copy user extensions
+          cp -rL ${cfg.extensions}/* $out/ 2>/dev/null || true
           
-          # Install npm deps for pi-listen if present
-          if [ -d "$out/pi-listen" ]; then
-            cd $out/pi-listen
-            # Install production deps (omit optional)
-            npm ci --omit=optional 2>/dev/null || npm install --omit=optional 2>/dev/null || true
-            
-            # Link sherpa-onnx-node for local voice support
-            mkdir -p node_modules
-            ln -sf ${sherpa-onnx-node}/lib/sherpa-onnx-node node_modules/sherpa-onnx-node
-          fi
+          # Add pi-listen extension if voice is enabled
+          ${lib.optionalString cfg.voiceInput.enable ''
+            ln -sf ${pi-listen}/lib/pi-listen $out/pi-listen
+          ''}
         '';
     }
     // optionalAttrs (cfg.skills != null) {
