@@ -14,21 +14,6 @@ let
   # Sherpa-onnx for pi-listen local models
   sherpa-onnx = pkgs.callPackage ../sherpa-onnx { };
 
-  # pi-listen npm extension (voice input for pi)
-  pi-listen = pkgs.stdenv.mkDerivation rec {
-    pname = "pi-listen";
-    version = "5.0.5";
-    src = pkgs.fetchurl {
-      url = "https://registry.npmjs.org/@codexstar/pi-listen/-/pi-listen-${version}.tgz";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-    };
-    sourceRoot = "package";
-    installPhase = ''
-      mkdir -p $out/lib/pi-listen
-      cp -r . $out/lib/pi-listen/
-    '';
-  };
-
   pi-mono-src = inputs.pi-mono;
 
   packageJson = builtins.fromJSON (
@@ -216,15 +201,7 @@ in
       ".pi/agent/AGENTS.md".source = cfg.agentsMd.source;
     }
     // optionalAttrs (cfg.extensions != null) {
-      ".pi/agent/extensions".source = pkgs.symlinkJoin {
-        name = "pi-extensions";
-        paths = [ cfg.extensions ] ++ lib.optionals cfg.voiceInput.enable [
-          (pkgs.runCommand "pi-listen-link" {} ''
-            mkdir -p $out
-            ln -s ${pi-listen}/lib/pi-listen $out/pi-listen
-          '')
-        ];
-      };
+      ".pi/agent/extensions".source = cfg.extensions;
     }
     // optionalAttrs (cfg.skills != null) {
       ".pi/agent/skills".source = cfg.skills;
