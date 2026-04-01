@@ -21,9 +21,49 @@ let
     vosk
   ]);
 
-  # Wrapper script for Python with vosk (used by voice extension)
-  pythonWithVoskWrapper = pkgs.writeShellScriptBin "python3-vosk" ''
-    exec ${pythonWithVosk}/bin/python3 "$@"
+  # Transcribe script content
+  transcribePy = pkgs.writeText "transcribe.py" ''
+import sys
+import json
+import wave
+
+def transcribe_file(audio_path, model_path):
+    try:
+        from vosk import Model, Recognizer
+    except ImportError:
+        return {"error": "vosk not installed"}
+
+    model = Model(model_path)
+    recognizer = Recognizer(model, 16000)
+
+    try:
+        wf = wave.open(audio_path, "rb")
+    except Exception as e:
+        return {"error": f"Failed to open audio: {e}"}
+
+    if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
+        return {"error": "Audio must be WAV mono 16-bit PCM"}
+
+    while True:
+        data = wf.readframes(4000)
+        if len(data) == 0:
+            break
+        recognizer.AcceptWaveform(data)
+
+    result = recognizer.FinalResult()
+    return json.loads(result)
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print(json.dumps({"error": "Usage: transcribe.py <audio_file> <model_path>"}))
+        sys.exit(1)
+    result = transcribe_file(sys.argv[1], sys.argv[2])
+    print(json.dumps(result))
+'';
+
+  # Transcription script that bundles Python + vosk
+  voskTranscribe = pkgs.writeShellScriptBin "vosk-transcribe" ''
+    exec ${pythonWithVosk}/bin/python3 ${transcribePy} "$@"
   '';
 
   pi-mono-src = inputs.pi-mono;
@@ -175,14 +215,12 @@ in
     home.packages = [ piMono ] ++ lib.optionals cfg.voiceInput.enable [
       pkgs.sox
       pythonWithVosk
-      pythonWithVoskWrapper
+      voskTranscribe
     ];
 
-    home.sessionVariables = mkIf cfg.voiceInput.enable ({
-      PI_PYTHON_VOSK = "${pythonWithVoskWrapper}/bin/python3-vosk";
-    } // lib.optionalAttrs (cfg.voiceInput.device != null) {
+    home.sessionVariables = mkIf (cfg.voiceInput.enable && cfg.voiceInput.device != null) {
       PULSE_INPUT_DEVICE = cfg.voiceInput.device;
-    });
+    };
 
     home.activation.pi-mono-config = lib.hm.dag.entryAfter [ "writeBoundary" ] (
       let

@@ -8,7 +8,7 @@ import { join } from "path";
 import {
   ensureModel,
   redownloadModel,
-  transcribeWithPython,
+  transcribeWithVosk,
   SUPPORTED_LANGUAGES,
   type LanguageCode,
   listDownloadedLanguages
@@ -104,7 +104,7 @@ export default function (pi: ExtensionAPI) {
         container.addChild(new Text(theme.fg("dim", "Transcribing..."), 1, 0));
 
         try {
-          const r = await transcribeWithPython(audioFile, modelPath);
+          const r = await transcribeWithVosk(audioFile, modelPath);
           done(r);
         } catch (err) {
           ctx.ui.notify(`Transcription failed: ${err}`, "error");

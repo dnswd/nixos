@@ -35,46 +35,39 @@ export function getTranscribeScriptPath(): string {
   return join(__dirname, "transcribe.py");
 }
 
-export function getPythonPath(): string {
-  return process.env.PI_PYTHON_VOSK || "python3";
-}
-
-export async function transcribeWithPython(
+export async function transcribeWithVosk(
   audioFile: string,
   modelPath: string
 ): Promise<{ text: string; diagnostics: string }> {
-  const scriptPath = getTranscribeScriptPath();
-  const pythonPath = getPythonPath();
-
   return new Promise((resolve, reject) => {
-    const python = spawn(pythonPath, [scriptPath, audioFile, modelPath]);
+    const proc = spawn("vosk-transcribe", [audioFile, modelPath]);
     let output = "";
     let stderr = "";
 
-    python.stdout.on("data", (data) => output += data);
-    python.stderr.on("data", (data) => stderr += data);
+    proc.stdout.on("data", (data) => output += data);
+    proc.stderr.on("data", (data) => stderr += data);
 
-    python.on("close", (code) => {
-      const diagnostics = `Python: ${pythonPath}\nExit code: ${code}\nEnv PI_PYTHON_VOSK: ${process.env.PI_PYTHON_VOSK || "not set"}\nStderr: ${stderr || "(empty)"}`;
+    proc.on("close", (code) => {
+      const diagnostics = `Exit code: ${code}, Stderr: ${stderr || "(empty)"}`;
 
       if (code !== 0) {
-        reject(new Error(`Python script failed. ${diagnostics}`));
+        reject(new Error(`Transcription failed. ${diagnostics}`));
         return;
       }
 
       try {
         const result = JSON.parse(output);
         if (result.error) {
-          reject(new Error(`${result.error}\n${diagnostics}`));
+          reject(new Error(`${result.error} (${diagnostics})`));
         } else {
           resolve({ text: result.text || "", diagnostics });
         }
       } catch (e) {
-        reject(new Error(`Invalid JSON output: ${output}\n${diagnostics}`));
+        reject(new Error(`Invalid output: ${output} (${diagnostics})`));
       }
     });
 
-    python.on("error", (err) => reject(new Error(`${err.message}\nPython path: ${pythonPath}`)));
+    proc.on("error", (err) => reject(new Error(`${err.message}`)));
   });
 }
 
