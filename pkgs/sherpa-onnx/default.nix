@@ -12,11 +12,11 @@ let
     };
     x86_64-darwin = {
       system = "osx-universal2";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-9l1lzSvKCSthEPLAhN4EKcqrY/dhB4c21+qF2GqMK6o=";
     };
     aarch64-darwin = {
       system = "osx-universal2";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      hash = "sha256-9l1lzSvKCSthEPLAhN4EKcqrY/dhB4c21+qF2GqMK6o=";
     };
   };
 
@@ -40,9 +40,20 @@ in stdenv.mkDerivation rec {
   sourceRoot = ".";
 
   installPhase = ''
-    mkdir -p $out/bin
-    cp -r bin/* $out/bin/
-    chmod +x $out/bin/*
+    # Find the extracted directory (contains version in name)
+    for dir in sherpa-onnx-*; do
+      if [ -d "$dir" ]; then
+        mkdir -p $out/bin
+        cp -r "$dir/bin/"* $out/bin/ 2>/dev/null || true
+        # Also copy libs if they exist
+        if [ -d "$dir/lib" ]; then
+          mkdir -p $out/lib
+          cp -r "$dir/lib/"* $out/lib/ 2>/dev/null || true
+        fi
+        break
+      fi
+    done
+    chmod +x $out/bin/* 2>/dev/null || true
   '';
 
   meta = with lib; {
