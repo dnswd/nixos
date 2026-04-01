@@ -4,10 +4,6 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-function getPythonPath(): string {
-  return process.env.PI_PYTHON_VOSK || "python3";
-}
-
 export interface LiveTranscriptionOptions {
   modelPath: string;
   onPartial: (text: string) => void;
@@ -32,8 +28,9 @@ export class LiveTranscription {
     const scriptPath = join(__dirname, "live.py");
 
     return new Promise((resolve, reject) => {
-      // Start Python script for live transcription
-      this.python = spawn(getPythonPath(), [scriptPath, modelPath], {
+      // Start Python script using nix-provided python with vosk
+      // Use nix-shell shebang in live.py, so just run it directly
+      this.python = spawn("vosk-transcribe-live", [modelPath], {
         stdio: ["pipe", "pipe", "pipe"] // stdin, stdout, stderr
       });
 

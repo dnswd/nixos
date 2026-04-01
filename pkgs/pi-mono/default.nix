@@ -61,9 +61,43 @@ if __name__ == "__main__":
     print(json.dumps(result))
 '';
 
+  # Live transcription script content
+  livePy = pkgs.writeText "live.py" ''
+import sys
+import json
+import vosk
+
+if len(sys.argv) != 2:
+    print(json.dumps({"error": "Usage: live.py <model_path>"}))
+    sys.exit(1)
+
+model_path = sys.argv[1]
+model = vosk.Model(model_path)
+recognizer = vosk.KaldiRecognizer(model, 16000)
+
+while True:
+    data = sys.stdin.buffer.read(4000)
+    if not data:
+        break
+    if recognizer.AcceptWaveform(data):
+        print(json.dumps(json.loads(recognizer.Result())))
+        sys.stdout.flush()
+    else:
+        partial = recognizer.PartialResult()
+        print(json.dumps({"partial": json.loads(partial).get("partial", "")}))
+        sys.stdout.flush()
+
+print(json.dumps(json.loads(recognizer.FinalResult())))
+'';
+
   # Transcription script that bundles Python + vosk
   voskTranscribe = pkgs.writeShellScriptBin "vosk-transcribe" ''
     exec ${pythonWithVosk}/bin/python3 ${transcribePy} "$@"
+  '';
+
+  # Live transcription script
+  voskTranscribeLive = pkgs.writeShellScriptBin "vosk-transcribe-live" ''
+    exec ${pythonWithVosk}/bin/python3 ${livePy} "$@"
   '';
 
   pi-mono-src = inputs.pi-mono;
@@ -216,6 +250,7 @@ in
       pkgs.sox
       pythonWithVosk
       voskTranscribe
+      voskTranscribeLive
     ];
 
     home.sessionVariables = mkIf (cfg.voiceInput.enable && cfg.voiceInput.device != null) {
