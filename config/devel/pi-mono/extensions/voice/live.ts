@@ -1,6 +1,8 @@
 import { spawn, type ChildProcess } from "child_process";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { promises as fs } from "fs";
+import { tmpdir } from "os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -17,6 +19,7 @@ export class LiveTranscription {
   private accumulatedText: string = "";
   private currentPartial: string = "";
   private aborted: boolean = false;
+  private stopSignalFile: string | null = null;
 
   async start(options: LiveTranscriptionOptions): Promise<string> {
     const { modelPath, onPartial, onFinal, signal } = options;
@@ -25,6 +28,9 @@ export class LiveTranscription {
     if (signal) {
       signal.addEventListener("abort", () => this.stop(), { once: true });
     }
+
+    // Create a signal file for IPC
+    this.stopSignalFile = join(tmpdir(), `pi-voice-stop-${Date.now()}.signal`);
 
     return new Promise((resolve, reject) => {
       // Start Python script using nix-provided python with vosk
@@ -51,6 +57,21 @@ export class LiveTranscription {
       if (this.sox.stdout) {
         this.sox.stdout.pipe(this.python!.stdin);
       }
+
+      // Poll for stop signal file
+      const checkInterval = setInterval(async () => {
+        if (this.stopSignalFile) {
+          try {
+            await fs.access(this.stopSignalFile);
+            // Signal file exists, stop recording
+            console.error("[voice] Stop signal file detected");
+            clearInterval(checkInterval);
+            this.stop();
+          } catch {
+            // File doesn't exist yet, continue
+          }
+        }
+      }, 100); // Check every 100ms
 
       // Handle Python stdout (JSON results)
       let buffer = "";
@@ -123,6 +144,11 @@ export class LiveTranscription {
       // Handle Python exit
       this.python!.on("close", (code) => {
         console.error(`[voice] Python exited with code ${code}`);
+        clearInterval(checkInterval);
+        // Cleanup signal file
+        if (this.stopSignalFile) {
+          fs.unlink(this.stopSignalFile).catch(() => {});
+        }
         // Kill sox when Python exits
         this.sox?.kill("SIGTERM");
 
@@ -147,9 +173,19 @@ export class LiveTranscription {
     });
   }
 
-  stop(): void {
+  async stop(): Promise<void> {
     console.error("[voice] Stopping recording...");
     this.aborted = true;
+    
+    // Create signal file to trigger stop
+    if (this.stopSignalFile) {
+      try {
+        await fs.writeFile(this.stopSignalFile, "stop");
+        console.error("[voice] Stop signal file created");
+      } catch (e) {
+        console.error("[voice] Failed to create stop signal:", e);
+      }
+    }
     
     // Kill sox first to stop audio flow
     if (this.sox) {

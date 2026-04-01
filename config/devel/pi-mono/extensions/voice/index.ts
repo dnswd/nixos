@@ -316,14 +316,16 @@ export default function (pi: ExtensionAPI) {
         return {
           render: (w) => container.render(w),
           invalidate: () => {},
-          handleInput: (data) => {
+          handleInput: async (data) => {
             if (data === "\r" || data === "\n") {
               // Enter = confirm
-              live.stop();
+              console.error("[voice-ui] Enter pressed, stopping...");
+              await live.stop();
             } else if (data === "\x1b") {
               // Escape = cancel
+              console.error("[voice-ui] Escape pressed, cancelling...");
               abortController.abort();
-              live.stop();
+              await live.stop();
               done(null);
             }
           }
