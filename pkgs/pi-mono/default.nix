@@ -11,7 +11,10 @@ let
   cfg = config.programs.pi-mono;
   jsonFormat = pkgs.formats.json { };
 
-  # Vosk Python package (not in nixpkgs)
+  # Sherpa-onnx for pi-listen local models
+  sherpa-onnx = pkgs.callPackage ../sherpa-onnx { };
+
+  # Vosk Python package (legacy - kept for backwards compatibility)
   vosk = pkgs.callPackage ./vosk.nix {
     inherit (pkgs.python3Packages) buildPythonPackage cffi requests tqdm websockets srt;
   };
@@ -143,7 +146,10 @@ in
     enable = mkEnableOption "pi-mono coding agent";
 
     voiceInput = {
-      enable = mkEnableOption "voice input functionality (requires sox for recording)";
+      enable = mkEnableOption ''voice input functionality (pi-listen extension).
+        After enabling, run `pi install npm:@codexstar/pi-listen` inside pi TUI.
+        Uses sherpa-onnx for local models (offline) - run `/voice-settings` to configure.
+      '';
 
       device = mkOption {
         type = types.nullOr types.str;
@@ -247,10 +253,8 @@ in
 
   config = mkIf cfg.enable {
     home.packages = [ piMono ] ++ lib.optionals cfg.voiceInput.enable [
-      pkgs.sox
-      pythonWithVosk
-      voskTranscribe
-      voskTranscribeLive
+      pkgs.sox        # Audio recording for pi-listen
+      sherpa-onnx     # Local speech recognition for pi-listen
     ];
 
     home.sessionVariables = mkIf (cfg.voiceInput.enable && cfg.voiceInput.device != null) {

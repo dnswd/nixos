@@ -6,7 +6,10 @@
 }:
 {
   imports = [
-    ../config/devel
+    ../config/devel/pi-mono
+    ../config/devel/git.nix
+    ../config/devel/jetbrains.nix
+    ../config/devel/langs.nix
   ];
 
   home.username = "oydennisalbaihaqi";

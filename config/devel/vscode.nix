@@ -26,18 +26,18 @@
         # ms-azuretools.vscode-docker
         # ms-kubernetes-tools.vscode-kubernetes-tools
       ];
-      userSettings = {
-        "editor.fontFamily" = "'FantasqueSansMono Nerd Font', monospace";
-        "editor.fontSize" = 14;
-        "editor.lineNumbers" = "relative";
-        "editor.minimap.enabled" = false;
-        "editor.autoSave" = "onFocusChange";
-        "editor.formatOnSave" = true;
-        "editor.tabSize" = 2;
-        "editor.workbench.startupEditor" = "none";
-        "editor.window.menuBarVisibility" = "toggle";
-        "editor.terminal.integrated.fontFamily" = "'FantasqueSansMono Nerd Font'";
-      };
+      # userSettings = {
+      #   "editor.fontFamily" = "'FantasqueSansMono Nerd Font', monospace";
+      #   "editor.fontSize" = 14;
+      #   "editor.lineNumbers" = "relative";
+      #   "editor.minimap.enabled" = false;
+      #   "editor.autoSave" = "onFocusChange";
+      #   "editor.formatOnSave" = true;
+      #   "editor.tabSize" = 2;
+      #   "editor.workbench.startupEditor" = "none";
+      #   "editor.window.menuBarVisibility" = "toggle";
+      #   "editor.terminal.integrated.fontFamily" = "'FantasqueSansMono Nerd Font'";
+      # };
     };
   };
 }
