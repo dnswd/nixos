@@ -13,6 +13,9 @@ let
 
   # Sherpa-onnx for pi-listen local models
   sherpa-onnx = pkgs.callPackage ../sherpa-onnx { };
+  
+  # Node.js bindings for sherpa-onnx (optional dependency for pi-listen)
+  sherpa-onnx-node = pkgs.callPackage ../sherpa-onnx-node { };
 
   pi-mono-src = inputs.pi-mono;
 
@@ -210,8 +213,12 @@ in
           # Install npm deps for pi-listen if present
           if [ -d "$out/pi-listen" ]; then
             cd $out/pi-listen
-            # Install only production deps (skip optional sherpa-onnx-node for now)
+            # Install production deps (omit optional)
             npm ci --omit=optional 2>/dev/null || npm install --omit=optional 2>/dev/null || true
+            
+            # Link sherpa-onnx-node for local voice support
+            mkdir -p node_modules
+            ln -sf ${sherpa-onnx-node}/lib/sherpa-onnx-node node_modules/sherpa-onnx-node
           fi
         '';
     }
