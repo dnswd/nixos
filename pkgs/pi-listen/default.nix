@@ -3,7 +3,7 @@
 # pi-listen extension built with npm (includes platform-specific native bindings)
 stdenv.mkDerivation rec {
   pname = "pi-listen";
-  version = "5.0.5";
+  version = "5.0.0";
 
   src = fetchgit {
     url = "https://github.com/codexstar69/pi-listen.git";
