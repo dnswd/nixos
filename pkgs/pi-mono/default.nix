@@ -165,7 +165,7 @@ in
   config = mkIf cfg.enable {
     home.packages = [ piMono ] ++ lib.optionals cfg.voiceInput.enable [
       pkgs.sox        # Audio recording for pi-listen
-      sherpa-onnx     # Local speech recognition for pi-listen
+      # Note: sherpa-onnx-node with native bindings is bundled in pi-listen via npm
     ];
 
     home.sessionVariables = mkIf (cfg.voiceInput.enable && cfg.voiceInput.device != null) {
