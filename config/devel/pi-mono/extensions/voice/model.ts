@@ -35,21 +35,19 @@ export function getTranscribeScriptPath(): string {
   return join(__dirname, "transcribe.py");
 }
 
-function getPythonPath(): string {
-  const path = process.env.PI_PYTHON_VOSK || "python3";
-  console.error(`[voice] Python path: ${path}`);
-  console.error(`[voice] PI_PYTHON_VOSK env: ${process.env.PI_PYTHON_VOSK || "not set"}`);
-  return path;
+export function getPythonPath(): string {
+  return process.env.PI_PYTHON_VOSK || "python3";
 }
 
 export async function transcribeWithPython(
   audioFile: string,
   modelPath: string
-): Promise<string> {
+): Promise<{ text: string; diagnostics: string }> {
   const scriptPath = getTranscribeScriptPath();
+  const pythonPath = getPythonPath();
 
   return new Promise((resolve, reject) => {
-    const python = spawn(getPythonPath(), [scriptPath, audioFile, modelPath]);
+    const python = spawn(pythonPath, [scriptPath, audioFile, modelPath]);
     let output = "";
     let stderr = "";
 
@@ -57,24 +55,26 @@ export async function transcribeWithPython(
     python.stderr.on("data", (data) => stderr += data);
 
     python.on("close", (code) => {
+      const diagnostics = `Python: ${pythonPath}\nExit code: ${code}\nEnv PI_PYTHON_VOSK: ${process.env.PI_PYTHON_VOSK || "not set"}\nStderr: ${stderr || "(empty)"}`;
+
       if (code !== 0) {
-        reject(new Error(`Python script failed: ${stderr || output}`));
+        reject(new Error(`Python script failed. ${diagnostics}`));
         return;
       }
 
       try {
         const result = JSON.parse(output);
         if (result.error) {
-          reject(new Error(result.error));
+          reject(new Error(`${result.error}\n${diagnostics}`));
         } else {
-          resolve(result.text || "");
+          resolve({ text: result.text || "", diagnostics });
         }
       } catch (e) {
-        reject(new Error(`Invalid JSON output: ${output}`));
+        reject(new Error(`Invalid JSON output: ${output}\n${diagnostics}`));
       }
     });
 
-    python.on("error", (err) => reject(err));
+    python.on("error", (err) => reject(new Error(`${err.message}\nPython path: ${pythonPath}`)));
   });
 }
 

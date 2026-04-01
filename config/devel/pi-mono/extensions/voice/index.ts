@@ -99,13 +99,13 @@ export default function (pi: ExtensionAPI) {
       }
 
       // Transcription phase
-      const text = await ctx.ui.custom<string | null>(async (_tui, theme, _kb, done) => {
+      const result = await ctx.ui.custom<{ text: string; diagnostics: string } | null>(async (_tui, theme, _kb, done) => {
         const container = new Container();
         container.addChild(new Text(theme.fg("dim", "Transcribing..."), 1, 0));
 
         try {
-          const result = await transcribeWithPython(audioFile, modelPath);
-          done(result);
+          const r = await transcribeWithPython(audioFile, modelPath);
+          done(r);
         } catch (err) {
           ctx.ui.notify(`Transcription failed: ${err}`, "error");
           done(null);
@@ -120,9 +120,11 @@ export default function (pi: ExtensionAPI) {
         };
       });
 
-      if (text) {
+      if (result) {
         const currentText = ctx.ui.getEditorText?.() || "";
-        ctx.ui.setEditorText(currentText + (currentText ? " " : "") + text);
+        ctx.ui.setEditorText(currentText + (currentText ? " " : "") + result.text);
+        // Show diagnostics in notification
+        ctx.ui.notify(`Voice diagnostics: ${result.diagnostics.slice(0, 100)}...`, "info");
       }
     }
   });
