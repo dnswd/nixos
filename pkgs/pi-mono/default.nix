@@ -14,6 +14,9 @@ let
   # pi-listen voice input extension (includes sherpa-onnx-node with native bindings)
   pi-listen = pkgs.callPackage ../pi-listen { };
 
+  # pi-web-browse web search extension (includes playwright, undici, etc.)
+  pi-web-browse = pkgs.callPackage ../pi-web-browse { };
+
   pi-mono-src = inputs.pi-mono;
 
   packageJson = builtins.fromJSON (
@@ -209,6 +212,9 @@ in
           ${lib.optionalString cfg.voiceInput.enable ''
             ln -sf ${pi-listen}/lib/pi-listen $out/pi-listen
           ''}
+          
+          # Add pi-web-browse extension for web search functionality
+          ln -sf ${pi-web-browse}/lib/pi-web-browse $out/pi-web-browse
         '';
     }
     // optionalAttrs (cfg.skills != null) {

@@ -7,6 +7,14 @@
 {
   imports = [ ../agenix.nix ];
 
+  home.packages =
+    with pkgs;
+    [
+    git-stack
+      lazygit
+      gh
+    ];
+
   age.secrets.gitconfig = {
     file = ../../secrets/gitconfig.age;
     path = "${config.home.homeDirectory}/.config/git/config.secret";
@@ -86,8 +94,4 @@
     enable = true;
     enableGitIntegration = true;
   };
-
-  home.packages = with pkgs; [
-    git-stack
-  ];
 }

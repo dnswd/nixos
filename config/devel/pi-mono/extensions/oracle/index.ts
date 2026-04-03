@@ -58,13 +58,24 @@ Do NOT use the Oracle for:
       }
 
       // Spin up an ephemeral subagent session
-      // EDIT THIS: change the model to your preferred oracle model
-      const oracleModel = ctx.modelRegistry.find("ollama", "qwen3-coder:latest");
+      // Try to find a suitable reasoning model for the oracle
+      // Priority: ollama with reasoning models, fireworks kimi-k2p5 (has reasoning), or current model
+      let oracleModel = ctx.modelRegistry.find("ollama", "qwen3-coder:latest") 
+        || ctx.modelRegistry.find("ollama", "qwq:latest")
+        || ctx.modelRegistry.find("ollama", "deepseek-r1:latest")
+        || ctx.modelRegistry.find("fireworks", "accounts/fireworks/models/kimi-k2p5");
+      
+      // Fallback to current session's model if no oracle-specific model found
       if (!oracleModel) {
-        return {
-          content: [{ type: "text", text: "Oracle model not found." }],
-          details: { error: "Model not found" },
-        };
+        const currentModel = ctx.model;
+        if (currentModel) {
+          oracleModel = currentModel;
+        } else {
+          return {
+            content: [{ type: "text", text: "Oracle model not found. No suitable model available in registry." }],
+            details: { error: "Model not found", availableProviders: ctx.modelRegistry.getProviders().map(p => p.id) },
+          };
+        }
       }
 
       const tools = createReadOnlyTools(ctx.cwd);

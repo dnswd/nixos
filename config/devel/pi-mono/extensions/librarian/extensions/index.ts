@@ -411,8 +411,12 @@ export default function librarianExtension(pi: ExtensionAPI) {
         const status = computeOverallStatus(runs);
         const text = renderCombinedMarkdown(runs);
 
+        // Include workspace path in content so subsequent tools (like oracle) can access the files
+        const workspaceInfo = `\n\n---\n**Librarian Workspace:** ${workspace}\n\n*Access files at: ${workspace}/repos/<owner>/<repo>/...*`;
+        const enhancedText = text + workspaceInfo;
+
         return {
-          content: [{ type: "text", text }],
+          content: [{ type: "text", text: enhancedText }],
           details: {
             status,
             workspace,
