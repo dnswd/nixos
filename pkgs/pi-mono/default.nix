@@ -163,10 +163,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ piMono ] ++ lib.optionals cfg.voiceInput.enable [
-      pkgs.sox        # Audio recording for pi-listen
-      # Note: sherpa-onnx-node with native bindings is bundled in pi-listen via npm
-    ];
+    home.packages = [ piMono pkgs.poppler-utils ];
 
     home.sessionVariables = mkIf (cfg.voiceInput.enable && cfg.voiceInput.device != null) {
       PULSE_INPUT_DEVICE = cfg.voiceInput.device;
