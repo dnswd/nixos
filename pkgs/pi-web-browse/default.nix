@@ -1,4 +1,4 @@
-{ lib, pkgs, stdenv, nodejs, fetchgit }:
+{ lib, pkgs, stdenv, nodejs, fetchgit, ... }:
 
 let
   cli = stdenv.mkDerivation rec {
@@ -11,28 +11,36 @@ let
       hash = "sha256-yErbEG9KJ+azEoLYEkz0yxZ3mb1SzRTabv8Op3rPxP8=";
     };
 
-    nativeBuildInputs = [ nodejs pkgs.cacert ];
+    # npmDeps must be a derivation attr (not in let) for npmConfigHook
+    npmDeps = pkgs.fetchNpmDeps {
+      inherit src;
+      name = "${pname}-${version}-npm-deps";
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    };
 
-    buildPhase = ''
-      export HOME=$TMPDIR
-      export NODE_OPTIONS="--use-openssl-ca"
+    # Use npmWorkspace so npmConfigHook installs in the right directory
+    npmWorkspace = "packages/pi-web-browse";
+    sourceRoot = ".";
 
-      # Install dependencies from the subdirectory (npm installs at monorepo root)
-      (cd packages/pi-web-browse && npm install 2>&1)
-    '';
+    nativeBuildInputs = [
+      nodejs
+      pkgs.npmHooks.npmConfigHook
+    ];
+
+    # npmConfigHook runs npm install automatically - no buildPhase needed
 
     installPhase = ''
       mkdir -p $out/lib/pi-web-browse
 
-      # Copy all CLI files from subdirectory
+      # Copy all CLI files from workspace subdirectory
       cp -r packages/pi-web-browse/lib $out/lib/pi-web-browse/
       cp packages/pi-web-browse/web-browse.js $out/lib/pi-web-browse/
       cp packages/pi-web-browse/package.json $out/lib/pi-web-browse/
       cp packages/pi-web-browse/README.md $out/lib/pi-web-browse/ 2>/dev/null || true
       cp packages/pi-web-browse/LICENSE $out/lib/pi-web-browse/ 2>/dev/null || true
 
-      # Copy node_modules from monorepo root (where npm actually installed them)
-      cp -r node_modules $out/lib/pi-web-browse/
+      # Copy node_modules from workspace subdirectory (where npm installed)
+      cp -r packages/pi-web-browse/node_modules $out/lib/pi-web-browse/
 
       # Remove unnecessary cache files to save space
       rm -rf $out/lib/pi-web-browse/node_modules/.cache 2>/dev/null || true

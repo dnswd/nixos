@@ -1,6 +1,43 @@
-{ lib, pkgs, stdenv, nodejs, fetchgit }:
+{ lib, pkgs, stdenv, nodejs, fetchgit, pnpm, bun, cacert, git, ... }:
 
-# pi-listen extension built with pnpm (includes platform-specific native bindings)
+let
+  # FOD to fetch dependencies with bun (network access allowed in FOD with hash)
+  nodeModules = stdenv.mkDerivation {
+    name = "pi-listen-node-modules";
+
+    src = fetchgit {
+      url = "https://github.com/codexstar69/pi-listen.git";
+      rev = "refs/tags/v5.0.0";
+      hash = "sha256-mAemsCcWCgMhNw/kO3r8S2yd00HXZyVy5qX55q07XDM=";
+    };
+
+    # Allow network access in FOD (hash ensures reproducibility)
+    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [ "GIT_CONFIG_GLOBAL" "NIX_NPM_REGISTRY" ];
+    outputHashAlgo = "sha256";
+    outputHashMode = "recursive";
+    outputHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";  # replace with actual hash after build
+
+    preferLocalBuild = true;
+
+    nativeBuildInputs = [ bun cacert git ];
+
+    buildPhase = ''
+      export HOME=$TMPDIR
+
+      # bun install respects bun.lock (frozen lockfile by default)
+      bun install --no-cache
+
+      # Copy to output
+      mkdir -p $out
+      cp -r node_modules $out/
+      cp package.json $out/
+    '';
+
+    dontInstall = true;
+    dontFixup = true;
+  };
+in
+
 stdenv.mkDerivation rec {
   pname = "pi-listen";
   version = "5.0.0";
@@ -11,40 +48,27 @@ stdenv.mkDerivation rec {
     hash = "sha256-mAemsCcWCgMhNw/kO3r8S2yd00HXZyVy5qX55q07XDM=";
   };
 
-  nativeBuildInputs = [ nodejs pkgs.pnpm pkgs.cacert ];
+  nativeBuildInputs = [ nodejs ];
 
-  # Don't use the sourceRoot trick since we need the full repo
-  dontSetSourceRoot = true;
+  dontConfigure = true;
 
   buildPhase = ''
-    export HOME=$TMPDIR
-    export PNPM_HOME=$TMPDIR/pnpm
-    export PATH=$PNPM_HOME:$PATH
-    export NODE_OPTIONS="--use-openssl-ca"
-
-    # Install dependencies (this downloads platform-specific sherpa-onnx-node)
-    # No frozen-lockfile since repo uses bun.lock not pnpm-lock.yaml
-    pnpm install 2>&1
-
-    # Verify sherpa-onnx-node native binding was downloaded
-    ls -la node_modules/sherpa-onnx-node/ || echo "sherpa-onnx-node not found"
-    find node_modules -name "sherpa-onnx.node" 2>/dev/null || echo "native binding not found"
+    # Copy pre-fetched node_modules from FOD
+    cp -r ${nodeModules}/node_modules .
   '';
 
   installPhase = ''
     mkdir -p $out/lib/pi-listen
 
-    # Copy essential extension files
+    # Copy extension files
     cp -r extensions $out/lib/pi-listen/
     cp package.json $out/lib/pi-listen/
 
-    # Copy node_modules with native bindings
+    # Copy node_modules
     cp -r node_modules $out/lib/pi-listen/
 
-    # Remove unnecessary files to save space (keep .pnpm for symlinks)
+    # Clean up cache files to save space (keep .bin for CLI tools)
     rm -rf $out/lib/pi-listen/node_modules/.cache 2>/dev/null || true
-    rm -rf $out/lib/pi-listen/node_modules/.bin 2>/dev/null || true
-    # Note: Don't remove .pnpm - it contains the actual packages that symlinks point to
   '';
 
   meta = with lib; {

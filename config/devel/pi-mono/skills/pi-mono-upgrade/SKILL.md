@@ -47,7 +47,7 @@ This updates `flake.lock` with the new revision.
 
 ### 3. Update Extensions package.json
 
-Extensions are in `modules/home/cli/pi-mono/extensions/`.
+Extensions are in `~/nixos/config/devel/pi-mono/extensions/`.
 
 Update `package.json` devDependencies to match the new version:
 

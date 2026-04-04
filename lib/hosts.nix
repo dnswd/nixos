@@ -125,6 +125,7 @@ rec {
           nameValuePair user.username {
             imports = [
               catppuccin.homeModules.catppuccin
+              inputs.agenix.homeManagerModules.default
               user.homeConfig
             ];
           }

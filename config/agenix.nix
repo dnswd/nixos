@@ -39,6 +39,9 @@
     # The SSH private key used to decrypt all age secrets on this machine.
     # This key must have a corresponding public key listed in secrets.nix
     # for each secret you want to decrypt.
-    identityPaths = [ "${config.home.homeDirectory}/.ssh/id_rsa" ];
+    identityPaths = [
+      "${config.home.homeDirectory}/.ssh/id_rsa"
+      "${config.home.homeDirectory}/.ssh/id_ed25519"
+    ];
   };
 }
