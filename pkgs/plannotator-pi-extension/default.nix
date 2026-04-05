@@ -16,28 +16,19 @@ stdenv.mkDerivation rec {
   dontConfigure = true;
 
   buildPhase = ''
-    # The source was unpacked to $sourceRoot (detected by stdenv as 'plannotator')
-    # Copy to a writable location so we can run vendor.sh
-    cp -r "$sourceRoot" ./source
-    chmod -R +w ./source
+    export WRITABLE_SOURCE="$NIX_BUILD_TOP/source"
+    mkdir -p "$WRITABLE_SOURCE"
+    cp -r . "$WRITABLE_SOURCE/"
+    cd "$WRITABLE_SOURCE"
+    chmod -R +w .
 
-    # Run vendor.sh to generate the generated/ directory
-    # vendor.sh references ../../packages/ from apps/pi-extension
-    # Use subshell so directory change doesn't affect installPhase
-    (cd ./source/apps/pi-extension && bash vendor.sh)
+    (cd apps/pi-extension && bash vendor.sh)
   '';
 
   installPhase = ''
     mkdir -p $out/lib/plannotator-pi-extension
-
-    # Copy built extension source
-    cp -r ./source/apps/pi-extension/* $out/lib/plannotator-pi-extension/
-
-    # Clean up any node_modules from source (shouldn't exist, but just in case)
+    cp -r "$NIX_BUILD_TOP/source/apps/pi-extension/"* $out/lib/plannotator-pi-extension/
     rm -rf $out/lib/plannotator-pi-extension/node_modules 2>/dev/null || true
-
-    # The skills are included at apps/pi-extension/skills/
-    # They're automatically discovered by pi-mono via the pi.skills key in package.json
   '';
 
   meta = with lib; {
