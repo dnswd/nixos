@@ -73,6 +73,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ nodejs ];
 
   dontConfigure = true;
+  dontFixup = true;  # Skip broken symlink check (npm creates self-referential symlinks)
 
   buildPhase = ''
     # Copy pre-fetched node_modules from FOD
