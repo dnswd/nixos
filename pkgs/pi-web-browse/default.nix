@@ -1,51 +1,112 @@
 { lib, pkgs, stdenv, nodejs, fetchgit, ... }:
 
 let
+  # Separate FOD for npm dependencies (like pi-listen pattern)
+  nodeModules = stdenv.mkDerivation {
+    name = "pi-web-browse-node-modules";
+
+    src = fetchgit {
+      url = "https://github.com/ogulcancelik/pi-extensions.git";
+      rev = "d4e61c0a8be814c465b9224b26f05a0310c94d7a";
+      hash = "sha256-yErbEG9KJ+azEoLYEkz0yxZ3mb1SzRTabv8Op3rPxP8=";
+    };
+
+    # FOD allows network access for npm install
+    # Reset hash to empty to capture new hash after fixing installPhase
+    outputHashMode = "recursive";
+    outputHashAlgo = "sha256";
+    outputHash = "";
+
+    preferLocalBuild = true;
+    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [ "NIX_NPM_REGISTRY" "SSL_CERT_FILE" ];
+
+    nativeBuildInputs = [ nodejs pkgs.cacert ];
+
+    dontConfigure = true;
+    dontFixup = true;
+
+    buildPhase = ''
+      export HOME=$TMPDIR
+      export NODE_OPTIONS="--use-openssl-ca"
+
+      # Run from root with workspace flag for predictable behavior
+      # Don't cd into package dir - that causes hoisting to root
+      npm install --workspace=packages/pi-web-browse \
+                  --install-strategy=hoisted \
+                  --legacy-peer-deps 2>/dev/null || true
+      
+      # Debug: verify node_modules location
+      echo "=== npm install complete ==="
+      ls -la
+      ls -la packages/pi-web-browse/ | head -20
+      find . -name "node_modules" -maxdepth 2 -type d 2>/dev/null || echo "no node_modules found"
+    '';
+
+    installPhase = ''
+      mkdir -p $out
+      
+      # Try package-level node_modules first (ideal), fallback to root (hoisted)
+      if [ -d "packages/pi-web-browse/node_modules" ]; then
+        echo "Found node_modules at package level"
+        cp -r packages/pi-web-browse/node_modules $out/
+      elif [ -d "node_modules" ]; then
+        echo "Found node_modules at root (hoisted)"
+        cp -r node_modules $out/
+      else
+        echo "ERROR: node_modules not found"
+        find . -name "node_modules" -type d 2>/dev/null | head -5
+        exit 1
+      fi
+      
+      cp packages/pi-web-browse/package.json $out/
+    '';
+
+    meta = with lib; {
+      description = "npm dependencies for pi-web-browse";
+      homepage = "https://github.com/ogulcancelik/pi-extensions";
+      license = licenses.mit;
+      platforms = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
+    };
+  };
+
+  # Main CLI derivation (not FOD, copies from FOD)
   cli = stdenv.mkDerivation rec {
     pname = "pi-web-browse-cli";
     version = "1.0.5";
 
     src = fetchgit {
       url = "https://github.com/ogulcancelik/pi-extensions.git";
-      rev = "d4e61c0a8be814c465b9224b26f05a0310c94d7a"; # latest
+      rev = "d4e61c0a8be814c465b9224b26f05a0310c94d7a";
       hash = "sha256-yErbEG9KJ+azEoLYEkz0yxZ3mb1SzRTabv8Op3rPxP8=";
     };
 
-    # npmDeps must be a derivation attr (not in let) for npmConfigHook
-    npmDeps = pkgs.fetchNpmDeps {
-      inherit src;
-      name = "${pname}-${version}-npm-deps";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-    };
+    nativeBuildInputs = [ nodejs ];
 
-    # Use npmWorkspace so npmConfigHook installs in the right directory
-    npmWorkspace = "packages/pi-web-browse";
-    sourceRoot = ".";
+    dontConfigure = true;
+    dontFixup = true;
 
-    nativeBuildInputs = [
-      nodejs
-      pkgs.npmHooks.npmConfigHook
-    ];
-
-    # npmConfigHook runs npm install automatically - no buildPhase needed
+    buildPhase = ''
+      # Copy node_modules from FOD
+      mkdir -p packages/pi-web-browse
+      cp -r ${nodeModules}/node_modules packages/pi-web-browse/
+      cp ${nodeModules}/package.json packages/pi-web-browse/
+    '';
 
     installPhase = ''
       mkdir -p $out/lib/pi-web-browse
 
-      # Copy all CLI files from workspace subdirectory
+      # Copy all CLI files from package directory
       cp -r packages/pi-web-browse/lib $out/lib/pi-web-browse/
       cp packages/pi-web-browse/web-browse.js $out/lib/pi-web-browse/
       cp packages/pi-web-browse/package.json $out/lib/pi-web-browse/
       cp packages/pi-web-browse/README.md $out/lib/pi-web-browse/ 2>/dev/null || true
       cp packages/pi-web-browse/LICENSE $out/lib/pi-web-browse/ 2>/dev/null || true
 
-      # Copy node_modules from workspace subdirectory (where npm installed)
+      # Copy node_modules from build directory
       cp -r packages/pi-web-browse/node_modules $out/lib/pi-web-browse/
 
-      # Remove unnecessary cache files to save space
+      # Clean up cache files and broken symlinks
       rm -rf $out/lib/pi-web-browse/node_modules/.cache 2>/dev/null || true
-      
-      # Fix broken symlinks (npm creates self-referential symlinks)
       rm -rf $out/lib/pi-web-browse/node_modules/.bin 2>/dev/null || true
       rm -rf $out/lib/pi-web-browse/node_modules/@ogulcancelik 2>/dev/null || true
     '';
@@ -223,12 +284,12 @@ pkgs.runCommand "pi-web-browse"
   ''
     mkdir -p $out/lib/pi-web-browse
 
-    # Copy CLI files (lib, web-browse.js, node_modules, etc.)
+    # Copy CLI files
     cp -r ${cli}/lib/pi-web-browse/lib $out/lib/pi-web-browse/
     cp ${cli}/lib/pi-web-browse/web-browse.js $out/lib/pi-web-browse/
     cp -r ${cli}/lib/pi-web-browse/node_modules $out/lib/pi-web-browse/
 
-    # Copy optional files if they exist
+    # Copy optional files
     cp ${cli}/lib/pi-web-browse/README.md $out/lib/pi-web-browse/ 2>/dev/null || true
     cp ${cli}/lib/pi-web-browse/LICENSE $out/lib/pi-web-browse/ 2>/dev/null || true
 
@@ -237,7 +298,7 @@ pkgs.runCommand "pi-web-browse"
     cp ${extension}/lib/pi-web-browse/extension/index.ts $out/lib/pi-web-browse/extension/
     cp ${extensionPackageJson}/lib/pi-web-browse/extension/package.json $out/lib/pi-web-browse/extension/
 
-    # Write the root package.json with pi.extensions (regular file, not symlink)
+    # Write the root package.json
     cat > $out/lib/pi-web-browse/package.json << 'EOF'
     {
       "name": "@ogulcancelik/pi-web-browse",

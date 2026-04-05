@@ -15,7 +15,7 @@ let
     impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [ "GIT_CONFIG_GLOBAL" "NIX_NPM_REGISTRY" ];
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";  # replace with actual hash after build
+    outputHash = "sha256-UE9fBGMruurCqAnm3SnpahEAa6RvPN+gyQvDYoLyaBY=";
 
     preferLocalBuild = true;
 

@@ -1,0 +1,238 @@
+# Repository Cleanup Plan
+
+## Context
+Nix-based dotfiles repository with home-manager configuration. Contains custom pi-mono extensions packaged as Nix derivations. The repository currently has inconsistent extension installation methods and fragile build configurations.
+
+---
+
+## Phase 1: Critical Issues
+
+### 1.1 pi-web-browse: Fragile node_modules Hoisting Fix
+**Severity:** High
+
+**Issue:** The current `cp -r ../../node_modules $out/` relies on npm's non-deterministic hoisting behavior. Upstream has npm workspaces configured (`"workspaces": ["packages/*"]`).
+
+**Mediation Steps (consulted with oracle):**
+- [ ] Run `npm install --workspace=packages/pi-web-browse` from monorepo root (NOT cd into package dir)
+- [ ] Add flags: `--install-strategy=hoisted --legacy-peer-deps` for predictable behavior
+- [ ] In `installPhase`, try `packages/pi-web-browse/node_modules` first, fallback to root `node_modules`
+- [ ] Reset `outputHash = ""` and rebuild to capture correct hash
+- [ ] Test with `npm ls` in buildPhase to verify node_modules location
+- [ ] Consider adopting pi-listen's single-derivation pattern to reduce complexity
+
+**Files:** `pkgs/pi-web-browse/default.nix`
+
+---
+
+### 1.2 plannotator-pi-extension: Wrong Install Method
+**Severity:** High
+
+**Issue:** Currently installed via `npm pack` + manual extract to `extensions/plannotator-pi-extension/`. This is non-reproducible and inconsistent with other external extensions.
+
+**Mediation Steps (consulted with oracle - use git fetch because repo is public and extension has no build step):**
+
+**Step 1: Remove vendored copy**
+- [ ] Run: `git rm -rf config/devel/pi-mono/extensions/plannotator-pi-extension/`
+- [ ] Add to `.gitignore`: `echo "config/devel/pi-mono/extensions/plannotator-pi-extension/" >> .gitignore`
+
+**Step 2: Create derivation at `pkgs/plannotator-pi-extension/default.nix`:**
+- [ ] Use `stdenv.mkDerivation` (not FOD - no network needed for pure TS)
+- [ ] `src = fetchgit` from `https://github.com/backnotprop/plannotator.git`
+- [ ] Use `refs/tags/v${version}` or commit hash for `rev`
+- [ ] Set `dontBuild = true` (pure TypeScript, pi-mono uses jiti)
+- [ ] In `installPhase`: `cp -r ${src}/apps/pi-extension/* $out/lib/plannotator-pi-extension/`
+- [ ] Clean up any `node_modules` from source: `rm -rf $out/.../node_modules`
+- [ ] Add `meta` with license (MIT/Apache-2.0), homepage, description
+
+**Step 3: Reference in `pkgs/pi-mono/default.nix`:**
+- [ ] Add `plannotator = pkgs.callPackage ../plannotator-pi-extension { };`
+- [ ] Add symlink in `home.file.".pi/agent/extensions".source` block (similar to pi-listen)
+
+**Step 4: Verify**
+- [ ] Build: `nix build .#plannotator-pi-extension --rebuild`
+- [ ] Check: `result/lib/plannotator-pi-extension/` has all TS files + skills/
+- [ ] Test in pi-mono: verify `/plannotator` command works
+
+**Files:** New `pkgs/plannotator-pi-extension/default.nix`, `pkgs/pi-mono/default.nix`, `.gitignore`
+
+---
+
+## Phase 2: Standardization
+
+### 2.1 Unify Extension Patterns (pi-web-browse → pi-listen style)
+**Severity:** Medium
+
+**Issue:** pi-web-browse uses 3-derivation structure (`nodeModules` + `cli` + `runCommand` merge) while pi-listen uses cleaner single-derivation pattern.
+
+**Current vs Target Structure:**
+
+| Current (3-derivation) | Target (1-derivation) |
+|------------------------|----------------------|
+| `nodeModules` FOD let-binding | Keep as internal `nodeModules` FOD in `let` |
+| `cli` derivation (let) | **Eliminate** - move to main derivation |
+| `extension` (writeTextFile) | **Inline** - write files in `installPhase` |
+| `extensionPackageJson` (writeTextFile) | **Inline** - write in `installPhase` |
+| `runCommand` merge | **Eliminate** - main derivation handles all |
+
+**Mediation Steps:**
+
+**Step 1: Restructure `pkgs/pi-web-browse/default.nix`:**
+- [ ] Keep `nodeModules` as internal `let` binding (it's already correct)
+- [ ] Change from `pkgs.runCommand` wrapper to single `stdenv.mkDerivation`
+- [ ] Move `fetchgit src` to main derivation's `src` attribute
+- [ ] Eliminate `cli` let-binding entirely
+
+**Step 2: Convert writeTextFile to inline installPhase:**
+- [ ] In `installPhase`, replace `${extension}` with heredoc: `cat > $out/lib/pi-web-browse/extension/index.ts << 'EOF'`
+- [ ] Handle store path reference: use `sed` to replace placeholder with actual `$out` path
+- [ ] Example: `sed -i "s|@@WEB_BROWSE_PATH@@|$out/lib/pi-web-browse/web-browse.js|g" $out/lib/.../index.ts`
+- [ ] Inline `extensionPackageJson` similarly with heredoc
+
+**Step 3: Consolidate copy operations:**
+- [ ] Single `installPhase` that:
+  1. Creates `$out/lib/pi-web-browse/extension/`
+  2. Copies CLI files (lib/, web-browse.js, README.md)
+  3. Copies nodeModules from FOD
+  4. Writes extension/index.ts via heredoc + sed
+  5. Writes extension/package.json via heredoc
+  6. Writes root package.json via heredoc
+
+**Step 4: Verify structure matches current output**
+- [ ] Build: `nix build .#pi-web-browse --rebuild`
+- [ ] Compare: `ls -la result/lib/pi-web-browse/` should match current structure
+- [ ] Test: `pi web_search "test"` works
+
+**Files:** `pkgs/pi-web-browse/default.nix`
+
+---
+
+### 2.2 Update Extension Installation Guide
+**Severity:** Medium
+
+**Issue:** Current README describes three methods including non-reproducible `npm pack`.
+
+**New Structure (Two Types Only):**
+
+**Classification Criteria (choose based on dependencies):**
+
+| Criterion | Type A: Plain TS | Type B: Nix FOD |
+|-----------|----------------|-----------------|
+| npm deps | None | Any (>=1) |
+| External binaries | None | Any (browsers, sox, etc.) |
+| Native modules | None | Any (requires build) |
+| Network at build | No | Yes |
+| Location | `extensions/<name>/` | `pkgs/<name>/` |
+
+**Decision flow:**
+1. Does it `import` any npm package not provided by pi-mono runtime? → **Type B**
+2. Does it need system binaries (chromium, curl, etc.)? → **Type B**  
+3. Does it have `SKILL.md` or only `index.ts`? → **Type A** (skills work in both)
+4. Pure TypeScript with no external deps? → **Type A**
+
+**README Sections:**
+1. Quick Decision - Which type to choose
+2. Type A: Create Plain Extension - Template for simple TS extensions
+3. Type B: Create FOD Extension - Full Nix derivation template with:
+   - Git-based fetch example (pi-web-browse style)
+   - Npm registry fetch example (plannotator style)
+   - Optional: SKILL.md integration (if extension provides skills)
+4. Reference Examples - pi-web-browse, pi-listen
+
+**Mediation Steps:**
+- [ ] Rewrite README.md with two-type structure and clear classification criteria
+- [ ] Add optional SKILL.md integration section (only if extension has skills)
+- [ ] Remove all npm pack instructions
+- [ ] Document flake.nix purpose: for direnv development of ad-hoc extensions
+
+**Files:** `config/devel/pi-mono/extensions/README.md`
+
+---
+
+### 2.3 Impure Git References
+**Severity:** Medium
+
+**Issue:** pi-web-browse uses commit hash `rev = "d4e61c0a8be814c..."`, pi-listen correctly uses `refs/tags/v5.0.0`.
+
+**Mediation Steps:**
+- [ ] Check upstream pi-extensions repo for available tags
+- [ ] If tags exist, update to `refs/tags/vX.Y.Z` format
+- [ ] If no tags, document why commit hash is necessary
+
+**Files:** `pkgs/pi-web-browse/default.nix`
+
+---
+
+## Phase 3: Cleanup
+
+### 3.1 Add Missing meta Attributes
+**Severity:** Low
+
+**Issue:** Some derivations missing license/homepage metadata.
+
+**Mediation Steps:**
+- [ ] Add `license = licenses.mit;` to pi-listen main derivation
+- [ ] Add `license` and `homepage` to pi-web-browse nodeModules FOD
+- [ ] Verify all new derivations (plannotator) have complete meta
+
+**Files:** `pkgs/pi-web-browse/default.nix`, `pkgs/pi-listen/default.nix`, `pkgs/plannotator-pi-extension/default.nix`
+
+---
+
+### 3.2 Deduplicate node_modules Handling
+**Severity:** Low
+
+**Issue:** pi-web-browse copies node_modules multiple times through `cli` buildPhase, `cli` installPhase, and final `runCommand`.
+
+**Mediation Steps:**
+- [ ] As part of 2.1 (unify patterns), single derivation eliminates this redundancy
+
+---
+
+### 3.3 Review flake.nix in Extensions Directory
+**Severity:** Low
+
+**Issue:** `config/devel/pi-mono/extensions/flake.nix` may be unused (actual build uses `pi-mono/default.nix`).
+
+**Mediation Steps:**
+- [ ] Document flake.nix purpose in README: provides direnv environment for developing ad-hoc extensions
+- [ ] Keep flake.nix (it serves a different purpose than the Nix build)
+
+**Files:** `config/devel/pi-mono/extensions/flake.nix`
+
+---
+
+## Verification Steps (consulted with oracle)
+
+After each phase:
+1. **Nix validation:**
+   - Run `nix flake check`
+   - Run `home-manager switch`
+   
+2. **Extension discovery:**
+   - `pi --list-extensions` or check loaded extensions list
+   
+3. **Runtime tests per extension:**
+   - pi-web-browse: `pi web_search "test query"`
+   - pi-listen: `pi listen --dry-run 2>/dev/null`
+   - plannotator (after migration): `pi plannotator --help`
+   
+4. **Module integrity:**
+   - `node -e "require('/path/to/extension/node_modules/<key-dep>')"` catches missing deps
+   
+5. **Skills (if applicable):**
+   - Check skills are discoverable via `/skills` or similar command
+
+---
+
+## Files Summary
+
+| Phase | File | Action |
+|-------|------|--------|
+| 1.1 | `pkgs/pi-web-browse/default.nix` | Fix workspace install |
+| 1.2 | `pkgs/plannotator-pi-extension/default.nix` | Create new |
+| 1.2 | `pkgs/pi-mono/default.nix` | Add reference |
+| 2.1 | `pkgs/pi-web-browse/default.nix` | Restructure |
+| 2.2 | `config/devel/pi-mono/extensions/README.md` | Rewrite |
+| 2.3 | `pkgs/pi-web-browse/default.nix` | Update git ref |
+| 3.1 | Multiple | Add meta attrs |
+| 3.3 | `extensions/flake.nix` | Review/remove |

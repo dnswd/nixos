@@ -160,24 +160,15 @@ importers:
 
   pi-goal: {}
 
-  pi-handoff:
-    dependencies:
-      '@mariozechner/pi-ai':
-        specifier: '*'
-        version: 0.65.0(zod@4.3.6)
-      '@mariozechner/pi-coding-agent':
-        specifier: '*'
-        version: 0.65.0(zod@4.3.6)
-      '@mariozechner/pi-tui':
-        specifier: '*'
-        version: 0.65.0
-      '@sinclair/typebox':
-        specifier: '*'
-        version: 0.34.48
-
   pi-spar: {}
 
   pi-tmux: {}
+
+  plannotator-pi-extension:
+    dependencies:
+      '@mariozechner/pi-coding-agent':
+        specifier: '>=0.53.0'
+        version: 0.65.0(zod@4.3.6)
 
   retry-toggle: {}
 

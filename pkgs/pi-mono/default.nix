@@ -17,6 +17,9 @@ let
   # pi-web-browse web search extension (includes playwright, undici, etc.)
   pi-web-browse = pkgs.callPackage ../pi-web-browse { };
 
+  # plannotator extension for plan review (pure TypeScript, no build)
+  plannotator = pkgs.callPackage ../plannotator-pi-extension { };
+
   pi-mono-src = inputs.pi-mono;
 
   packageJson = builtins.fromJSON (
@@ -215,6 +218,9 @@ in
           
           # Add pi-web-browse extension for web search functionality
           ln -sf ${pi-web-browse}/lib/pi-web-browse $out/pi-web-browse
+
+          # Add plannotator extension for plan review
+          ln -sf ${plannotator}/lib/plannotator-pi-extension $out/plannotator-pi-extension
         '';
     }
     // optionalAttrs (cfg.skills != null) {
