@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchgit, ... }:
+{ lib, stdenv, fetchgit, bash, ... }:
 
 stdenv.mkDerivation rec {
   pname = "plannotator-pi-extension";
@@ -8,20 +8,30 @@ stdenv.mkDerivation rec {
     url = "https://github.com/backnotprop/plannotator.git";
     # Using tag as recommended by cleanup plan (upstream has tags available)
     rev = "refs/tags/v${version}";
-    hash = "";  # Empty to get correct hash from first build failure
+    hash = "sha256-1SHn2QSyuVAuIG7s4/eel6C59iouMTRE72hPIkUzbYo=";
   };
 
-  # No nativeBuildInputs needed - pure TypeScript, no compilation
-  # pi-mono uses jiti to load TypeScript directly
+  nativeBuildInputs = [ bash ];
 
   dontConfigure = true;
-  dontBuild = true;  # No build step
+
+  buildPhase = ''
+    # The source was unpacked to $sourceRoot (detected by stdenv as 'plannotator')
+    # Copy to a writable location so we can run vendor.sh
+    cp -r "$sourceRoot" ./source
+    chmod -R +w ./source
+
+    # Run vendor.sh to generate the generated/ directory
+    # vendor.sh references ../../packages/ from apps/pi-extension
+    # Use subshell so directory change doesn't affect installPhase
+    (cd ./source/apps/pi-extension && bash vendor.sh)
+  '';
 
   installPhase = ''
     mkdir -p $out/lib/plannotator-pi-extension
 
-    # Copy extension source from apps/pi-extension subdirectory
-    cp -r ${src}/apps/pi-extension/* $out/lib/plannotator-pi-extension/
+    # Copy built extension source
+    cp -r ./source/apps/pi-extension/* $out/lib/plannotator-pi-extension/
 
     # Clean up any node_modules from source (shouldn't exist, but just in case)
     rm -rf $out/lib/plannotator-pi-extension/node_modules 2>/dev/null || true

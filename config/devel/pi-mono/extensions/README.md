@@ -2,99 +2,234 @@
 
 This directory contains pi-mono extensions for the Nix-based dotfiles repository.
 
-## Two Types of Extensions
+## Extension Types
 
-### 1. Simple Extensions (This Directory)
+Extensions are categorized into two types based on their dependencies:
 
-Extensions that only need Node.js/pnpm dependencies (no external binaries or special system deps) go here.
+### Classification Criteria
 
-**Structure per extension:**
-- `package.json` - Extension manifest with `pi.extensions` or `pi.skills` configuration
-- `index.ts` or other `.ts` files - Extension code (TypeScript, loaded via jiti)
-- `node_modules/` - Dependencies (managed by pnpm)
+| Criterion | Type A: Plain TypeScript | Type B: Nix FOD |
+|-----------|--------------------------|-----------------|
+| npm deps | None | Any (>=1) |
+| External binaries | None | Any (browsers, sox, etc.) |
+| Native modules | None | Any (requires build) |
+| Network at build | No | Yes |
+| Location | `extensions/<name>/` | `pkgs/<name>/` |
 
-**To install from npm:**
+**Decision Flow:**
+1. Does it `import` any npm package not provided by pi-mono runtime? → **Type B**
+2. Does it need system binaries (chromium, curl, etc.)? → **Type B**  
+3. Pure TypeScript with no external deps? → **Type A**
 
-```bash
-cd /Users/oydennisalbaihaqi/nixos/config/devel/pi-mono/extensions
-npm pack @scope/package-name
-tar -xzf package-name-*.tgz
-mv package package-name
-rm package-name-*.tgz
-pnpm install
-home-manager switch  # or your nix rebuild command
+---
+
+## Type A: Plain TypeScript Extensions
+
+**Use when:** No npm dependencies, no external binaries, no native modules
+
+**Location:** `config/devel/pi-mono/extensions/<name>/`
+
+**Structure:**
+```
+extensions/
+└── my-extension/
+    ├── index.ts          # Entry point (exports default function)
+    ├── package.json      # Optional: pi.extensions and pi.skills config
+    ├── SKILL.md          # Optional: skill definition
+    └── skills/
+        └── my-skill/
+            └── SKILL.md  # Alternative: skill subdirectory
 ```
 
-**Example: Installing @plannotator/pi-extension:**
+**Minimal Example:**
+```typescript
+// extensions/hello/index.ts
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
-```bash
-cd /Users/oydennisalbaihaqi/nixos/config/devel/pi-mono/extensions
-npm pack @plannotator/pi-extension
-tar -xzf plannotator-pi-extension-*.tgz
-mv package plannotator-pi-extension
-rm plannotator-pi-extension-*.tgz
-pnpm install
-home-manager switch
+export default function (pi: ExtensionAPI) {
+  pi.registerCommand("hello", {
+    description: "Say hello",
+    handler: async (args, ctx) => {
+      ctx.ui.notify(`Hello ${args || "world"}!`, "info");
+    },
+  });
+}
 ```
 
-### 2. Complex Extensions (With External Dependencies)
+**package.json (optional):**
+```json
+{
+  "name": "my-extension",
+  "version": "1.0.0",
+  "type": "module",
+  "pi": {
+    "extensions": ["./index.ts"],
+    "skills": ["./SKILL.md"]
+  }
+}
+```
 
-Extensions that need:
-- External binaries (browsers, CLIs, etc.)
-- Non-Node dependencies
-- Special build steps
-- Network fetching during build
+No build step required - pi-mono loads TypeScript directly via jiti.
 
-These require a **Nix derivation** in `pkgs/<extension-name>/default.nix` instead.
+---
 
-**Examples in this repo:**
-- `pkgs/pi-web-browse/` - Uses headless Chrome via CDP (requires browser + npm deps)
-- `pkgs/pi-listen/` - Voice input extension (uses `bun` for dependency management)
+## Type B: Nix FOD Extensions
 
-**Key pattern - FOD (Fixed Output Derivation):**
+**Use when:** npm dependencies, external binaries, native modules, or network fetching needed
 
-For extensions that need to fetch dependencies with network access during build:
+**Location:** `pkgs/<name>/default.nix`
+
+**Pattern:** Fixed Output Derivation (FOD) for network access during build
+
+### Git-Based Extension (e.g., pi-web-browse)
 
 ```nix
-# Example from pkgs/pi-web-browse/default.nix
+{ lib, stdenv, nodejs, fetchgit, ... }:
+
 let
-  cli = stdenv.mkDerivation rec {
-    # ...
-    # FOD approach: allows network access for npm install, output verified by hash
+  nodeModules = stdenv.mkDerivation {
+    name = "my-ext-node-modules";
+    src = fetchgit { ... };
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
-    outputHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";  # replace after build
-
-    preferLocalBuild = true;
-    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [ "NIX_NPM_REGISTRY" ];
-
-    nativeBuildInputs = [ nodejs pkgs.cacert ];
-    # ...
+    outputHash = "";  # fill from first build failure
+    nativeBuildInputs = [ nodejs ];
+    buildPhase = ''
+      npm install
+      mkdir -p $out
+      cp -r node_modules $out/
+      cp package.json $out/
+    '';
   };
 in
-  # Extension wrapper that creates the pi extension entry point
-  pkgs.writeTextFile { ... }
+
+stdenv.mkDerivation rec {
+  pname = "my-ext";
+  version = "1.0.0";
+  src = fetchgit { ... };
+  
+  buildPhase = ''
+    cp -r ${nodeModules}/node_modules .
+  '';
+  
+  installPhase = ''
+    mkdir -p $out/lib/my-ext
+    cp -r . $out/lib/my-ext/
+    rm -rf $out/lib/my-ext/node_modules/.cache
+  '';
+}
 ```
 
-**To add a complex extension:**
+### Pure TypeScript Extension (e.g., plannotator)
 
-1. Create `pkgs/<name>/default.nix` with the FOD pattern
-2. Add to your system packages in your Nix config
-3. Reference it in `config/devel/pi-mono/default.nix` via the `programs.pi-mono` module
+No FOD needed if no npm deps to fetch:
+
+```nix
+{ lib, stdenv, fetchgit, ... }:
+
+stdenv.mkDerivation rec {
+  pname = "plannotator-pi-extension";
+  version = "0.16.7";
+  
+  src = fetchgit {
+    url = "https://github.com/backnotprop/plannotator.git";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-...";
+  };
+  
+  dontConfigure = true;
+  dontBuild = true;  # Pure TS, pi-mono uses jiti
+  
+  installPhase = ''
+    mkdir -p $out/lib/plannotator-pi-extension
+    cp -r ${src}/apps/pi-extension/* $out/lib/plannotator-pi-extension/
+  '';
+}
+```
+
+### Referencing in pi-mono
+
+Add to `pkgs/pi-mono/default.nix`:
+
+```nix
+let
+  my-ext = pkgs.callPackage ../my-ext { };
+in
+{
+  # ... in the home.file section ...
+  "home.file.\".pi/agent/extensions\".source" = pkgs.runCommand "..." { }
+    ''
+      # ... existing extensions ...
+      ln -sf ${my-ext}/lib/my-ext $out/my-ext
+    '';
+}
+```
+
+---
+
+## SKILL.md Integration
+
+Extensions can include skills that define LLM behaviors:
+
+**Location:** `SKILL.md` in extension root or `skills/<name>/SKILL.md`
+
+**package.json configuration:**
+```json
+{
+  "pi": {
+    "extensions": ["./index.ts"],
+    "skills": ["./SKILL.md"]
+  }
+}
+```
+
+Skills are automatically discovered by pi-mono and can define:
+- Prompt templates
+- Tool usage guidelines
+- Conversation behaviors
+
+---
+
+## Development Environment
+
+### flake.nix Purpose
+
+The `flake.nix` in this directory provides a **direnv-compatible development environment** for working on ad-hoc extensions.
+
+**Use case:** Quick iteration on Type A extensions without full Nix rebuild
+
+**Usage:**
+```bash
+cd config/devel/pi-mono/extensions/my-extension
+# Automatic direnv activation loads dev shell
+# Edit index.ts, test with `pi -e ./index.ts`
+```
+
+This is **separate** from the production Nix build (which uses `pkgs/pi-mono/default.nix`).
+
+---
 
 ## How It Works
 
-- The `pnpm-workspace.yaml` uses pattern `./*` to include all subdirectories in this folder
-- Extensions are automatically discovered by pi-mono on startup
-- The Nix config symlinks this directory to `~/.pi/agent/extensions/`
-- TypeScript files are loaded directly via jiti (no build step required for simple extensions)
+1. **Type A extensions** are symlinked from `~/.pi/agent/extensions/` via `home.file`
+2. **Type B extensions** are built as Nix derivations and symlinked to the same location
+3. **pnpm-workspace.yaml** uses `packages: ['./*']` to include all subdirectories
+4. **pi-mono** discovers extensions on startup and loads TypeScript via jiti
+5. **Skills** are resolved relative to the extension's `package.json`
+
+---
 
 ## Do NOT Use `pi install`
 
-The `pi install` command doesn't work in Nix environments because it tries to manage its own npm/git state. Use the methods above instead.
+The `pi install` command doesn't work in Nix environments because it tries to manage its own npm/git state outside the Nix store. Use the Type A or Type B patterns above instead.
 
-## See Also
+---
 
-- `../default.nix` - Main pi-mono configuration
-- `../../pkgs/pi-web-browse/default.nix` - Example of complex extension with external deps
-- `../../pkgs/pi-listen/default.nix` - Example using `bun` for dependencies
+## Reference Examples
+
+| Extension | Type | Location | Pattern |
+|-----------|------|----------|---------|
+| hello-world | Type A | `extensions/hello/` | Plain TS |
+| pi-web-browse | Type B | `pkgs/pi-web-browse/` | Git fetch + npm FOD |
+| pi-listen | Type B | `pkgs/pi-listen/` | Git fetch + bun FOD |
+| plannotator | Type B | `pkgs/plannotator-pi-extension/` | Git fetch + pure TS |
