@@ -10,10 +10,10 @@ importers:
     devDependencies:
       '@mariozechner/pi-ai':
         specifier: 0.65.0
-        version: 0.65.0(zod@4.3.6)
+        version: 0.65.0(ws@8.20.0)(zod@4.3.6)
       '@mariozechner/pi-coding-agent':
         specifier: 0.65.0
-        version: 0.65.0(zod@4.3.6)
+        version: 0.65.0(ws@8.20.0)(zod@4.3.6)
       '@mariozechner/pi-tui':
         specifier: 0.65.0
         version: 0.65.0
@@ -93,11 +93,26 @@ importers:
         specifier: '*'
         version: 0.60.0(zod@4.3.6)
 
+  handoff:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.65.0(ws@8.20.0)(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '>=0.65.0'
+        version: 0.65.0(ws@8.20.0)(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.65.0
+      '@sinclair/typebox':
+        specifier: '*'
+        version: 0.34.48
+
   librarian:
     dependencies:
       '@mariozechner/pi-coding-agent':
         specifier: '*'
-        version: 0.65.0(zod@4.3.6)
+        version: 0.65.0(ws@8.20.0)(zod@4.3.6)
       '@mariozechner/pi-tui':
         specifier: '*'
         version: 0.65.0
@@ -156,6 +171,40 @@ importers:
         specifier: '*'
         version: 0.60.0(zod@4.3.6)
 
+  pi-browser:
+    dependencies:
+      '@mariozechner/pi-ai':
+        specifier: '*'
+        version: 0.65.0(ws@8.20.0)(zod@4.3.6)
+      '@mariozechner/pi-coding-agent':
+        specifier: '*'
+        version: 0.65.0(ws@8.20.0)(zod@4.3.6)
+      '@mariozechner/pi-tui':
+        specifier: '*'
+        version: 0.65.0
+      '@sinclair/typebox':
+        specifier: '*'
+        version: 0.34.48
+      ws:
+        specifier: ^8.18.0
+        version: 8.20.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.0
+        version: 20.19.39
+      '@types/pngjs':
+        specifier: ^6.0.4
+        version: 6.0.5
+      '@types/ws':
+        specifier: ^8.5.10
+        version: 8.18.1
+      pngjs:
+        specifier: ^7.0.0
+        version: 7.0.0
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
   pi-ghost: {}
 
   pi-goal: {}
@@ -163,12 +212,6 @@ importers:
   pi-spar: {}
 
   pi-tmux: {}
-
-  plannotator-pi-extension:
-    dependencies:
-      '@mariozechner/pi-coding-agent':
-        specifier: '>=0.53.0'
-        version: 0.65.0(zod@4.3.6)
 
   retry-toggle: {}
 
@@ -906,11 +949,11 @@ packages:
       - zod
     dev: false
 
-  /@mariozechner/pi-agent-core@0.65.0(zod@4.3.6):
+  /@mariozechner/pi-agent-core@0.65.0(ws@8.20.0)(zod@4.3.6):
     resolution: {integrity: sha512-QCDqkgxvCkizCgJOl0aFekT1gURppznzuBIGXS8dXWZMour/xX6YF7chxX56mZ0p0DXkILM1ixf5jXYBfDsP5w==}
     engines: {node: '>=20.0.0'}
     dependencies:
-      '@mariozechner/pi-ai': 0.65.0(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.65.0(ws@8.20.0)(zod@4.3.6)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - aws-crt
@@ -933,7 +976,7 @@ packages:
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       chalk: 5.6.2
-      openai: 6.26.0(zod@4.3.6)
+      openai: 6.26.0(ws@8.20.0)(zod@4.3.6)
       partial-json: 0.1.7
       proxy-agent: 6.5.0
       undici: 7.24.5
@@ -948,7 +991,7 @@ packages:
       - zod
     dev: false
 
-  /@mariozechner/pi-ai@0.65.0(zod@4.3.6):
+  /@mariozechner/pi-ai@0.65.0(ws@8.20.0)(zod@4.3.6):
     resolution: {integrity: sha512-MsCsCHlHIlBYbg6jB2PJBeCNKbjzVZge7ddBNUJN2gsFY8sdjFh482+GB+r5Ou6k9Fnhi3nO779YDymo5+t89w==}
     engines: {node: '>=20.0.0'}
     hasBin: true
@@ -961,7 +1004,7 @@ packages:
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       chalk: 5.6.2
-      openai: 6.26.0(zod@4.3.6)
+      openai: 6.26.0(ws@8.20.0)(zod@4.3.6)
       partial-json: 0.1.7
       proxy-agent: 6.5.0
       undici: 7.24.5
@@ -1011,14 +1054,14 @@ packages:
       - zod
     dev: false
 
-  /@mariozechner/pi-coding-agent@0.65.0(zod@4.3.6):
+  /@mariozechner/pi-coding-agent@0.65.0(ws@8.20.0)(zod@4.3.6):
     resolution: {integrity: sha512-IEBZ74n17w8NxnG/X2ixErsSYcvLm/h5WKALNbPgPWJZqvafNtJ0GcrCfLCS6RVIq2o+O/a2QwsbSI6bgJ6W/A==}
     engines: {node: '>=20.6.0'}
     hasBin: true
     dependencies:
       '@mariozechner/jiti': 2.6.5
-      '@mariozechner/pi-agent-core': 0.65.0(zod@4.3.6)
-      '@mariozechner/pi-ai': 0.65.0(zod@4.3.6)
+      '@mariozechner/pi-agent-core': 0.65.0(ws@8.20.0)(zod@4.3.6)
+      '@mariozechner/pi-ai': 0.65.0(ws@8.20.0)(zod@4.3.6)
       '@mariozechner/pi-tui': 0.65.0
       '@silvia-odwyer/photon-node': 0.3.4
       ajv: 8.18.0
@@ -1556,10 +1599,22 @@ packages:
   /@types/mime-types@2.1.4:
     resolution: {integrity: sha512-lfU4b34HOri+kAY5UheuFMWPDOI+OPceBSHZKp69gEyTL/mmJ4cnU6Y/rlme3UL3GyOn6Y42hyIEw0/q8sWx5w==}
 
+  /@types/node@20.19.39:
+    resolution: {integrity: sha512-orrrD74MBUyK8jOAD/r0+lfa1I2MO6I+vAkmAWzMYbCcgrN4lCrmK52gRFQq/JRxfYPfonkr4b0jcY7Olqdqbw==}
+    dependencies:
+      undici-types: 6.21.0
+    dev: true
+
   /@types/node@22.19.15:
     resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
     dependencies:
       undici-types: 6.21.0
+
+  /@types/pngjs@6.0.5:
+    resolution: {integrity: sha512-0k5eKfrA83JOZPppLtS2C7OUtyNAl2wKNxfyYl9Q5g9lPkgBl/9hNyAu6HuEH2J4XmIv2znEpkDd0SaZVxW6iQ==}
+    dependencies:
+      '@types/node': 20.19.39
+    dev: true
 
   /@types/retry@0.12.0:
     resolution: {integrity: sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==}
@@ -3213,7 +3268,7 @@ packages:
     dependencies:
       wrappy: 1.0.2
 
-  /openai@6.26.0(zod@4.3.6):
+  /openai@6.26.0(ws@8.20.0)(zod@4.3.6):
     resolution: {integrity: sha512-zd23dbWTjiJ6sSAX6s0HrCZi41JwTA1bQVs0wLQPZ2/5o2gxOJA5wh7yOAUgwYybfhDXyhwlpeQf7Mlgx8EOCA==}
     hasBin: true
     peerDependencies:
@@ -3225,6 +3280,7 @@ packages:
       zod:
         optional: true
     dependencies:
+      ws: 8.20.0
       zod: 4.3.6
 
   /optionator@0.9.4:
@@ -3343,6 +3399,11 @@ packages:
   /picomatch@4.0.3:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
+    dev: true
+
+  /pngjs@7.0.0:
+    resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
+    engines: {node: '>=14.19.0'}
     dev: true
 
   /possible-typed-array-names@1.1.0:

@@ -13,4 +13,5 @@ in
   "rbw-config.json.age".publicKeys = users;
   "pi-auth.json.age".publicKeys = users;
   "fireworks-api-key.age".publicKeys = users;
+  "openrouter-api-key.age".publicKeys = users;
 }

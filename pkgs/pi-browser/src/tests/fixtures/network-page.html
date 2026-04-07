@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Network Test Page</title>
+</head>
+<body>
+  <h1>Network Monitoring Test</h1>
+  <p>This page makes various network requests.</p>
+  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" alt="test image">
+  <button id="fetch-btn">Fetch Data</button>
+  <script>
+    document.getElementById('fetch-btn').addEventListener('click', () => {
+      fetch('/api/test').then(r => r.json()).catch(() => {});
+    });
+  </script>
+</body>
+</html>

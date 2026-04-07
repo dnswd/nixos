@@ -1,0 +1,20 @@
+{
+  "name": "pi-browser-tests",
+  "version": "0.1.0",
+  "description": "Test harness for pi-browser extension",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "test:mock": "vitest run tests/mocks/",
+    "test:prephase": "vitest run"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.3.3",
+    "vitest": "^1.6.0"
+  }
+}

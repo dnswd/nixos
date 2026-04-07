@@ -1,0 +1,25 @@
+{
+  "name": "pi-extension-browser",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "pi": {
+    "extensions": ["./src/index.ts"]
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-tui": "*",
+    "@sinclair/typebox": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/pngjs": "^6.0.4",
+    "@types/ws": "^8.5.10",
+    "pngjs": "^7.0.0",
+    "typescript": "^5.3.3"
+  }
+}

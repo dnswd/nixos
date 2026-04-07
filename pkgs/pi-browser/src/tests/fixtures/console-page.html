@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Console Test Page</title>
+</head>
+<body>
+  <h1>Console Messages Test</h1>
+  <button id="log-btn">Log Message</button>
+  <button id="error-btn">Trigger Error</button>
+  <button id="warn-btn">Trigger Warning</button>
+  <script>
+    document.getElementById('log-btn').addEventListener('click', () => {
+      console.log('Test log message');
+    });
+    document.getElementById('error-btn').addEventListener('click', () => {
+      console.error('Test error message');
+    });
+    document.getElementById('warn-btn').addEventListener('click', () => {
+      console.warn('Test warning message');
+    });
+    console.info('Page loaded');
+  </script>
+</body>
+</html>

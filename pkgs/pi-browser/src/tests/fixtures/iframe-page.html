@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Iframe Test Page</title>
+</head>
+<body>
+  <h1>Iframe Test</h1>
+  <iframe id="test-frame" src="about:blank" width="400" height="300"></iframe>
+  <script>
+    const frame = document.getElementById('test-frame');
+    const doc = frame.contentDocument;
+    doc.open();
+    doc.write('<p>Content inside iframe</p><button>Iframe Button</button>');
+    doc.close();
+  </script>
+</body>
+</html>
