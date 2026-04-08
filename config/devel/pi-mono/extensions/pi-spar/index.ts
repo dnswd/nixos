@@ -535,7 +535,7 @@ spar({
 					};
 					input.onEscape = () => done(undefined);
 
-					container.handleInput = (data: string) => {
+					(container as any).handleInput = (data: string) => {
 						if (data === "\x1b[A" || data === "\x1b[B" || data === "\r" || data === "\n") {
 							list.handleInput(data);
 						} else if (data === "\x1b" || data === "\x03") {
@@ -618,16 +618,16 @@ spar({
 			return prefix ? items.filter((i) => i.value.startsWith(prefix)) : items;
 		},
 		handler: async (args, ctx) => {
-			let sessionId = args?.trim();
+			let sessionId: string | undefined = args?.trim();
 
 			// If no session specified, find the last spar tool call
 			if (!sessionId) {
-				sessionId = findRecentSession(ctx.sessionManager) ?? undefined;
+				sessionId = (findRecentSession(ctx.sessionManager) ?? undefined) as string | undefined;
 			}
 
 			// Still no session? Check for active socket
 			if (!sessionId) {
-				sessionId = findActiveSession() ?? undefined;
+				sessionId = (findActiveSession() ?? undefined) as string | undefined;
 			}
 
 			if (!sessionId) {
@@ -640,7 +640,7 @@ spar({
 				return;
 			}
 
-			if (!sessionExists(sessionId) && !isSessionActive(sessionId)) {
+			if (!sessionExists(sessionId!) && !isSessionActive(sessionId!)) {
 				ctx.ui.notify(`Session "${sessionId}" not found`, "error");
 				return;
 			}

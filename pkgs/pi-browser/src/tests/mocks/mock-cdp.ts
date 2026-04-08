@@ -366,12 +366,28 @@ export class MockCDPServer {
 
     switch (method) {
       case "Target.getTargets": {
+        // Find which tab is currently active
+        let activeTabId: string | null = null;
+        for (const [tid, tab] of this.tabs) {
+          if ((tab as MockTab & { active?: boolean }).active) {
+            activeTabId = tid;
+            break;
+          }
+        }
+        // If no active tab set and we have tabs, mark the first as active
+        if (!activeTabId && this.tabs.size > 0) {
+          const firstTab = this.tabs.values().next().value as MockTab;
+          activeTabId = firstTab.targetId;
+          (firstTab as MockTab & { active?: boolean }).active = true;
+        }
+
         const targetInfos = Array.from(this.tabs.values()).map((tab) => ({
           targetId: tab.targetId,
           type: tab.type,
           title: tab.title,
           url: tab.url,
           attached: tab.attached,
+          active: (tab as MockTab & { active?: boolean }).active || false,
         }));
         return { id, result: { targetInfos } };
       }
@@ -418,6 +434,24 @@ export class MockCDPServer {
         const { url = "about:blank" } = params as { url?: string };
         const newTargetId = this.addTab({ url, title: "New Tab" });
         return { id, result: { targetId: newTargetId } };
+      }
+
+      case "Target.activateTarget": {
+        const { targetId } = params as { targetId?: string };
+        if (!targetId || !this.tabs.has(targetId)) {
+          return {
+            id,
+            error: {
+              code: -32000,
+              message: `Target ${targetId} not found`,
+            },
+          };
+        }
+        // Set this tab as active, others as inactive
+        for (const [id, tab] of this.tabs) {
+          (tab as MockTab & { active?: boolean }).active = (id === targetId);
+        }
+        return { id, result: {} };
       }
 
       case "Target.closeTarget": {

@@ -444,7 +444,7 @@ export default function (pi: ExtensionAPI) {
 
 		async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
 			if (!ctx.hasUI) {
-				return { content: [{ type: "text" as const, text: "Handoff requires interactive mode." }] };
+				return { content: [{ type: "text" as const, text: "Handoff requires interactive mode." }], details: {} };
 			}
 
 			// Just pre-fill the editor - let user press Enter to actually run /handoff
@@ -463,6 +463,7 @@ export default function (pi: ExtensionAPI) {
 						text: `Handoff command prepared in editor: "/handoff ${goal}". Press Enter to execute, or edit the goal first.`,
 					},
 				],
+				details: {},
 			};
 		},
 	});

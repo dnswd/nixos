@@ -20,6 +20,12 @@ let
   # plannotator extension for plan review (pure TypeScript, no build)
   plannotator = pkgs.callPackage ../plannotator-pi-extension { };
 
+  # pi-lsp extension for language server protocol support
+  pi-lsp = pkgs.callPackage ../pi-lsp { };
+
+  # pi-browser extension (built from standalone pnpm lockfile)
+  pi-browser = pkgs.callPackage ../pi-browser { };
+
   pi-mono-src = inputs.pi-mono;
 
   packageJson = builtins.fromJSON (
@@ -193,6 +199,8 @@ in
           $DRY_RUN_CMD cp -f "${modelsFile}" "$HOME/.pi/agent/models.json"
           $DRY_RUN_CMD chmod 644 "$HOME/.pi/agent/models.json"
         ''}
+
+
       ''
     );
 
@@ -203,26 +211,25 @@ in
     // optionalAttrs (cfg.agentsMd.source != null) {
       ".pi/agent/AGENTS.md".source = cfg.agentsMd.source;
     }
-      // optionalAttrs (cfg.extensions != null) {
-      ".pi/agent/extensions".source = pkgs.runCommand "pi-extensions"
-        { }
-        ''
-          mkdir -p $out
-          # Copy user extensions
-          cp -rL ${cfg.extensions}/* $out/ 2>/dev/null || true
-          
-          # Add pi-listen extension if voice is enabled
-          ${lib.optionalString cfg.voiceInput.enable ''
-            ln -sf ${pi-listen}/lib/pi-listen $out/pi-listen
-          ''}
-          
-          # Add pi-web-browse extension for web search functionality
-          ln -sf ${pi-web-browse}/lib/pi-web-browse $out/pi-web-browse
-
-          # Add plannotator extension for plan review
-          ln -sf ${plannotator}/lib/plannotator-pi-extension $out/plannotator-pi-extension
-        '';
+    // {
+      # Type B extensions (native deps) - built by Nix
+      ".pi/agent/extensions/pi-browser".source = "${pi-browser}/lib/pi-browser";
+      ".pi/agent/extensions/pi-lsp".source = "${pi-lsp}/lib/pi-lsp";
+      ".pi/agent/extensions/pi-web-browse".source = "${pi-web-browse}/lib/pi-web-browse";
+      ".pi/agent/extensions/plannotator-pi-extension".source = "${plannotator}/lib/plannotator-pi-extension";
     }
+    // optionalAttrs (cfg.voiceInput.enable) {
+      ".pi/agent/extensions/pi-listen".source = "${pi-listen}/lib/pi-listen";
+    }
+    // optionalAttrs (cfg.extensions != null) (
+      # Type A extensions (pure TS) - copied from local directory
+      mapAttrs' (
+        name: _:
+        nameValuePair ".pi/agent/extensions/${name}" {
+          source = cfg.extensions + "/${name}";
+        }
+      ) (filterAttrs (n: v: v == "directory" && n != "node_modules") (builtins.readDir cfg.extensions))
+    )
     // optionalAttrs (cfg.skills != null) {
       ".pi/agent/skills".source = cfg.skills;
     }

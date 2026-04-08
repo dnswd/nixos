@@ -1,9 +1,26 @@
 { config, pkgs, ... }: {
-  # some pl packages are handy for quickly trying something out etc.
+  # LSP Servers - centralized location for all language servers used by pi-lsp
+  # When adding a new LSP server:
+  # 1. Find the package in nixpkgs: https://search.nixos.org/packages
+  # 2. Add it below in alphabetical order by category
+  # 3. No changes needed to pkgs/pi-lsp/ - the extension auto-detects from PATH
   home.packages =
     with pkgs; [
-      # JS / TypeScript
+      # Bash / Shell
+      bash-language-server
+
+      # C / C++ (provides clangd)
+      clang-tools
+
+      # Go
+      gopls
+
+      # JavaScript / TypeScript
+      nodePackages.typescript-language-server
       nodejs_latest
+
+      # JSON
+      vscode-json-languageserver
 
       # Nix
       nixd
@@ -11,7 +28,17 @@
       nixpkgs-fmt
       nixpkgs-lint
 
+      # Python
+      pyright
 
+      # Rust
+      rust-analyzer
+
+      # TOML
+      taplo
+
+      # YAML
+      yaml-language-server
     ];
 
   # JDK Setup (https://whichjdk.com/)

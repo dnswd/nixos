@@ -5,6 +5,10 @@ import { browser_network, browser_network_export, browser_cdp, browser_set_heade
 import { browser_console } from "./core/tools-console.js";
 import { browser_storage, BrowserStorageSchema } from "./core/tools-storage.js";
 import { browser_list, browser_navigate, browser_snap } from "./core/tools-nav.js";
+import { browser_tab_open, browser_tab_switch, browser_tab_close } from "./core/tools-tab.js";
+import { browser_wait } from "./core/tools-wait.js";
+import { browser_find } from "./core/tools-find.js";
+import { browser_emulate } from "./extras/tools-emulation.js";
 import { screenshotRenderer } from "./renderers.js";
 
 export default function (pi: ExtensionAPI) {
@@ -12,12 +16,12 @@ export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "browser_list",
     label: "Browser List",
-    description: `List all open Chrome tabs with their IDs, URLs, and titles.
+    description: `List all open browser tabs with their IDs, URLs, and titles.
 
 WHEN TO USE:
 - To discover available browser tabs
 - To get target IDs for other browser tools
-- To check if Chrome is running with remote debugging enabled
+- To check if browser remote debugging is enabled
 
 Returns an array of tabs with:
 - id: Target ID for use with other tools
@@ -25,7 +29,11 @@ Returns an array of tabs with:
 - title: Page title
 - active: Whether this is the active tab
 
-Note: Chrome must be running with --remote-debugging-port=9222`,
+Prerequisites:
+- Browser must have remote debugging enabled
+- Chrome/Edge: Open chrome://inspect/#remote-debugging and toggle the switch
+- Brave: Open brave://inspect/#remote-debugging and toggle the switch
+- Auto-discovers Chrome, Brave, Edge, Chromium, Vivaldi on macOS/Linux/Windows`,
 
     parameters: Type.Object({}), // No parameters
 
@@ -37,7 +45,7 @@ Note: Chrome must be running with --remote-debugging-port=9222`,
           content: [{
             type: "text",
             text: tabs.length === 0
-              ? "No browser tabs found. Make sure Chrome is running with --remote-debugging-port=9222"
+              ? "No browser with remote debugging found. Enable remote debugging:\n- Chrome/Edge: open chrome://inspect/#remote-debugging\n- Brave: open brave://inspect/#remote-debugging\nThen toggle the switch to enable debugging."
               : `Found ${tabs.length} tab(s):\n\n` +
                 tabs.map(t => `[${t.id}] ${t.title}\n    URL: ${t.url}${t.active ? ' (active)' : ''}`).join('\n')
           }],
@@ -756,6 +764,451 @@ Actions:
         };
       }
     },
+  });
+
+  // Register browser_tab_open tool
+  pi.registerTool({
+    name: "browser_tab_open",
+    label: "Browser Tab Open",
+    description: `Open a new browser tab and optionally navigate to a URL.
+
+WHEN TO USE:
+- To open a new tab
+- To open a new tab and navigate to a URL
+
+Returns:
+- tabId: The new tab's target ID
+- url: The tab's URL
+- active: Whether the tab is active`,
+
+    parameters: Type.Object({
+      url: Type.Optional(Type.String({
+        description: "Optional URL to navigate to in the new tab"
+      })),
+      activate: Type.Optional(Type.Boolean({
+        default: true,
+        description: "Whether to activate the new tab (focus it)"
+      })),
+      windowId: Type.Optional(Type.String({
+        description: "Optional window ID to open the tab in"
+      })),
+    }),
+
+    async execute(toolCallId, params, signal, onUpdate) {
+      try {
+        onUpdate?.({
+          content: [{ type: "text", text: "Opening new tab..." }],
+          details: { stage: "opening" }
+        });
+
+        const result = await browser_tab_open({
+          url: params.url,
+          activate: params.activate ?? true,
+          windowId: params.windowId,
+        });
+
+        return {
+          content: [{
+            type: "text",
+            text: `Tab opened successfully.\n` +
+              `Tab ID: ${result.tabId}\n` +
+              `URL: ${result.url}\n` +
+              `Active: ${result.active}`
+          }],
+          details: result
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Failed to open tab: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          details: { error: error instanceof Error ? error.message : String(error) }
+        };
+      }
+    }
+  });
+
+  // Register browser_tab_switch tool
+  pi.registerTool({
+    name: "browser_tab_switch",
+    label: "Browser Tab Switch",
+    description: `Switch to a different browser tab by activating it.
+
+WHEN TO USE:
+- To switch context to another tab
+- To make a different tab active for subsequent operations`,
+
+    parameters: Type.Object({
+      tabId: Type.String({
+        description: "Target ID of the tab to switch to (from browser_list)"
+      }),
+    }),
+
+    async execute(toolCallId, params, signal, onUpdate) {
+      try {
+        onUpdate?.({
+          content: [{ type: "text", text: `Switching to tab ${params.tabId}...` }],
+          details: { stage: "switching" }
+        });
+
+        const result = await browser_tab_switch({
+          tabId: params.tabId,
+        });
+
+        return {
+          content: [{
+            type: "text",
+            text: `Switched to tab ${result.newTab.id}.\n` +
+              `URL: ${result.newTab.url}\n` +
+              `Title: ${result.newTab.title}`
+          }],
+          details: result
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Failed to switch tab: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          details: { error: error instanceof Error ? error.message : String(error) }
+        };
+      }
+    }
+  });
+
+  // Register browser_tab_close tool
+  pi.registerTool({
+    name: "browser_tab_close",
+    label: "Browser Tab Close",
+    description: `Close a browser tab and cleanup its resources.
+
+WHEN TO USE:
+- To close a specific tab
+- To close the current tab
+
+By default, cannot close the last tab. Use allowQuit=true to close the last tab anyway.`,
+
+    parameters: Type.Object({
+      tabId: Type.Optional(Type.String({
+        description: "Target ID of the tab to close. If omitted, closes the active tab"
+      })),
+      allowQuit: Type.Optional(Type.Boolean({
+        default: false,
+        description: "Allow closing the last tab (will quit browser if only one tab)"
+      })),
+    }),
+
+    async execute(toolCallId, params, signal, onUpdate) {
+      try {
+        onUpdate?.({
+          content: [{ type: "text", text: "Closing tab..." }],
+          details: { stage: "closing" }
+        });
+
+        const result = await browser_tab_close({
+          tabId: params.tabId,
+          allowQuit: params.allowQuit ?? false,
+        });
+
+        return {
+          content: [{
+            type: "text",
+            text: `Tab closed successfully.` +
+              (result.newActiveTab ? `\nNew active tab: ${result.newActiveTab}` : "")
+          }],
+          details: result
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Failed to close tab: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          details: { error: error instanceof Error ? error.message : String(error) }
+        };
+      }
+    }
+  });
+
+  // Register browser_wait tool
+  pi.registerTool({
+    name: "browser_wait",
+    label: "Browser Wait",
+    description: `Wait for various conditions with configurable timeout.
+
+WHEN TO USE:
+- element: Wait for a DOM element to appear
+- network: Wait for network idle (no activity for 500ms)
+- navigation: Wait for page navigation to complete
+- time: Wait for a specified duration
+- function: Wait for a JavaScript expression to return truthy
+
+Wait Types:
+- element: Polls DOM with exponential backoff until element appears
+- network: Listens for network activity, waits for quiet period
+- navigation: Waits for Page.loadEventFired CDP event
+- time: Simple sleep for specified duration
+- function: Polls Runtime.evaluate until expression returns truthy`,
+
+    parameters: Type.Object({
+      target: Type.String({
+        description: "Target ID of the browser tab (from browser_list)"
+      }),
+      type: Type.Union([
+        Type.Literal('element'),
+        Type.Literal('network'),
+        Type.Literal('navigation'),
+        Type.Literal('time'),
+        Type.Literal('function')
+      ], {
+        description: "Type of wait condition"
+      }),
+      selector: Type.Optional(Type.String({
+        description: "CSS selector (required for 'element' wait type)"
+      })),
+      expression: Type.Optional(Type.String({
+        description: "JavaScript expression (required for 'function' wait type)"
+      })),
+      timeout: Type.Optional(Type.Number({
+        default: 30000,
+        description: "Maximum wait time in milliseconds"
+      })),
+    }),
+
+    async execute(toolCallId, params, signal, onUpdate) {
+      try {
+        onUpdate?.({
+          content: [{ type: "text", text: `Waiting for ${params.type}...` }],
+          details: { stage: "waiting", type: params.type }
+        });
+
+        const result = await browser_wait({
+          target: params.target,
+          type: params.type,
+          selector: params.selector,
+          expression: params.expression,
+          timeout: params.timeout ?? 30000,
+        });
+
+        return {
+          content: [{
+            type: "text",
+            text: result.success
+              ? `Wait successful. Waited ${result.waitedMs}ms.`
+              : `Wait failed after ${result.waitedMs}ms.`
+          }],
+          details: result
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Wait failed: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          details: { error: error instanceof Error ? error.message : String(error) }
+        };
+      }
+    }
+  });
+
+  // Register browser_find tool
+  pi.registerTool({
+    name: "browser_find",
+    label: "Browser Find",
+    description: `Find elements on the page using semantic criteria (accessibility tree).
+
+WHEN TO USE:
+- To find elements by ARIA role (button, link, textbox, heading)
+- To find elements by accessible name (visible text)
+- To find elements by heading level (h1-h6)
+
+Returns matching elements with:
+- role: ARIA role
+- name: Accessible name
+- selector: Best-effort CSS selector
+- x, y, width, height: Element coordinates for clicking`,
+
+    parameters: Type.Object({
+      target: Type.String({
+        description: "Target ID of the browser tab (from browser_list)"
+      }),
+      role: Type.Optional(Type.String({
+        description: "ARIA role to filter by (e.g., 'button', 'link', 'textbox', 'heading')"
+      })),
+      name: Type.Optional(Type.String({
+        description: "Accessible name to filter by (substring match, case-insensitive)"
+      })),
+      level: Type.Optional(Type.Number({
+        description: "Heading level 1-6 (only used when role='heading')"
+      })),
+    }),
+
+    async execute(toolCallId, params, signal, onUpdate) {
+      try {
+        onUpdate?.({
+          content: [{ type: "text", text: "Finding elements..." }],
+          details: { stage: "finding" }
+        });
+
+        const result = await browser_find({
+          target: params.target,
+          role: params.role,
+          name: params.name,
+          level: params.level,
+        });
+
+        if (!result.found || result.elements.length === 0) {
+          return {
+            content: [{ type: "text", text: "No elements found matching the criteria." }],
+            details: result
+          };
+        }
+
+        const elementText = result.elements.map((el, i) =>
+          `[${i + 1}] ${el.role}${el.name ? ` "${el.name}"` : ''}\n` +
+          `    Selector: ${el.selector || 'N/A'}\n` +
+          `    Coordinates: (${el.x}, ${el.y}, ${el.width}x${el.height})`
+        ).join('\n');
+
+        return {
+          content: [{
+            type: "text",
+            text: `Found ${result.elements.length} element(s):\n\n${elementText}`
+          }],
+          details: result
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Find failed: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          details: { error: error instanceof Error ? error.message : String(error) }
+        };
+      }
+    }
+  });
+
+  // Register browser_emulate tool
+  pi.registerTool({
+    name: "browser_emulate",
+    label: "Browser Emulate",
+    description: `Emulate a device in the browser by setting viewport, user agent, and touch.
+
+WHEN TO USE:
+- To test responsive designs
+- To emulate mobile devices
+- To set custom viewport dimensions
+- To override user agent
+
+Device Presets:
+- iPhone14Pro, iPhone14ProMax, iPhone13
+- Pixel7, Pixel7Pro, SamsungS23
+- iPad, iPadPro, iPadMini
+- Desktop, DesktopHD, Desktop4K
+- MacBookAir, MacBookPro14, MacBookPro16
+
+Use clear=true to reset all emulation to defaults.`,
+
+    parameters: Type.Object({
+      target: Type.Optional(Type.String({
+        description: "Target ID of the browser tab (from browser_list). If omitted, uses default tab."
+      })),
+      device: Type.Optional(Type.Union([
+        Type.Literal('iPhone14Pro'),
+        Type.Literal('iPhone14ProMax'),
+        Type.Literal('iPhone13'),
+        Type.Literal('Pixel7'),
+        Type.Literal('Pixel7Pro'),
+        Type.Literal('SamsungS23'),
+        Type.Literal('iPad'),
+        Type.Literal('iPadPro'),
+        Type.Literal('iPadMini'),
+        Type.Literal('Desktop'),
+        Type.Literal('DesktopHD'),
+        Type.Literal('Desktop4K'),
+        Type.Literal('MacBookAir'),
+        Type.Literal('MacBookPro14'),
+        Type.Literal('MacBookPro16'),
+      ], {
+        description: "Device preset to emulate"
+      })),
+      width: Type.Optional(Type.Number({
+        description: "Viewport width in pixels (overrides preset)"
+      })),
+      height: Type.Optional(Type.Number({
+        description: "Viewport height in pixels (overrides preset)"
+      })),
+      dpr: Type.Optional(Type.Number({
+        description: "Device pixel ratio (overrides preset)"
+      })),
+      mobile: Type.Optional(Type.Boolean({
+        description: "Mobile mode flag (overrides preset)"
+      })),
+      touch: Type.Optional(Type.Boolean({
+        description: "Touch emulation enabled (overrides preset)"
+      })),
+      userAgent: Type.Optional(Type.String({
+        description: "Custom user agent string (overrides preset)"
+      })),
+      clear: Type.Optional(Type.Boolean({
+        default: false,
+        description: "Clear all emulation and reset to defaults"
+      })),
+    }),
+
+    async execute(toolCallId, params, signal, onUpdate) {
+      try {
+        onUpdate?.({
+          content: [{ type: "text", text: params.clear ? "Clearing emulation..." : "Applying device emulation..." }],
+          details: { stage: params.clear ? "clearing" : "emulating" }
+        });
+
+        const result = await browser_emulate({
+          target: params.target,
+          device: params.device,
+          width: params.width,
+          height: params.height,
+          dpr: params.dpr,
+          mobile: params.mobile,
+          touch: params.touch,
+          userAgent: params.userAgent,
+          clear: params.clear ?? false,
+        });
+
+        if (result.cleared) {
+          return {
+            content: [{
+              type: "text",
+              text: "Emulation cleared. Reset to default viewport (1280x720)."
+            }],
+            details: result
+          };
+        }
+
+        return {
+          content: [{
+            type: "text",
+            text: `Device emulation applied:\n` +
+              `Viewport: ${result.applied.width}x${result.applied.height}\n` +
+              `DPR: ${result.applied.dpr}\n` +
+              `Mobile: ${result.applied.mobile}\n` +
+              `Touch: ${result.applied.touch}` +
+              (result.applied.userAgent ? `\nUser Agent: ${result.applied.userAgent.substring(0, 50)}...` : "")
+          }],
+          details: result
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Emulation failed: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          details: { error: error instanceof Error ? error.message : String(error) }
+        };
+      }
+    }
   });
 }
 

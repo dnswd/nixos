@@ -1,7 +1,9 @@
 import { WebSocket } from "ws";
+import { acquireMutex, releaseMutex } from "./mutex.js";
+import { getBrowserWsUrl } from "./browser-discovery.js";
 
 export interface CDPClient {
-  send(method: string, params?: Record<string, unknown>): Promise<unknown>;
+  send(method: string, params?: Record<string, unknown>, sessionId?: string): Promise<unknown>;
   on(event: string, handler: (params: unknown) => void): void;
   off(event: string, handler: (params: unknown) => void): void;
   close(): void;
@@ -86,11 +88,14 @@ class CDPClientImpl implements CDPClient {
     }
   }
 
-  send(method: string, params?: Record<string, unknown>): Promise<unknown> {
+  send(method: string, params?: Record<string, unknown>, sessionId?: string): Promise<unknown> {
     const id = ++this.id;
     return new Promise((resolve, reject) => {
       this.pending.set(id, { resolve, reject });
       const request: CDPRequest = { id, method, params };
+      if (sessionId) {
+        request.sessionId = sessionId;
+      }
       this.ws.send(JSON.stringify(request));
 
       // Timeout after 15 seconds
@@ -162,6 +167,21 @@ export function unregisterCDPClient(targetId: string): void {
 }
 
 export async function getCDPClient(targetId: string, persistent = false): Promise<CDPClient> {
+  // Acquire mutex before getting client (operations will auto-release)
+  await acquireMutex(targetId, { timeout: 30000, operation: "cdp_operation" });
+
+  try {
+    const client = await getCDPClientInternal(targetId, persistent);
+    // Wrap the client to release mutex after each send operation
+    return wrapClientWithMutexRelease(client, targetId);
+  } catch (error) {
+    // Release mutex on error
+    await releaseMutex(targetId);
+    throw error;
+  }
+}
+
+async function getCDPClientInternal(targetId: string, persistent = false): Promise<CDPClient> {
   // Check for mock client first (for testing)
   const mockClient = mockClients.get(targetId);
   if (mockClient) {
@@ -188,19 +208,38 @@ export async function getCDPClient(targetId: string, persistent = false): Promis
     throw new Error(`Failed to attach to target ${targetId}`);
   }
 
+  const sessionId = result.sessionId;
+
+  // Create a wrapper client that includes sessionId in all commands
+  const sessionClient: CDPClient = {
+    send: (method: string, params?: Record<string, unknown>, _sessionId?: string) => {
+      // sessionId is captured from closure; _sessionId param ignored for type compatibility
+      return cdp.send(method, params, sessionId);
+    },
+    on: (event: string, handler: (params: unknown) => void) => {
+      cdp.on(event, handler);
+    },
+    off: (event: string, handler: (params: unknown) => void) => {
+      cdp.off(event, handler);
+    },
+    close: () => {
+      cdp.close();
+    },
+  };
+
   // Store persistent connection if requested
   if (persistent) {
-    persistentConnections.set(targetId, cdp);
+    persistentConnections.set(targetId, sessionClient);
     
     // Clean up on close
-    const originalClose = cdp.close.bind(cdp);
-    cdp.close = () => {
+    const originalClose = sessionClient.close.bind(sessionClient);
+    sessionClient.close = () => {
       persistentConnections.delete(targetId);
       originalClose();
     };
   }
 
-  return cdp;
+  return sessionClient;
 }
 
 export function closePersistentConnection(targetId: string): void {
@@ -215,44 +254,37 @@ export function hasPersistentConnection(targetId: string): boolean {
   return persistentConnections.has(targetId);
 }
 
-async function getBrowserWsUrl(): Promise<string> {
-  const home = process.env.HOME || "/tmp";
 
-  // Try common Chrome DevTools ActivePort locations
-  const candidates = [
-    process.env.CDP_WS_URL,
-    // macOS
-    `${home}/Library/Application Support/Google/Chrome/Default/DevToolsActivePort`,
-    `${home}/Library/Application Support/Chromium/Default/DevToolsActivePort`,
-    // Linux
-    `${home}/.config/google-chrome/Default/DevToolsActivePort`,
-    `${home}/.config/chromium/Default/DevToolsActivePort`,
-  ].filter(Boolean);
 
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-
-    if (candidate.startsWith("ws://") || candidate.startsWith("wss://")) {
-      return candidate;
-    }
-
-    try {
-      const fs = await import("fs");
-      if (fs.existsSync(candidate)) {
-        const content = fs.readFileSync(candidate, "utf8").trim();
-        const lines = content.split("\n");
-        if (lines.length >= 2) {
-          const port = lines[0];
-          const path = lines[1];
-          return `ws://127.0.0.1:${port}${path}`;
-        }
+/**
+ * Wrap a CDP client to auto-release mutex after operations.
+ * This ensures that the mutex is released after each CDP operation,
+ * allowing other operations to proceed.
+ */
+function wrapClientWithMutexRelease(
+  client: CDPClient,
+  targetId: string
+): CDPClient {
+  return {
+    async send(method: string, params?: Record<string, unknown>, sessionId?: string): Promise<unknown> {
+      try {
+        return await client.send(method, params, sessionId);
+      } finally {
+        // Always release mutex after operation completes (success or failure)
+        await releaseMutex(targetId);
       }
-    } catch {
-      // Continue to next candidate
-    }
-  }
-
-  throw new Error(
-    "No DevToolsActivePort found. Enable remote debugging at chrome://inspect/#remote-debugging",
-  );
+    },
+    on(event: string, handler: (params: unknown) => void): void {
+      client.on(event, handler);
+    },
+    off(event: string, handler: (params: unknown) => void): void {
+      client.off(event, handler);
+    },
+    close(): void {
+      // Release mutex before closing connection
+      releaseMutex(targetId).finally(() => {
+        client.close();
+      });
+    },
+  };
 }

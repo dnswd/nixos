@@ -73,7 +73,10 @@ Do NOT use the Oracle for:
         } else {
           return {
             content: [{ type: "text", text: "Oracle model not found. No suitable model available in registry." }],
-            details: { error: "Model not found", availableProviders: ctx.modelRegistry.getProviders().map(p => p.id) },
+            details: {
+              error: "Model not found",
+              availableProviders: [...new Set(ctx.modelRegistry.getAvailable().map(m => m.provider))],
+            },
           };
         }
       }

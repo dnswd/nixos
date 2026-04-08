@@ -1,6 +1,37 @@
 import { getCDPClient } from './cdp-client.js';
 import { BrowserError } from './errors.js';
-import { browser_eval, type EvalResult } from './tools-eval.js';
+import { browser_eval } from './tools-eval.js';
+
+// CDP Response Types
+interface DOMGetDocumentResponse {
+  root: {
+    nodeId: number;
+  };
+}
+
+interface DOMQuerySelectorResponse {
+  nodeId: number;
+}
+
+interface DOMGetBoxModelResponse {
+  model: {
+    content: number[];
+  };
+}
+
+interface DOMDescribeNodeResponse {
+  node: {
+    nodeName: string;
+    attributes?: string[];
+  };
+}
+
+interface RuntimeEvaluateResponse {
+  result: {
+    value?: string;
+    type?: string;
+  };
+}
 
 // Track which targets have DOM enabled
 const domEnabledTargets = new Set<string>();
@@ -77,22 +108,22 @@ export async function browser_click({
   }
 
   // Get document nodeId
-  const { root } = await cdp.send('DOM.getDocument');
+  const { root } = await cdp.send('DOM.getDocument') as DOMGetDocumentResponse;
 
   // Query selector
   const { nodeId } = await cdp.send('DOM.querySelector', {
     nodeId: root.nodeId,
     selector,
-  });
+  }) as DOMQuerySelectorResponse;
 
   if (nodeId === 0) {
     throw new BrowserError('ElementNotFound', `Element not found: "${selector}"`);
   }
 
   // Get box model for visibility check and coordinates
-  let boxModel;
+  let boxModel: DOMGetBoxModelResponse;
   try {
-    boxModel = await cdp.send('DOM.getBoxModel', { nodeId });
+    boxModel = await cdp.send('DOM.getBoxModel', { nodeId }) as DOMGetBoxModelResponse;
   } catch {
     throw new BrowserError('ElementNotVisible', `Element found but not visible: "${selector}"`);
   }
@@ -137,7 +168,7 @@ export async function browser_click({
   });
 
   // Get element info
-  const { node } = await cdp.send('DOM.describeNode', { nodeId });
+  const { node } = await cdp.send('DOM.describeNode', { nodeId }) as DOMDescribeNodeResponse;
 
   // Extract attributes from flat array [name1, value1, name2, value2, ...]
   const attributes = node.attributes || [];
@@ -200,7 +231,10 @@ export async function browser_clickxy({
   const { result: vp } = await cdp.send('Runtime.evaluate', {
     expression: 'JSON.stringify({ width: window.innerWidth, height: window.innerHeight })',
     returnByValue: true,
-  });
+  }) as RuntimeEvaluateResponse;
+  if (!vp.value) {
+    throw new BrowserError('EvaluationFailed', 'Failed to get viewport dimensions');
+  }
   const viewport = JSON.parse(vp.value);
 
   if (x > viewport.width || y > viewport.height) {

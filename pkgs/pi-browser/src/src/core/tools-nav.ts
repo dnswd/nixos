@@ -1,4 +1,5 @@
 import { getCDPClient } from './cdp-client.js';
+import { getBrowserWsUrl } from './browser-discovery.js';
 import { BrowserError } from './errors.js';
 
 // Sleep utility for wait delays
@@ -15,28 +16,16 @@ export interface TabInfo {
 }
 
 /**
- * List all open Chrome tabs.
- * Connects to Chrome DevTools and queries for all page targets.
+ * List all open browser tabs.
+ * Auto-discovers Chrome, Brave, Edge, Chromium, Vivaldi via DevToolsActivePort.
  * @returns Array of tab info
  */
 export async function browser_list(): Promise<TabInfo[]> {
   try {
-    // Get browser WebSocket URL
-    let wsUrl: string;
-
-    if (process.env.CDP_WS_URL) {
-      // Use environment variable if set (for testing)
-      wsUrl = process.env.CDP_WS_URL;
-    } else {
-      // Fetch from Chrome DevTools endpoint
-      const response = await fetch('http://localhost:9222/json/version');
-      const version = await response.json();
-      wsUrl = version.webSocketDebuggerUrl;
-    }
-
-    // Connect via WebSocket
+    // Get browser-level CDP client (no target attachment needed for browser-level commands)
+    const browserWsUrl = await getBrowserWsUrl();
     const { default: WebSocket } = await import('ws');
-    const ws = new WebSocket(wsUrl);
+    const ws = new WebSocket(browserWsUrl);
 
     await new Promise<void>((resolve, reject) => {
       ws.on('open', resolve);
@@ -66,9 +55,9 @@ export async function browser_list(): Promise<TabInfo[]> {
       throw new Error(response_data.error.message);
     }
 
-    // Filter to page targets only
+    // Filter to page targets only (exclude chrome:// URLs and non-page types)
     return response_data.result.targetInfos
-      .filter((t: any) => t.type === 'page')
+      .filter((t: any) => t.type === 'page' && !t.url.startsWith('chrome://'))
       .map((t: any) => ({
         id: t.targetId,
         url: t.url,
@@ -76,17 +65,22 @@ export async function browser_list(): Promise<TabInfo[]> {
         active: t.active || false
       }));
   } catch (error) {
-    // Chrome not running: connection failures, empty responses, or parse errors
+    // Browser not found or connection failed
     if (error instanceof Error && (
+      error.message.includes('No DevToolsActivePort found') ||
       error.message.includes('ECONNREFUSED') ||
       error.message.includes('fetch failed') ||
-      error.message.includes('ECONNRESET') ||
-      error.message.includes('Unexpected end of JSON input') ||
-      error instanceof SyntaxError
+      error.message.includes('ECONNRESET')
     )) {
-      throw new BrowserError('ChromeNotFound', 'Chrome not running on port 9222. Start Chrome with --remote-debugging-port=9222');
+      throw new BrowserError(
+        'BrowserNotFound',
+        'No browser with remote debugging found. Enable remote debugging:\n' +
+        '- Chrome/Edge: open chrome://inspect/#remote-debugging\n' +
+        '- Brave: open brave://inspect/#remote-debugging\n' +
+        'Then toggle the switch to enable debugging.'
+      );
     }
-    throw error; // Re-throw actual CDP/other errors
+    throw error;
   }
 }
 
