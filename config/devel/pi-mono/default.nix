@@ -89,7 +89,7 @@
           apiKey = "!cat ${config.age.secrets.pi-openrouter-key.path}";
           models = [
             {
-              id = "moonshotai/kimi-k2-5";
+              id = "moonshotai/kimi-k2.5:";
               name = "Kimi K2.5 (OR)";
               reasoning = true;
               input = [ "text" "image" ];
@@ -117,14 +117,14 @@
           ];
         };
 
-        llamacpp = {
-          baseUrl = "http://100.122.233.72:11434/v1";
-          api = "openai-completions";
-          apiKey = "none";
-          models = [
-            { id = "Qwen3.5-35B-A3B-GGUF"; }
-          ];
-        };
+        # llamacpp = {
+        #   baseUrl = "http://100.122.233.72:11434/v1";
+        #   api = "openai-completions";
+        #   apiKey = "none";
+        #   models = [
+        #     { id = "Qwen3.5-35B-A3B-GGUF"; }
+        #   ];
+        # };
       };
     };
   };

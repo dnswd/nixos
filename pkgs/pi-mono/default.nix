@@ -222,11 +222,12 @@ in
       ".pi/agent/extensions/pi-listen".source = "${pi-listen}/lib/pi-listen";
     }
     // optionalAttrs (cfg.extensions != null) (
-      # Type A extensions (pure TS) - copied from local directory
+      # Type A extensions (pure TS) - symlinked from local directory
       mapAttrs' (
         name: _:
         nameValuePair ".pi/agent/extensions/${name}" {
           source = cfg.extensions + "/${name}";
+          force = true;
         }
       ) (filterAttrs (n: v: v == "directory" && n != "node_modules") (builtins.readDir cfg.extensions))
     )
