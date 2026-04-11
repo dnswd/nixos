@@ -5,7 +5,10 @@ let
   # Halcyon on ikigai (NixOS)
   halcyon = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC9P2nbiIhutHbthEN/tbOXt6y2WWVQFxGyvRROWuxHI";
 
-  users = [ dennis halcyon ];
+  # ikigai host key (for system-level agenix)
+  ikigai = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICAnzYoeveZrSrRprc/Yim4kmPNV2/GBaiMGnkmm9u93 root@ikigai";
+
+  users = [ dennis halcyon ikigai ];
 in
 {
   # Program-specific secrets (decrypt directly to where programs expect them)
