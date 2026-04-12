@@ -5,59 +5,26 @@
   ...
 }:
 {
-  imports = [ ../agenix.nix ];
+  imports = [ ../secrets.nix ];
 
-  home.packages =
-    with pkgs;
-    [
-    git-stack
-      lazygit
-      gh
-    ];
-
-  age.secrets.gitconfig = {
-    file = ../../secrets/gitconfig.age;
-    path = "${config.home.homeDirectory}/.config/git/config.secret";
-  };
+  home.packages = with pkgs; [ git-stack lazygit gh ];
 
   programs.git = {
     enable = true;
     settings = {
       alias = {
-        # commit
-        c = "commit";
-        cm = "commit -m";
-        ca = "commit -am";
-        amend = "commit --amend";
-        append = "commit --amend --no-edit";
-
-        # branch
+        c = "commit"; cm = "commit -m"; ca = "commit -am";
+        amend = "commit --amend"; append = "commit --amend --no-edit";
         recent-branches = "!git for-each-ref --count=5 --sort=-committerdate refs/heads/ --format='%(refname:short)'";
-        nb = "checkout -b";
-        sw = "switch";
-        pl = "pull";
-        ps = "push";
-        psf = "push --force-with-lease";
-
-        # rebase
-        rc = "rebase --continue";
-        rs = "rebase --skip";
-
-        # remote
+        nb = "checkout -b"; sw = "switch"; pl = "pull"; ps = "push"; psf = "push --force-with-lease";
+        rc = "rebase --continue"; rs = "rebase --skip";
         r = "remote -v";
-
-        # MONOREPO: incomplete clone aliases
         clone-only-recent = "clone --filter=blob:none";
         clone-only-files = "clone --filter=tree:0";
       };
-
       column.ui = "auto";
       branch.sort = "-committerdate";
-
-      include = {
-        path = config.age.secrets.gitconfig.path;
-      };
-
+      include.path = "${config.home.homeDirectory}/.config/git/config.secret";
       extraConfig = {
         core = {
           editor = "nvim";
@@ -65,26 +32,12 @@
           pager = "${pkgs.lib.getExe pkgs.diff-so-fancy} | less --tabs=4 -RFX";
           fsmonitor = true;
         };
-
         "url \"git@github.com:\"".insteadOf = "https://github.com/";
-
-        fetch = {
-          writeCommitGraph = true;
-        };
-
-        pull = {
-          ff = "only";
-          rebase = false;
-        };
-
+        fetch.writeCommitGraph = true;
+        pull = { ff = "only"; rebase = false; };
         rerere.enabled = true;
-
-        push = {
-          autoSetupRemote = true;
-        };
-
+        push.autoSetupRemote = true;
         diff.algorithm = "histogram";
-
         safe.directory = "*";
       };
     };

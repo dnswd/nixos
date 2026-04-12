@@ -32,10 +32,6 @@
     # Pinned nixpkgs for jdtls 1.43.0 (last version with Java 17 bytecode, compatible with Gradle 6.x)
     nixpkgs-jdtls.url = "github:nixos/nixpkgs/21808d22b1cda1898b71cf1a1beb524a97add2c4";
 
-    # Secrets management
-    agenix.url = "github:ryantm/agenix";
-    agenix.inputs.nixpkgs.follows = "nixpkgs";
-
     # Pi-mono Agentic Copilot
     pi-mono = {
       url = "github:badlogic/pi-mono";
@@ -81,12 +77,7 @@
 
       darwinConfigurations = lib.my.generateDarwinConfigurations {
         machines = darwinMachines;
-        inherit
-          nix-darwin
-          nixpkgs
-          home-manager
-          catppuccin
-          ;
+        inherit nix-darwin nixpkgs home-manager catppuccin;
         inherit lib inputs;
         my = lib.my;
         pkgsDir = ./pkgs;

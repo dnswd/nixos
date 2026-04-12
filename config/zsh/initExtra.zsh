@@ -1,3 +1,6 @@
+# Source secrets from gist FOD
+[[ -f ~/.config/nixos-secrets/env.sh ]] && source ~/.config/nixos-secrets/env.sh
+
 # Case insensitive completion
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 

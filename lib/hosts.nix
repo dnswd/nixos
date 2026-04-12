@@ -91,7 +91,7 @@ rec {
     };
 
   # Generate all nixosConfigurations from machines
-  generateConfigurations = {machines, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my, agenixConfig ? null}:
+  generateConfigurations = {machines, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my}:
     mapAttrs (hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
@@ -125,7 +125,6 @@ rec {
           nameValuePair user.username {
             imports = [
               catppuccin.homeModules.catppuccin
-              inputs.agenix.homeManagerModules.default
               user.homeConfig
             ];
           }
@@ -139,13 +138,6 @@ rec {
             nixpkgs.pkgs = pkgs;
             nixpkgs.hostPlatform = system;
           }
-        ]
-        ++ optionals (agenixConfig != null) [
-          # Agenix secrets management
-          inputs.agenix.nixosModules.default
-          agenixConfig
-        ]
-        ++ [
           # Use _machineDir to resolve configuration.nix (as module, not direct import)
           "${machineConfig._machineDir}/configuration.nix"
           home-manager.nixosModules.home-manager
@@ -161,7 +153,7 @@ rec {
     ) machines;
 
   # Generate all darwinConfigurations from machines
-  generateDarwinConfigurations = {machines, nix-darwin, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my, agenixConfig ? null}:
+  generateDarwinConfigurations = {machines, nix-darwin, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my}:
     mapAttrs (hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
@@ -194,7 +186,6 @@ rec {
           nameValuePair user.username {
             imports = [
               catppuccin.homeModules.catppuccin
-              inputs.agenix.homeManagerModules.default
               user.homeConfig
             ];
           }
@@ -205,13 +196,7 @@ rec {
         modules = [
           # Set pkgs properly for Darwin
           { nixpkgs.pkgs = pkgs; }
-        ]
-        ++ optionals (agenixConfig != null) [
-          # Agenix secrets management
-          inputs.agenix.darwinModules.default
-          agenixConfig
-        ]
-        ++ [
+
           # Use _machineDir to resolve darwin-configuration.nix (as module)
           "${machineConfig._machineDir}/darwin-configuration.nix"
           home-manager.darwinModules.home-manager

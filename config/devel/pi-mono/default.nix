@@ -1,8 +1,8 @@
-{ pkgs, lib, config, osType ? "linux", ... }:
+{ pkgs, lib, config, readSecret, osType ? "linux", ... }:
 {
   imports = [
     ../../../pkgs/pi-mono
-    ../../agenix.nix
+    ../../secrets.nix
   ];
 
   # LSP server configuration for pi-lsp extension
@@ -54,20 +54,7 @@
   };
   };
 
-  age.secrets.pi-fireworks-key = {
-    file = ../../../secrets/fireworks-api-key.age;
-  };
-
-  age.secrets.pi-openrouter-key = {
-    file = ../../../secrets/openrouter-api-key.age;
-  };
-
-  age.secrets.pi-auth = {
-    file = ../../../secrets/pi-auth.json.age;
-    path = "${config.home.homeDirectory}/.pi/agent/auth.json";
-  };
-
-  # pi-mono auth.json is decrypted directly by agenix
+  # pi-mono configuration - API keys read directly from FOD store path via readSecret
   programs.pi-mono = {
     enable = true;
     voiceInput.enable = true;
@@ -86,7 +73,7 @@
         openrouter = {
           baseUrl = "https://openrouter.ai/api/v1";
           api = "openai-completions";
-          apiKey = "!cat ${config.age.secrets.pi-openrouter-key.path}";
+          apiKey = readSecret "openrouter_api_key";
           models = [
             {
               id = "moonshotai/kimi-k2.5:";
@@ -103,7 +90,7 @@
         fireworks = {
           baseUrl = "https://api.fireworks.ai/inference/v1";
           api = "openai-completions";
-          apiKey = "!cat ${config.age.secrets.pi-fireworks-key.path}";
+          apiKey = readSecret "fireworks_api_key";
           models = [
             {
               id = "accounts/fireworks/models/kimi-k2p5";
@@ -116,15 +103,6 @@
             }
           ];
         };
-
-        # llamacpp = {
-        #   baseUrl = "http://100.122.233.72:11434/v1";
-        #   api = "openai-completions";
-        #   apiKey = "none";
-        #   models = [
-        #     { id = "Qwen3.5-35B-A3B-GGUF"; }
-        #   ];
-        # };
       };
     };
   };

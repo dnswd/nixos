@@ -2,52 +2,50 @@
 default:
     @just --list
 
-# Re-encrypt all secrets (after adding new keys to secrets.nix)
-rekey:
-    @echo "Re-encrypting all secrets with current keys..."
-    cd secrets && agenix -r
-    @echo "Done."
+# === SECRETS SETUP ===
+# Secrets are fetched from a private GitHub repo via FOD (Fixed Output Derivation)
+# The secrets are baked into the build at build time and cached in the nix store.
 
-# Edit a secret file
-edit file:
-    cd secrets && agenix -e {{file}}.age
+# 1. Create a private repo at https://github.com/USER/REPO with secrets.json:
+#    {
+#      "fireworks_api_key": "fw_...",
+#      "openrouter_api_key": "sk-or-v1-...",
+#      "pi_auth": {"token": "..."},
+#      "rbw_config": {"email": "..."},
+#      "gitconfig": "[user]\n  name = ...\n  email = ..."
+#    }
 
-# Edit git config secret
-edit-git:
-    cd secrets && agenix -e gitconfig.age
+# 2. Edit config/secrets.nix and set:
+#    - githubUser = "yourusername"
+#    - repoName = "your-repo-name"
+#    - secretsHash = (from step 3)
 
-# Edit rbw config secret
-edit-rbw:
-    cd secrets && agenix -e rbw-config.json.age
+# Get the sha256 hash for your private repo (uses `gh auth token` for auth)
+prefetch-secrets REPO="nixos-secrets" USERNAME="dnswd" BRANCH="main":
+    #!/usr/bin/env bash
+    URL="https://raw.githubusercontent.com/{{USERNAME}}/{{REPO}}/{{BRANCH}}/secrets.json"
+    TOKEN=$(gh auth token)
+    if [[ -z "$TOKEN" ]]; then
+        echo "Error: Could not get GitHub token from 'gh auth token'"
+        echo "Ensure you're logged in: gh auth login"
+        exit 1
+    fi
+    echo "Fetching from: $URL"
+    nix-prefetch-url --header "Authorization: Bearer $TOKEN" "$URL"
 
-# Edit pi-mono auth secret
-edit-pi:
-    cd secrets && agenix -e pi-auth.json.age
-
-# Initialize secrets from examples
-init:
-    @echo "Creating secret files from examples..."
-    @for f in secrets/*.example; do \
-        target="$${f%.example}"; \
-        if [ ! -f "$$target.age" ]; then \
-            echo "Creating $$target.age from $$f"; \
-            cp "$$f" "$${f%.example}"; \
-            cd secrets && agenix -e "$$(basename $$target).age"; \
-            rm "$${f%.example}"; \
-        else \
-            echo "$$target.age already exists, skipping"; \
-        fi \
-    done
-    @echo "Done. Run 'just rekey' if you added new keys."
-
-# Rebuild system
-rebuild *args="":
+# Rebuild NixOS or Darwin system (uses `gh auth token` for secrets auth)
+switch *args="":
     #!/usr/bin/env bash
     set -e
-    if [[ "$(uname -s)" == "Darwin" ]]; then
-        cmd="darwin-rebuild switch --flake .\#dennis-macbook-pro"
-    else
-        cmd="nixos-rebuild switch --flake .\#dennis-macbook-pro"
+    GITHUB_TOKEN=$(gh auth token)
+    if [[ -z "$GITHUB_TOKEN" ]]; then
+        echo "Error: Could not get GitHub token from 'gh auth token'"
+        echo "Ensure you're logged in: gh auth login"
+        exit 1
     fi
-    
-    $cmd {{args}}
+    export GITHUB_TOKEN
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        sudo -E darwin-rebuild switch --flake .\#dennis-macbook-pro --impure {{args}}
+    else
+        sudo -E nixos-rebuild switch --flake .\#ikigai --impure {{args}}
+    fi
