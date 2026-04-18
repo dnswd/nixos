@@ -37,6 +37,12 @@
       url = "github:badlogic/pi-mono";
       flake = false;
     };
+
+    # Secrets
+    secretsPath = {
+      url = "github:dnswd/nixos-secrets";
+      flake = false;
+    };
   };
 
   outputs =
@@ -45,6 +51,7 @@
       home-manager,
       nix-darwin,
       catppuccin,
+      secretsPath,
       ...
     }@inputs:
     let
@@ -71,6 +78,7 @@
         machines = linuxMachines;
         inherit nixpkgs home-manager catppuccin;
         inherit lib inputs;
+        inherit secretsPath secrets;
         my = lib.my;
         pkgsDir = ./pkgs;
       };
@@ -79,6 +87,7 @@
         machines = darwinMachines;
         inherit nix-darwin nixpkgs home-manager catppuccin;
         inherit lib inputs;
+        inherit secretsPath secrets;
         my = lib.my;
         pkgsDir = ./pkgs;
       };
@@ -89,6 +98,8 @@
         config.allowUnfree = true;
         localSystem = { inherit system; };
       };
+
+      secrets = import "${secretsPath}/secrets.nix";
     in
     {
       formatter.${system} = pkgs.alejandra;

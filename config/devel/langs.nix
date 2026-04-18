@@ -15,6 +15,9 @@
       # Go
       gopls
 
+      # Java
+      jdt-language-server
+
       # JavaScript / TypeScript
       nodePackages.typescript-language-server
       nodejs_latest

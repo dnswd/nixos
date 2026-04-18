@@ -91,7 +91,7 @@ rec {
     };
 
   # Generate all nixosConfigurations from machines
-  generateConfigurations = {machines, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my}:
+  generateConfigurations = {machines, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my, secrets, secretsPath}:
     mapAttrs (hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
@@ -116,7 +116,7 @@ rec {
 
         # Unified specialArgs for both system and home-manager (without pkgs)
         specialArgs = {
-          inherit system inputs osType;
+          inherit system inputs osType secrets;
           hostname = machineConfig.metadata.hostname;
         };
 
@@ -153,7 +153,7 @@ rec {
     ) machines;
 
   # Generate all darwinConfigurations from machines
-  generateDarwinConfigurations = {machines, nix-darwin, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my}:
+  generateDarwinConfigurations = {machines, nix-darwin, nixpkgs, home-manager, catppuccin, lib, inputs, pkgsDir, my, secrets, secretsPath}:
     mapAttrs (hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
@@ -177,7 +177,7 @@ rec {
 
         # Unified specialArgs for both system and home-manager (without pkgs)
         specialArgs = {
-          inherit system inputs osType self;
+          inherit system inputs osType self secrets;
           hostname = machineConfig.metadata.hostname;
         };
 

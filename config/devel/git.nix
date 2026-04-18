@@ -2,16 +2,19 @@
   pkgs,
   lib,
   config,
+  secrets,
   ...
 }:
 {
-  imports = [ ../secrets.nix ];
-
   home.packages = with pkgs; [ git-stack lazygit gh ];
 
   programs.git = {
     enable = true;
     settings = {
+      user = {
+        name = secrets.full_name;
+        email = secrets.email_primary;
+      };
       alias = {
         c = "commit"; cm = "commit -m"; ca = "commit -am";
         amend = "commit --amend"; append = "commit --amend --no-edit";

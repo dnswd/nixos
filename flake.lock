@@ -161,7 +161,24 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-jdtls": "nixpkgs-jdtls",
         "nixvim": "nixvim",
-        "pi-mono": "pi-mono"
+        "pi-mono": "pi-mono",
+        "secretsPath": "secretsPath"
+      }
+    },
+    "secretsPath": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1776259894,
+        "narHash": "sha256-ulYp9EHfD1DrYHl9NYWPtFdY4ZpqL1CRc/FHS8tS7Cc=",
+        "owner": "dnswd",
+        "repo": "nixos-secrets",
+        "rev": "f7128edb9affa733ef504e98de21aee3c3779653",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dnswd",
+        "repo": "nixos-secrets",
+        "type": "github"
       }
     },
     "systems": {

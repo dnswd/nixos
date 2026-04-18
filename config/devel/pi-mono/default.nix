@@ -1,60 +1,63 @@
-{ pkgs, lib, config, readSecret, osType ? "linux", ... }:
+{ pkgs, lib, config, osType ? "linux", secrets, ... }:
 {
   imports = [
     ../../../pkgs/pi-mono
-    ../../secrets.nix
   ];
 
   # LSP server configuration for pi-lsp extension
   home.file.".pi/agent/extensions/lsp/config.json" = {
     force = true;
     text = builtins.toJSON {
-    lsp = {
-      typescript = {
-        command = [ "typescript-language-server" "--stdio" ];
-        extensions = [ ".ts" ".tsx" ".js" ".jsx" ".mjs" ".cjs" ".mts" ".cts" ];
-      };
-      nix = {
-        command = [ "nixd" ];
-        extensions = [ ".nix" ];
-      };
-      rust = {
-        command = [ "rust-analyzer" ];
-        extensions = [ ".rs" ];
-      };
-      go = {
-        command = [ "gopls" ];
-        extensions = [ ".go" ];
-      };
-      python = {
-        command = [ "pyright-langserver" "--stdio" ];
-        extensions = [ ".py" ];
-      };
-      bash = {
-        command = [ "bash-language-server" "start" ];
-        extensions = [ ".sh" ".bash" ];
-      };
-      c = {
-        command = [ "clangd" ];
-        extensions = [ ".c" ".h" ".cpp" ".hpp" ];
-      };
-      toml = {
-        command = [ "taplo" "lsp" "stdio" ];
-        extensions = [ ".toml" ];
-      };
-      yaml = {
-        command = [ "yaml-language-server" "--stdio" ];
-        extensions = [ ".yaml" ".yml" ];
-      };
-      json = {
-        command = [ "vscode-json-languageserver" "--stdio" ];
-        extensions = [ ".json" ];
+      lsp = {
+        typescript = {
+          command = [ "typescript-language-server" "--stdio" ];
+          extensions = [ ".ts" ".tsx" ".js" ".jsx" ".mjs" ".cjs" ".mts" ".cts" ];
+        };
+        nix = {
+          command = [ "nixd" ];
+          extensions = [ ".nix" ];
+        };
+        rust = {
+          command = [ "rust-analyzer" ];
+          extensions = [ ".rs" ];
+        };
+        go = {
+          command = [ "gopls" ];
+          extensions = [ ".go" ];
+        };
+        python = {
+          command = [ "pyright-langserver" "--stdio" ];
+          extensions = [ ".py" ];
+        };
+        bash = {
+          command = [ "bash-language-server" "start" ];
+          extensions = [ ".sh" ".bash" ];
+        };
+        c = {
+          command = [ "clangd" ];
+          extensions = [ ".c" ".h" ".cpp" ".hpp" ];
+        };
+        toml = {
+          command = [ "taplo" "lsp" "stdio" ];
+          extensions = [ ".toml" ];
+        };
+        yaml = {
+          command = [ "yaml-language-server" "--stdio" ];
+          extensions = [ ".yaml" ".yml" ];
+        };
+        java = {
+          command = [ "jdt-language-server" ];
+          extension = [ ".java" ];
+        };
+        json = {
+          command = [ "vscode-json-languageserver" "--stdio" ];
+          extensions = [ ".json" ];
+        };
       };
     };
   };
-  };
 
-  # pi-mono configuration - API keys read directly from FOD store path via readSecret
+  # pi-mono configuration
   programs.pi-mono = {
     enable = true;
     voiceInput.enable = true;
@@ -73,7 +76,7 @@
         openrouter = {
           baseUrl = "https://openrouter.ai/api/v1";
           api = "openai-completions";
-          apiKey = readSecret "openrouter_api_key";
+          apiKey = secrets.openrouter;
           models = [
             {
               id = "moonshotai/kimi-k2.5:";
@@ -90,7 +93,7 @@
         fireworks = {
           baseUrl = "https://api.fireworks.ai/inference/v1";
           api = "openai-completions";
-          apiKey = readSecret "fireworks_api_key";
+          apiKey = secrets.fireworks_ai;
           models = [
             {
               id = "accounts/fireworks/models/kimi-k2p5";
