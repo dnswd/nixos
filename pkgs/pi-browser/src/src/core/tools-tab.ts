@@ -2,6 +2,7 @@ import { getCDPClient } from './cdp-client.js';
 import { BrowserError, ErrorCode } from './errors.js';
 import { acquireMutex, releaseMutex } from './mutex.js';
 import { startDaemon, stopDaemon, getSocketPath } from './daemon.js';
+import { getBrowserWsUrl } from './browser-discovery.js';
 
 // CDP Types for Target domain
 interface CreateTargetResponse {
@@ -58,9 +59,7 @@ async function getBrowserCDPClient(): Promise<{
   if (process.env.CDP_WS_URL) {
     wsUrl = process.env.CDP_WS_URL;
   } else {
-    const response = await fetch('http://localhost:9222/json/version');
-    const version = await response.json();
-    wsUrl = version.webSocketDebuggerUrl;
+    wsUrl = await getBrowserWsUrl();
   }
 
   const { default: WebSocket } = await import('ws');

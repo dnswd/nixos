@@ -5,10 +5,5 @@
   "type": "module",
   "pi": {
     "extensions": ["./index.ts"]
-  },
-  "peerDependencies": {
-    "@mariozechner/pi-ai": "*",
-    "@mariozechner/pi-coding-agent": "*",
-    "@sinclair/typebox": "*"
   }
 }

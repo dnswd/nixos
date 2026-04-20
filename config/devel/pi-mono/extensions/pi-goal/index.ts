@@ -28,7 +28,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import type { Message } from "@mariozechner/pi-ai";
 import { StringEnum } from "@mariozechner/pi-ai";
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
 import { Text, truncateToWidth, matchesKey, type SelectItem, SelectList } from "@mariozechner/pi-tui";
 import { DynamicBorder } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
@@ -49,6 +49,7 @@ interface TaskState {
 	cost?: number;
 	tokens?: { input: number; output: number };
 	turns?: number;
+	sessionDir?: string; // Path to worker session directory for inspection
 }
 
 interface GoalState {
@@ -56,7 +57,7 @@ interface GoalState {
 	slug: string;
 	description: string;
 	created: string;
-	status: "active" | "completed" | "paused";
+	status: "active" | "completed" | "paused" | "archived";
 	workerModel?: string;
 	tasks: TaskState[];
 }
@@ -106,7 +107,7 @@ const DEFAULT_MAX_WORKERS = 4;
 let spinnerInterval: ReturnType<typeof setInterval> | null = null;
 let spinnerFrame = 0;
 let goalWidgetExpanded = true; // expanded by default during runs
-let lastExtCtx: any = null;
+let lastExtCtx: ExtensionContext | null = null;
 let overlayTui: { requestRender: () => void } | null = null;
 
 // Active run data — shared between actionRun, widget, and overlay
@@ -807,6 +808,8 @@ async function actionRun(
 		const taskToStart = currentState.tasks.find((t) => t.id === taskId);
 		if (!taskToStart || taskToStart.status !== "pending") return;
 		taskToStart.status = "in-progress";
+		const workerSessionDir = path.join(gDir, "sessions", `${taskId}-${taskName}`);
+		taskToStart.sessionDir = workerSessionDir;
 		writeState(cwd, slug, currentState);
 
 		runningTasks.set(taskId, { id: taskId, name: taskName, title: taskTitle, items: [], startedAt });
@@ -815,7 +818,6 @@ async function actionRun(
 		const taskFilePath = path.join(gDir, taskFile);
 		const learningsPath = path.join(gDir, "LEARNINGS.md");
 		const goalPath = path.join(gDir, "GOAL.md");
-		const workerSessionDir = path.join(gDir, "sessions", `${taskId}-${taskName}`);
 
 		const workerResult = await runWorker(
 			cwd,
@@ -921,8 +923,9 @@ async function actionRun(
 		while (queue.length > 0 || executing.size > 0) {
 			while (!signal?.aborted && executing.size < maxWorkers && queue.length > 0) {
 				const task = queue.shift()!;
-				const p = processTask(task.id, task.name, task.title, task.file).then(() => executing.delete(p));
+				const p = processTask(task.id, task.name, task.title, task.file);
 				executing.add(p);
+				p.finally(() => executing.delete(p));
 			}
 			if (executing.size > 0) {
 				await Promise.race(executing);
@@ -1003,8 +1006,8 @@ async function actionRun(
 	summaryLines.push("", "Results written to .pi/goals/" + slug + "/results/");
 	if (!wasCancelled) summaryLines.push("Review results and update LEARNINGS.md if needed.");
 
-	// Auto-complete goal when all tasks are done
-	if (totalDone === totalTasks && totalTasks > 0) {
+	// Auto-complete goal when all tasks are done (only if still active)
+	if (totalDone === totalTasks && totalTasks > 0 && currentState.status === "active") {
 		currentState.status = "completed";
 		writeState(cwd, slug, currentState);
 		setActiveSlug(cwd, null);
@@ -1086,7 +1089,7 @@ function actionStatus(cwd: string): { content: string; details: GoalDetails } {
 // Overlay — two-mode: list + detail
 // ─────────────────────────────────────────────────────
 
-function showGoalOverlay(ctx: any) {
+function showGoalOverlay(ctx: ExtensionContext) {
 	const cwd = ctx.cwd;
 	const slug = getActiveSlug(cwd);
 	if (!slug) {
@@ -1280,6 +1283,13 @@ function showGoalOverlay(ctx: any) {
 				if (task.tokens) statusParts.push(`↑${formatTokens(task.tokens.input)} ↓${formatTokens(task.tokens.output)}`);
 
 				content.push(`  ${fg("dim", statusParts.join(" · "))}`);
+
+				// ── Session path (for worker inspection) ──
+				if (task.sessionDir) {
+					const shortPath = task.sessionDir.replace(cwd, ".").replace(/\\/g, "/");
+					content.push(`  ${fg("dim", "Session:")} ${fg("accent", shortPath)}`);
+				}
+
 				content.push("");
 
 				// ── Activity (for running tasks) — shown FIRST ──
@@ -1405,13 +1415,14 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	// ── Session lifecycle ──
-	const initSession = (ctx: any) => {
+	const initSession = (ctx: ExtensionContext) => {
 		lastExtCtx = ctx;
 		updateStatusLine(ctx, ctx.cwd);
 	};
-	pi.on("session_start", async (_event, ctx) => initSession(ctx));
-	pi.on("session_switch", async (_event, ctx) => initSession(ctx));
-	pi.on("session_fork", async (_event, ctx) => initSession(ctx));
+	pi.on("session_start", async (event, ctx) => {
+		// Handle all session transitions: startup, reload, new, resume (was session_switch), fork (was session_fork)
+		initSession(ctx);
+	});
 	pi.on("session_tree", async (_event, ctx) => initSession(ctx));
 
 	// ── Ctrl+X: toggle widget expand/collapse ──
@@ -1471,53 +1482,56 @@ export default function (pi: ExtensionAPI) {
 				isActive: boolean;
 			};
 
-			const goals: GoalRow[] = allSlugs
-				.map((slug) => {
-					const state = readState(ctx.cwd, slug);
-					if (!state) return null;
-
-					const done = state.tasks.filter((t) => t.status === "done").length;
-					const failed = state.tasks.filter((t) => t.status === "failed").length;
-					const total = state.tasks.length;
-					const totalCost = state.tasks.reduce((s, t) => s + (t.cost || 0), 0);
-					const totalDur = state.tasks.reduce((s, t) => s + (t.durationSeconds || 0), 0);
-					const isActive = slug === activeSlug;
-
-					const statusIcon = isActive ? "●" : state.status === "completed" ? "✓" : state.status === "paused" ? "⏸" : "○";
-					const statusText = isActive ? "active" : state.status === "completed" ? "done" : state.status;
-
-					const created = new Date(state.created);
-					const month = created.toLocaleString("en", { month: "short" });
-					const day = created.getDate();
-
-					const progress = `${done}/${total}${failed > 0 ? ` ${failed}✗` : ""}`;
-					const costStr = totalCost > 0 ? `$${totalCost.toFixed(2)}` : "—";
-					const durStr = totalDur > 0 ? formatDuration(totalDur) : "—";
-
-					const label = [
-						state.name.slice(0, 26).padEnd(26),
-						`${statusIcon} ${statusText}`.padEnd(10),
-						progress.padEnd(7),
-						costStr.padStart(7),
-						durStr.padStart(7),
-						`${month} ${day}`,
-					].join(" ");
-
-					return { slug, state, label, isActive };
-				})
-				.filter((g): g is GoalRow => g !== null);
-
-			if (goals.length === 0) {
-				ctx.ui.notify("No valid goals found.", "info");
-				return;
-			}
-
 			// Custom UI with inline actions — stays open until esc
 			await ctx.ui.custom<void>((tui, theme, _kb, done) => {
-				let selectedIndex = goals.findIndex((g) => g.isActive);
-				if (selectedIndex < 0) selectedIndex = 0;
 				let cachedLines: string[] | undefined;
 				let currentActiveSlug = activeSlug;
+				let showArchived = false;
+				let pendingDelete: string | null = null;
+
+				function buildGoals(): GoalRow[] {
+					return allSlugs
+						.map((slug) => {
+							const state = readState(ctx.cwd, slug);
+							if (!state) return null;
+							// Filter out archived goals from default view (unless showArchived)
+							if (state.status === "archived" && !showArchived) return null;
+
+							const done = state.tasks.filter((t) => t.status === "done").length;
+							const failed = state.tasks.filter((t) => t.status === "failed").length;
+							const total = state.tasks.length;
+							const totalCost = state.tasks.reduce((s, t) => s + (t.cost || 0), 0);
+							const totalDur = state.tasks.reduce((s, t) => s + (t.durationSeconds || 0), 0);
+							const isActive = slug === currentActiveSlug;
+
+							const statusIcon = isActive ? "●" : state.status === "completed" ? "✓" : state.status === "paused" ? "⏸" : "○";
+							const statusText = isActive ? "active" : state.status === "completed" ? "done" : state.status;
+
+							const created = new Date(state.created);
+							const month = created.toLocaleString("en", { month: "short" });
+							const day = created.getDate();
+
+							const progress = `${done}/${total}${failed > 0 ? ` ${failed}✗` : ""}`;
+							const costStr = totalCost > 0 ? `$${totalCost.toFixed(2)}` : "—";
+							const durStr = totalDur > 0 ? formatDuration(totalDur) : "—";
+
+							const label = [
+								state.name.slice(0, 26).padEnd(26),
+								`${statusIcon} ${statusText}`.padEnd(10),
+								progress.padEnd(7),
+								costStr.padStart(7),
+								durStr.padStart(7),
+								`${month} ${day}`,
+							].join(" ");
+
+							return { slug, state, label, isActive };
+						})
+						.filter((g): g is GoalRow => g !== null);
+				}
+
+				let goals = buildGoals();
+				let selectedIndex = goals.findIndex((g) => g.isActive);
+				if (selectedIndex < 0) selectedIndex = 0;
 
 				const fg = theme.fg.bind(theme);
 
@@ -1557,6 +1571,20 @@ export default function (pi: ExtensionAPI) {
 				function rebuildAll() {
 					currentActiveSlug = getActiveSlug(ctx.cwd);
 					for (const g of goals) rebuildGoalRow(g);
+					// Filter out newly archived goals if not showing archived
+					if (!showArchived) {
+						const beforeLen = goals.length;
+						for (let i = goals.length - 1; i >= 0; i--) {
+							if (goals[i].state.status === "archived") {
+								goals.splice(i, 1);
+							}
+						}
+						if (goals.length !== beforeLen) {
+							if (selectedIndex >= goals.length) {
+								selectedIndex = Math.max(0, goals.length - 1);
+							}
+						}
+					}
 				}
 
 				function refresh() {
@@ -1588,6 +1616,44 @@ export default function (pi: ExtensionAPI) {
 						}
 					} else if (action === "dismiss") {
 						setActiveSlug(ctx.cwd, null);
+					} else if (action === "pause") {
+						if (state.status === "active") {
+							state.status = "paused";
+							writeState(ctx.cwd, slug, state);
+							if (slug === currentActiveSlug) {
+								setActiveSlug(ctx.cwd, null);
+							}
+						}
+					} else if (action === "archive") {
+						// Archive: mark archived (hidden from default view)
+						state.status = "archived";
+						writeState(ctx.cwd, slug, state);
+						if (slug === currentActiveSlug) {
+							setActiveSlug(ctx.cwd, null);
+						}
+						ctx.ui.notify(`Goal "${state.name}" archived`, "info");
+					} else if (action === "delete") {
+						// Delete goal files permanently
+						const dir = goalDir(ctx.cwd, slug);
+						try {
+							// Remove from active if needed
+							if (slug === currentActiveSlug) {
+								setActiveSlug(ctx.cwd, null);
+							}
+							// Delete directory
+							fs.rmSync(dir, { recursive: true, force: true });
+							ctx.ui.notify(`Goal "${state.name}" deleted`, "info");
+							// Remove from list and update selection
+							const idx = goals.findIndex((g) => g.slug === slug);
+							if (idx >= 0) {
+								goals.splice(idx, 1);
+								if (selectedIndex >= goals.length) {
+									selectedIndex = Math.max(0, goals.length - 1);
+								}
+							}
+						} catch (e) {
+							ctx.ui.notify(`Failed to delete: ${e}`, "error");
+						}
 					}
 
 					rebuildAll();
@@ -1604,6 +1670,19 @@ export default function (pi: ExtensionAPI) {
 						lines.push(fg("accent", "─".repeat(width)));
 						lines.push(fg("accent", theme.bold(" 🎯 Goals")));
 						lines.push("");
+
+						// Empty state
+						if (goals.length === 0) {
+							lines.push(fg("dim", "  No goals found."));
+							if (!showArchived) {
+								lines.push(fg("dim", "  Press A to show archived goals, or esc to close."));
+							} else {
+								lines.push(fg("dim", "  Press esc to close."));
+							}
+							lines.push(fg("accent", "─".repeat(width)));
+							cachedLines = lines;
+							return lines;
+						}
 
 						const header = [
 							"name".padEnd(26),
@@ -1625,15 +1704,27 @@ export default function (pi: ExtensionAPI) {
 
 						lines.push("");
 
-						const helpParts = ["↑↓ navigate"];
-						const sel = goals[selectedIndex];
-						if (sel) {
-							if (!sel.isActive) helpParts.push("enter activate");
-							if (sel.state.status !== "completed") helpParts.push("d complete");
-							if (sel.isActive) helpParts.push("x dismiss");
+						// Show delete confirmation prompt
+						if (pendingDelete) {
+							const goalToDelete = goals.find((g) => g.slug === pendingDelete);
+							lines.push("");
+							lines.push(fg("error", `  ⚠ Delete "${goalToDelete?.state.name || pendingDelete}"? Press y to confirm, any other key to cancel`));
+						} else {
+							const helpParts = ["↑↓ navigate"];
+							const sel = goals[selectedIndex];
+							if (sel) {
+								if (!sel.isActive) helpParts.push("enter activate");
+								if (sel.state.status !== "completed") helpParts.push("d complete");
+								if (sel.isActive) helpParts.push("x dismiss");
+								// Additional goal management
+								if (sel.state.status === "active" || sel.isActive) helpParts.push("p pause");
+								if (sel.state.status !== "completed" && sel.state.status !== "archived") helpParts.push("a archive");
+								helpParts.push("shift+D delete");
+							}
+							helpParts.push(showArchived ? "A hide archived" : "A show archived");
+							helpParts.push("esc close");
+							lines.push(fg("dim", ` ${helpParts.join(" · ")}`));
 						}
-						helpParts.push("esc close");
-						lines.push(fg("dim", ` ${helpParts.join(" · ")}`));
 
 						lines.push(fg("accent", "─".repeat(width)));
 
@@ -1642,17 +1733,42 @@ export default function (pi: ExtensionAPI) {
 					},
 
 					handleInput(data: string): void {
+						// Handle delete confirmation first
+						if (pendingDelete) {
+							if (data === "y" || data === "Y") {
+								performAction("delete", pendingDelete);
+								pendingDelete = null;
+							} else {
+								// Any other key cancels
+								pendingDelete = null;
+								ctx.ui.notify("Delete cancelled", "info");
+							}
+							refresh();
+							return;
+						}
+
 						if (matchesKey(data, "escape") || data === "q") {
 							done(undefined);
 							return;
 						}
 						if (matchesKey(data, "up") || data === "k") {
-							selectedIndex = selectedIndex <= 0 ? goals.length - 1 : selectedIndex - 1;
+							selectedIndex = selectedIndex <= 0 ? Math.max(0, goals.length - 1) : selectedIndex - 1;
 							refresh();
 							return;
 						}
 						if (matchesKey(data, "down") || data === "j") {
-							selectedIndex = selectedIndex >= goals.length - 1 ? 0 : selectedIndex + 1;
+							selectedIndex = goals.length === 0 ? 0 : selectedIndex >= goals.length - 1 ? 0 : selectedIndex + 1;
+							refresh();
+							return;
+						}
+						// A key works even when no goals (to toggle archived view)
+						if (data === "A") {
+							// Toggle archived view
+							showArchived = !showArchived;
+							// Rebuild goal list with/without archived
+							goals = buildGoals();
+							selectedIndex = goals.findIndex((g) => g.isActive);
+							if (selectedIndex < 0) selectedIndex = 0;
 							refresh();
 							return;
 						}
@@ -1670,6 +1786,21 @@ export default function (pi: ExtensionAPI) {
 						}
 						if (data === "x" && sel.isActive) {
 							performAction("dismiss", sel.slug);
+							return;
+						}
+						// New goal management actions
+						if (data === "p" && (sel.state.status === "active" || sel.isActive)) {
+							performAction("pause", sel.slug);
+							return;
+						}
+						if (data === "a" && sel.state.status !== "completed" && sel.state.status !== "archived") {
+							performAction("archive", sel.slug);
+							return;
+						}
+						if (data === "D") {
+							// Shift+D for delete - requires confirmation
+							pendingDelete = sel.slug;
+							refresh();
 							return;
 						}
 					},

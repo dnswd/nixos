@@ -23,9 +23,6 @@
     "index.ts",
     "README.md"
   ],
-  "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*"
-  },
   "pi": {
     "extensions": [
       "./index.ts"

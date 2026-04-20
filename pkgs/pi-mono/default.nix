@@ -181,30 +181,22 @@ in
       PULSE_INPUT_DEVICE = cfg.voiceInput.device;
     };
 
-    home.activation.pi-mono-config = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      let
-        settingsFile = jsonFormat.generate "settings.json" cfg.settings;
-        keybindingsFile = jsonFormat.generate "keybindings.json" cfg.keybindings;
-        modelsFile = if cfg.models != null then jsonFormat.generate "models.json" cfg.models else null;
-      in ''
-        $DRY_RUN_CMD mkdir -p "$HOME/.pi/agent"
-        
-        # Copy config files (writable, pi-mono needs to modify them)
-        $DRY_RUN_CMD cp -f "${settingsFile}" "$HOME/.pi/agent/settings.json"
-        $DRY_RUN_CMD chmod 644 "$HOME/.pi/agent/settings.json"
-        $DRY_RUN_CMD cp -f "${keybindingsFile}" "$HOME/.pi/agent/keybindings.json"
-        $DRY_RUN_CMD chmod 644 "$HOME/.pi/agent/keybindings.json"
-        
-        ${optionalString (modelsFile != null) ''
-          $DRY_RUN_CMD cp -f "${modelsFile}" "$HOME/.pi/agent/models.json"
-          $DRY_RUN_CMD chmod 644 "$HOME/.pi/agent/models.json"
-        ''}
-
-
-      ''
-    );
-
-    home.file = {}
+    home.file = {
+      ".pi/agent/settings.json" = {
+        force = true;
+        source = jsonFormat.generate "settings.json" cfg.settings;
+      };
+      ".pi/agent/keybindings.json" = {
+        force = true;
+        source = jsonFormat.generate "keybindings.json" cfg.keybindings;
+      };
+    }
+    // optionalAttrs (cfg.models != null) {
+      ".pi/agent/models.json" = {
+        force = true;
+        source = jsonFormat.generate "models.json" cfg.models;
+      };
+    }
     // optionalAttrs (cfg.agentsMd.text != null) {
       ".pi/agent/AGENTS.md".source = pkgs.writeText "AGENTS.md" cfg.agentsMd.text;
     }

@@ -9,6 +9,7 @@ import { browser_tab_open, browser_tab_switch, browser_tab_close } from "./core/
 import { browser_wait } from "./core/tools-wait.js";
 import { browser_find } from "./core/tools-find.js";
 import { browser_emulate } from "./extras/tools-emulation.js";
+import { diagnoseLocks, cleanupStaleLocks } from "./core/mutex.js";
 import { screenshotRenderer } from "./renderers.js";
 
 export default function (pi: ExtensionAPI) {
@@ -1204,6 +1205,140 @@ Use clear=true to reset all emulation to defaults.`,
           content: [{
             type: "text",
             text: `Emulation failed: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          details: { error: error instanceof Error ? error.message : String(error) }
+        };
+      }
+    }
+  });
+
+  // Register browser_diagnose tool
+  pi.registerTool({
+    name: "browser_diagnose",
+    label: "Browser Diagnose",
+    description: `Diagnose browser mutex locks and identify potential deadlock issues.
+
+WHEN TO USE:
+- When browser operations are timing out with "Tab busy" errors
+- To check for stale locks from crashed operations
+- To see which operations are holding mutex locks
+- Before calling browser_mutex_cleanup to see what will be cleaned
+
+Reports:
+- Tab ID with the lock
+- Holder process ID (PID)
+- Whether holder is alive or dead
+- Is it from our current session
+- Lock age in milliseconds
+- Operation that acquired the lock`,
+
+    parameters: Type.Object({}), // No parameters
+
+    async execute(toolCallId, params, signal, onUpdate) {
+      try {
+        const locks = await diagnoseLocks();
+
+        if (locks.length === 0) {
+          return {
+            content: [{ type: "text", text: "No mutex locks held. System is healthy." }],
+            details: { locks: [] }
+          };
+        }
+
+        const summary = locks.map(l =>
+          `[${l.tabId}] PID ${l.holderPid} (${l.holderAlive ? 'alive' : 'DEAD'})${l.isOurSession ? ' [our session]' : ''} - "${l.operation}" (${(l.ageMs / 1000).toFixed(1)}s old)`
+        ).join('\n');
+
+        const staleCount = locks.filter(l => !l.holderAlive || l.ageMs > 300000).length;
+
+        return {
+          content: [{
+            type: "text",
+            text: `${locks.length} mutex lock(s) held:\n\n${summary}\n\n` +
+              (staleCount > 0 ? `${staleCount} potentially stale lock(s) detected. Use browser_mutex_cleanup to clean them.` : "All locks appear healthy.")
+          }],
+          details: { locks, staleCount }
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Diagnosis failed: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          details: { error: error instanceof Error ? error.message : String(error) }
+        };
+      }
+    }
+  });
+
+  // Register browser_mutex_cleanup tool
+  pi.registerTool({
+    name: "browser_mutex_cleanup",
+    label: "Browser Mutex Cleanup",
+    description: `Clean up stale mutex locks from crashed operations.
+
+WHEN TO USE:
+- After a crash left mutex locks behind
+- When browser_diagnose reports dead holder processes
+- To force-release a stuck lock (use with caution)
+
+WARNING:
+- Cleaning live locks may interfere with concurrent operations
+- Use 'ourSessionOnly' for safest cleanup of your own crashed processes
+- 'force=true' will kill live processes - very dangerous!
+
+Cleanup options:
+- ourSessionOnly: Only clean locks from our crashed session (safest)
+- maxAgeMs: Clean locks older than specified milliseconds
+- force: Kill live processes and clean their locks (DANGEROUS)`,
+
+    parameters: Type.Object({
+      ourSessionOnly: Type.Optional(Type.Boolean({
+        default: true,
+        description: "Only clean locks from our crashed session (safest option)"
+      })),
+      maxAgeMs: Type.Optional(Type.Number({
+        description: "Clean locks older than this many milliseconds (e.g., 300000 for 5 minutes)"
+      })),
+      force: Type.Optional(Type.Boolean({
+        default: false,
+        description: "DANGEROUS: Kill live processes and clean their locks"
+      })),
+    }),
+
+    async execute(toolCallId, params, signal, onUpdate) {
+      try {
+        onUpdate?.({
+          content: [{ type: "text", text: "Cleaning up stale mutex locks..." }],
+          details: { stage: "cleaning" }
+        });
+
+        const cleaned = await cleanupStaleLocks({
+          ourSessionOnly: params.ourSessionOnly ?? true,
+          maxAgeMs: params.maxAgeMs,
+          force: params.force ?? false,
+        });
+
+        if (cleaned.length === 0) {
+          return {
+            content: [{ type: "text", text: "No stale locks found matching criteria." }],
+            details: { cleaned: [] }
+          };
+        }
+
+        return {
+          content: [{
+            type: "text",
+            text: `Cleaned ${cleaned.length} stale mutex lock(s):\n` +
+              cleaned.map(id => `  - ${id}`).join('\n')
+          }],
+          details: { cleaned }
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Cleanup failed: ${error instanceof Error ? error.message : String(error)}`
           }],
           details: { error: error instanceof Error ? error.message : String(error) }
         };

@@ -5,9 +5,5 @@
   "type": "module",
   "pi": {
     "extensions": ["./index.ts"]
-  },
-  "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*",
-    "@mariozechner/pi-tui": "*"
   }
 }

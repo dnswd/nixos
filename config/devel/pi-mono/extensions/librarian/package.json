@@ -35,11 +35,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*",
-    "@mariozechner/pi-tui": "*",
-    "@sinclair/typebox": "*"
-  },
   "files": [
     "extensions/",
     "README.md",
