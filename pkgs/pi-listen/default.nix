@@ -1,4 +1,15 @@
-{ lib, pkgs, stdenv, nodejs, fetchgit, pnpm, bun, cacert, git, ... }:
+{
+  lib,
+  pkgs,
+  stdenv,
+  nodejs,
+  fetchgit,
+  pnpm,
+  bun,
+  cacert,
+  git,
+  ...
+}:
 
 let
   # FOD to fetch dependencies with bun (network access allowed in FOD with hash)
@@ -12,14 +23,26 @@ let
     };
 
     # Allow network access in FOD (hash ensures reproducibility)
-    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [ "GIT_CONFIG_GLOBAL" "NIX_NPM_REGISTRY" ];
+    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
+      "GIT_CONFIG_GLOBAL"
+      "NIX_NPM_REGISTRY"
+    ];
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-UE9fBGMruurCqAnm3SnpahEAa6RvPN+gyQvDYoLyaBY=";
+    outputHash = {
+      aarch64-darwin = "sha256-UE9fBGMruurCqAnm3SnpahEAa6RvPN+gyQvDYoLyaBY=";
+      x86_64-darwin = "sha256-UE9fBGMruurCqAnm3SnpahEAa6RvPN+gyQvDYoLyaBY=";
+      aarch64-linux = "sha256-5lYrxljd6wdVdJhJZJFHeL7FanK6Z1UJCYS9403BrSk=";
+      x86_64-linux = "sha256-5lYrxljd6wdVdJhJZJFHeL7FanK6Z1UJCYS9403BrSk=";
+    }.${stdenv.hostPlatform.system} or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
 
     preferLocalBuild = true;
 
-    nativeBuildInputs = [ bun cacert git ];
+    nativeBuildInputs = [
+      bun
+      cacert
+      git
+    ];
 
     buildPhase = ''
       export HOME=$TMPDIR
@@ -75,6 +98,11 @@ stdenv.mkDerivation rec {
     description = "pi-listen voice input extension for pi-mono";
     homepage = "https://github.com/codexstar69/pi-listen";
     license = licenses.mit;
-    platforms = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
+    platforms = [
+      "aarch64-darwin"
+      "x86_64-darwin"
+      "aarch64-linux"
+      "x86_64-linux"
+    ];
   };
 }

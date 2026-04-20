@@ -1,4 +1,11 @@
-{ lib, stdenv, nodejs, pnpm_10, cacert, ... }:
+{
+  lib,
+  stdenv,
+  nodejs,
+  pnpm_10,
+  cacert,
+  ...
+}:
 
 let
   # FOD for pnpm dependencies (network access allowed in FOD with hash)
@@ -12,14 +19,25 @@ let
     };
 
     # Allow network access in FOD (hash ensures reproducibility)
-    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [ "NIX_NPM_REGISTRY" "SSL_CERT_FILE" ];
+    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
+      "NIX_NPM_REGISTRY"
+      "SSL_CERT_FILE"
+    ];
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-vzVqtY5oTvY7WpQEZR+7hUO2zSu+ic3cncex0nFh+g8=";
+    outputHash = {
+      aarch64-darwin = "sha256-vzVqtY5oTvY7WpQEZR+7hUO2zSu+ic3cncex0nFh+g8=";
+      x86_64-darwin = "sha256-vzVqtY5oTvY7WpQEZR+7hUO2zSu+ic3cncex0nFh+g8=";
+      aarch64-linux = "sha256-LDse69imKURQiBuSAFvcdd7RPaBBBmji2suCAWLA9Qk=";
+      x86_64-linux = "sha256-LDse69imKURQiBuSAFvcdd7RPaBBBmji2suCAWLA9Qk=";
+    }.${stdenv.hostPlatform.system} or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
 
     preferLocalBuild = true;
 
-    nativeBuildInputs = [ pnpm_10 cacert ];
+    nativeBuildInputs = [
+      pnpm_10
+      cacert
+    ];
 
     dontConfigure = true;
 
@@ -39,7 +57,7 @@ let
       cp pnpm-lock.yaml $out/ 2>/dev/null || true
     '';
 
-    dontFixup = true;  # Skip broken symlink check (pnpm uses symlinks)
+    dontFixup = true; # Skip broken symlink check (pnpm uses symlinks)
   };
 in
 
@@ -56,7 +74,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ nodejs ];
 
   dontConfigure = true;
-  dontFixup = true;  # Skip broken symlink check (pnpm creates symlinks)
+  dontFixup = true; # Skip broken symlink check (pnpm creates symlinks)
 
   buildPhase = ''
     # Copy pre-fetched node_modules from FOD
@@ -80,6 +98,11 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "Browser automation extension for pi-mono using Chrome DevTools Protocol";
     license = licenses.mit;
-    platforms = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
+    platforms = [
+      "aarch64-darwin"
+      "x86_64-darwin"
+      "aarch64-linux"
+      "x86_64-linux"
+    ];
   };
 }

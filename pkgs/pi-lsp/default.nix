@@ -1,4 +1,14 @@
-{ lib, pkgs, stdenv, nodejs, fetchgit, bun, cacert, git, ... }:
+{
+  lib,
+  pkgs,
+  stdenv,
+  nodejs,
+  fetchgit,
+  bun,
+  cacert,
+  git,
+  ...
+}:
 
 let
   # FOD to fetch dependencies with bun (network access allowed in FOD with hash)
@@ -12,14 +22,21 @@ let
     };
 
     # Allow network access in FOD (hash ensures reproducibility)
-    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [ "GIT_CONFIG_GLOBAL" "NIX_NPM_REGISTRY" ];
+    impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
+      "GIT_CONFIG_GLOBAL"
+      "NIX_NPM_REGISTRY"
+    ];
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
     outputHash = "sha256-1478bPxu38Im984FClhNT+g75J/9gbutVyVB+lDXLqM=";
 
     preferLocalBuild = true;
 
-    nativeBuildInputs = [ bun cacert git ];
+    nativeBuildInputs = [
+      bun
+      cacert
+      git
+    ];
 
     buildPhase = ''
       export HOME=$TMPDIR
@@ -49,7 +66,7 @@ stdenv.mkDerivation rec {
   src = fetchgit {
     url = "https://github.com/dreki-gg/pi-extensions.git";
     rev = "160b885a41562acaead53384dcad4869f143d6ad";
-    hash = "sha256-0Qotnxyz9YrtLCQ9zCbJFk+CkxKYtCfEH0ziLPNzKto=";
+    hash = "sha256-f1kQaN6O4Tf5Aj0losG6psmFQ3n3YTBdKcADWTyKsSI=";
   };
 
   nativeBuildInputs = [ nodejs ];
@@ -87,6 +104,11 @@ stdenv.mkDerivation rec {
     description = "pi LSP extension for language server protocol support";
     homepage = "https://github.com/dreki-gg/pi-extensions";
     license = licenses.mit;
-    platforms = [ "aarch64-darwin" "x86_64-darwin" "aarch64-linux" "x86_64-linux" ];
+    platforms = [
+      "aarch64-darwin"
+      "x86_64-darwin"
+      "aarch64-linux"
+      "x86_64-linux"
+    ];
   };
 }
