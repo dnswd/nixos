@@ -19,7 +19,7 @@
       jdt-language-server
 
       # JavaScript / TypeScript
-      nodePackages.typescript-language-server
+      typescript-language-server
       nodejs_latest
 
       # JSON

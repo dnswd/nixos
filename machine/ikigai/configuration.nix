@@ -202,8 +202,8 @@
 
     # TEMPORARY TODO DELETE ME
     # Throttle build bcus it's crashing my pc
-    max-jobs = 2;
-    cores = 7; # 16 cores, use 7*2=14 cores only
+    # max-jobs = 2;
+    # cores = 7; # 16 cores, use 7*2=14 cores only
   };
 
   # Linker (nix-ld)

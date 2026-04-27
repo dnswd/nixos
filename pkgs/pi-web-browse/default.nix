@@ -1,8 +1,12 @@
 {
   lib,
+  pkgs,
   stdenv,
   nodejs,
   fetchgit,
+  bun,
+  cacert,
+  git,
   ...
 }:
 
@@ -20,46 +24,40 @@ let
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
     outputHash = {
-      aarch64-darwin = "sha256-VQNjBm9edpLNcwl74NR6+ZZg1glctAxKFuaxiY5vriI=";
-      x86_64-darwin = "sha256-VQNjBm9edpLNcwl74NR6+ZZg1glctAxKFuaxiY5vriI=";
-      aarch64-linux = "sha256-xtG+UH4OZKRlsc/tuo+qGjD++Zv/ebR+JeJYRLLvdvs=";
-      x86_64-linux = "sha256-xtG+UH4OZKRlsc/tuo+qGjD++Zv/ebR+JeJYRLLvdvs=";
+      aarch64-darwin = "sha256-b+mESiXox3439PFQhbdDASmuLLPt6DPSNwOUj/6BY6U=";
+      x86_64-darwin = "sha256-b+mESiXox3439PFQhbdDASmuLLPt6DPSNwOUj/6BY6U=";
+      aarch64-linux = "sha256-b+mESiXox3439PFQhbdDASmuLLPt6DPSNwOUj/6BY6U=";
+      x86_64-linux = "sha256-b+mESiXox3439PFQhbdDASmuLLPt6DPSNwOUj/6BY6U=";
     }.${stdenv.hostPlatform.system} or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
 
     preferLocalBuild = true;
     impureEnvVars = lib.fetchers.proxyImpureEnvVars ++ [
+      "GIT_CONFIG_GLOBAL"
       "NIX_NPM_REGISTRY"
       "SSL_CERT_FILE"
     ];
 
-    nativeBuildInputs = [ nodejs ];
+    nativeBuildInputs = [ bun cacert git ];
 
     dontConfigure = true;
     dontFixup = true;
 
     buildPhase = ''
       export HOME=$TMPDIR
-      export NODE_OPTIONS="--use-openssl-ca"
 
-      npm install --workspace=packages/pi-web-browse \
-                  --install-strategy=hoisted \
-                  --legacy-peer-deps 2>/dev/null || true
+      # bun install respects bun.lock (frozen lockfile by default)
+      bun install --no-cache
     '';
 
     installPhase = ''
       mkdir -p $out
 
-      if [ -d "packages/pi-web-browse/node_modules" ]; then
-        cp -r packages/pi-web-browse/node_modules $out/
-      elif [ -d "node_modules" ]; then
-        cp -r node_modules $out/
-      else
-        echo "ERROR: node_modules not found"
-        exit 1
-      fi
-
+      # bun puts node_modules at root
+      cp -r node_modules $out/
       cp packages/pi-web-browse/package.json $out/
     '';
+
+    # dontInstall = true;
 
     meta = with lib; {
       description = "npm dependencies for pi-web-browse";

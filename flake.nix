@@ -13,7 +13,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/3c9922cd1a959342b353453573d36cf6eb655301";
+    nixpkgs.url = "github:nixos/nixpkgs/64d275a5dc2a629a618d5301f2a2240fae269d08";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -85,7 +85,12 @@
 
       darwinConfigurations = lib.my.generateDarwinConfigurations {
         machines = darwinMachines;
-        inherit nix-darwin nixpkgs home-manager catppuccin;
+        inherit
+          nix-darwin
+          nixpkgs
+          home-manager
+          catppuccin
+          ;
         inherit lib inputs;
         inherit secretsPath secrets;
         my = lib.my;
