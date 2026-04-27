@@ -19,9 +19,6 @@
         rust-lang.rust-analyzer
         jnoortheen.nix-ide
 
-        # AI Agent
-        sourcegraph.amp
-
         # Containers
         # ms-azuretools.vscode-docker
         # ms-kubernetes-tools.vscode-kubernetes-tools
