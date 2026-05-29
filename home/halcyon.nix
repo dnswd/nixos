@@ -74,6 +74,6 @@
     gimp
 
     # ai
-    amp-cli
+    # amp-cli
   ];
 }
