@@ -18,7 +18,7 @@ let
   pi-web-browse = pkgs.callPackage ../pi-web-browse { };
 
   # plannotator extension for plan review (pure TypeScript, no build)
-  plannotator = pkgs.callPackage ../plannotator-pi-extension { };
+  # plannotator = pkgs.callPackage ../plannotator-pi-extension { };
 
   # pi-lsp extension for language server protocol support
   pi-lsp = pkgs.callPackage ../pi-lsp { };
@@ -69,9 +69,10 @@ in
     enable = mkEnableOption "pi-mono coding agent";
 
     voiceInput = {
-      enable = mkEnableOption ''voice input functionality (pi-listen extension).
-        After enabling, run `pi install npm:@codexstar/pi-listen` inside pi TUI.
-        Uses sherpa-onnx for local models (offline) - run `/voice-settings` to configure.
+      enable = mkEnableOption ''
+        voice input functionality (pi-listen extension).
+                After enabling, run `pi install npm:@codexstar/pi-listen` inside pi TUI.
+                Uses sherpa-onnx for local models (offline) - run `/voice-settings` to configure.
       '';
 
       device = mkOption {
@@ -175,7 +176,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ piMono pkgs.poppler-utils ];
+    home.packages = [
+      piMono
+      pkgs.poppler-utils
+    ];
 
     home.sessionVariables = mkIf (cfg.voiceInput.enable && cfg.voiceInput.device != null) {
       PULSE_INPUT_DEVICE = cfg.voiceInput.device;
@@ -208,7 +212,8 @@ in
       ".pi/agent/extensions/pi-browser".source = "${pi-browser}/lib/pi-browser";
       ".pi/agent/extensions/pi-lsp".source = "${pi-lsp}/lib/pi-lsp";
       ".pi/agent/extensions/pi-web-browse".source = "${pi-web-browse}/lib/pi-web-browse";
-      ".pi/agent/extensions/plannotator-pi-extension".source = "${plannotator}/lib/plannotator-pi-extension";
+      # ".pi/agent/extensions/plannotator-pi-extension".source =
+      # "${plannotator}/lib/plannotator-pi-extension";
     }
     // optionalAttrs (cfg.voiceInput.enable) {
       ".pi/agent/extensions/pi-listen".source = "${pi-listen}/lib/pi-listen";
