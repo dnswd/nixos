@@ -28,8 +28,7 @@
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 
     # Custom neovim
-    # halcyon-vim.url = "github:dnswd/halcyon-vim";
-    # halcyon-vim.inputs.nixpkgs.follows = "github:dnswd/halcyon-vim";
+    halcyon-vim.url = "github:dnswd/vim";
 
     # Pinned nixpkgs for jdtls 1.43.0 (last version with Java 17 bytecode, compatible with Gradle 6.x)
     nixpkgs-jdtls.url = "github:nixos/nixpkgs/21808d22b1cda1898b71cf1a1beb524a97add2c4";

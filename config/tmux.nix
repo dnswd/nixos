@@ -11,65 +11,57 @@
   };
   programs.tmux = {
     enable = true;
-    prefix = "C-Space"; # use Ctrl+Space as prefix
+    prefix = "C-a"; # use Ctrl+A as prefix
     clock24 = true;
     mouse = true;
     baseIndex = 1;
     shell = "${pkgs.zsh}/bin/zsh";
     sensibleOnTop = true;
     terminal = "screen-256color";
-    extraConfig = # sh
+    extraConfig = # tmux
       ''
+        # terminal settings
         set-option -g renumber-windows on
+        set-option -sa terminal-overrides ",xterm*:Tc" # use 24 color when terminal support it
+        set-option -gw xterm-keys on # enable xterm keys
 
-        # Fix tmux color (use 24 color when terminal support it)
-        set-option -sa terminal-overrides ",xterm*:Tc"
-
-        # Better copy flow (vi)
+        # better copy mode (vi)
         bind c copy-mode # prefix + c to enter copy mode
         set-window-option -g mode-keys vi # set vi-mode
         bind-key -T copy-mode-vi v   send-keys -X begin-selection # start selection
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle # toggle line/block select
         bind-key -T copy-mode-vi y   send-keys -X copy-selection-and-cancel # yank
+        bind / copy-mode \; send-keys ?
 
-        # List sessions (prefix + l)
-        bind-key -T prefix l choose-tree -Zs
+        # pane splits
+        bind v split-window -h -c "#{pane_current_path}"
+        bind s split-window -v -c "#{pane_current_path}"
 
-        # Allow xterm keys, for tab-like controls
-        set-option -gw xterm-keys on
+        # pane navigation
+        bind h select-pane -L
+        bind j select-pane -D
+        bind k select-pane -U
+        bind l select-pane -R
 
-        # Shift+Alt+H/L to switch windows
-        bind -n M-H previous-window
-        bind -n M-L next-window
+        # pane resize (repeatable)
+        bind -r H resize-pane -L 3
+        bind -r J resize-pane -D 3
+        bind -r K resize-pane -U 3
+        bind -r L resize-pane -R 3
 
-        # Alt+t new window, Alt+w kill window
-        bind -n M-T new-window
-        bind -n M-W confirm-before -p "kill-window #W? (y/n)" kill-window
+        # panel ops
+        bind z resize-pane -Z # zoom pane
+        bind p confirm-before -p "Kill pane #P? (y/n)" kill-pane
 
-        # Open panes in cwd
-        bind -n M-'\' split-window   -h -c "#{pane_current_path}"
-        bind -n M-'-' split-window   -v -c "#{pane_current_path}"
-        bind -n M-P   confirm-before -p    "kill-pane #P? (y/n)"  kill-pane
+        # window management
+        bind c new-window
+        bind w confirm-before -p "Kill window #W? (y/n)" kill-window
+        bind n next-window
+        bind N previous-window
+        bind Tab last-window
 
-        # Zoom pane to full window
-        bind -n M-z resize-pane -Z
-
-        # Select pane with Alt+vi
-        bind -n M-k select-pane -U
-        bind -n M-j select-pane -D
-        bind -n M-h select-pane -L
-        bind -n M-l select-pane -R
-
-        # Select window with (Alt + number)
-        bind -n M-1 select-window -t 1
-        bind -n M-2 select-window -t 2
-        bind -n M-3 select-window -t 3
-        bind -n M-4 select-window -t 4
-        bind -n M-5 select-window -t 5
-        bind -n M-6 select-window -t 6
-        bind -n M-7 select-window -t 7
-        bind -n M-8 select-window -t 8
-        bind -n M-9 select-window -t 9
+        # session manageent
+        ## Handled by sesh's tmux integration, use `prefix+s` to open
       '';
 
     plugins = with pkgs; [

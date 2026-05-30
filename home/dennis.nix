@@ -6,7 +6,7 @@
 }:
 {
   imports = [
-    ../config/devel/pi-mono
+    # ../config/devel/pi-mono
     ../config/devel/git.nix
     ../config/devel/jetbrains.nix
     ../config/devel/langs.nix
