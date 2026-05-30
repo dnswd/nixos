@@ -6,6 +6,7 @@
     ./git.nix
     ./vscode.nix
     # ./pi-mono
+    ./neovim.nix
   ];
 
   # Fuzzy finder
