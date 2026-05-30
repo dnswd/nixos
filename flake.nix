@@ -5,15 +5,17 @@
     extra-substituters = [
       "https://nix-community.cachix.org"
       "https://nixpkgs-wayland.cachix.org"
+      "https://cache.numtide.com"
     ];
     extra-trusted-public-keys = [
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
   };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/64d275a5dc2a629a618d5301f2a2240fae269d08";
+    nixpkgs.url = "github:nixos/nixpkgs/2760e2d419673cf5a5e06abe9e273015d8c460ae";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -25,18 +27,15 @@
     catppuccin.url = "github:catppuccin/nix/b020a35938aa77cc93985b796e7b79623b98da60";
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Neovim stuff
-    nixvim.url = "github:nix-community/nixvim";
-    nixvim.inputs.nixpkgs.follows = "nixpkgs";
+    # Custom neovim
+    halcyon-vim.url = "github:dnswd/halcyon-vim";
+    halcyon-vim.inputs.nixpkgs.follows = "github:dnswd/halcyon-vim";
 
     # Pinned nixpkgs for jdtls 1.43.0 (last version with Java 17 bytecode, compatible with Gradle 6.x)
     nixpkgs-jdtls.url = "github:nixos/nixpkgs/21808d22b1cda1898b71cf1a1beb524a97add2c4";
 
-    # Pi-mono Agentic Copilot
-    pi-mono = {
-      url = "github:badlogic/pi-mono";
-      flake = false;
-    };
+    # Pi coding agent from numtide (binary cache, no local builds)
+    llm-agents.url = "github:numtide/llm-agents.nix";
 
     # Secrets
     secretsPath = {

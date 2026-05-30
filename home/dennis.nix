@@ -24,11 +24,6 @@
     EDITOR = "vim";
   };
 
-  # Fuzzy finder
-  programs.fzf = {
-    enable = true;
-  };
-
   # Regex find directory
   programs.ripgrep.enable = true;
 
@@ -62,9 +57,12 @@
     enableZshIntegration = true;
   };
 
-  home.packages = with pkgs; [
-    btop
-    lazygit
-    gh
-  ] ++ [ pkgs.my.neovim ];
+  home.packages =
+    with pkgs;
+    [
+      btop
+      lazygit
+      gh
+    ]
+    ++ [ pkgs.my.neovim ];
 }

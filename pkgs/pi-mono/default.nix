@@ -127,15 +127,11 @@ in
       };
     };
 
-    extensions = mkOption {
-      type = types.nullOr types.path;
-      default = null;
-      description = ''
-        Path to the extensions directory.
-        Will be symlinked to ~/.pi/agent/extensions.
-        Pi-mono loads TypeScript directly via jiti, no build step needed.
-      '';
-    };
+    # Type A extensions (pure TypeScript) are now managed manually in
+    # ~/.pi/agent/extensions/ for frictionless development.
+    # Use: pi -e ./my-extension.ts (quick test)
+    # Or: cp ./my-extension.ts ~/.pi/agent/extensions/ (install)
+    # Type B extensions (native deps) remain managed by Nix below.
 
     skills = mkOption {
       type = types.nullOr types.path;
@@ -218,16 +214,7 @@ in
     // optionalAttrs (cfg.voiceInput.enable) {
       ".pi/agent/extensions/pi-listen".source = "${pi-listen}/lib/pi-listen";
     }
-    // optionalAttrs (cfg.extensions != null) (
-      # Type A extensions (pure TS) - symlinked from local directory
-      mapAttrs' (
-        name: _:
-        nameValuePair ".pi/agent/extensions/${name}" {
-          source = cfg.extensions + "/${name}";
-          force = true;
-        }
-      ) (filterAttrs (n: v: v == "directory" && n != "node_modules") (builtins.readDir cfg.extensions))
-    )
+
     // optionalAttrs (cfg.skills != null) {
       ".pi/agent/skills".source = cfg.skills;
     }

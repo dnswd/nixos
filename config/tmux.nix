@@ -1,8 +1,14 @@
-{ pkgs
-, ...
-}: {
-
-  home.packages = [ pkgs.tmux-sessionizer ];
+{
+  pkgs,
+  ...
+}:
+{
+  programs.fzf.tmux.enableShellIntegration = true;
+  programs.sesh = {
+    enable = true;
+    enableAlias = true;
+    enableTmuxIntegration = true;
+  };
   programs.tmux = {
     enable = true;
     prefix = "C-Space"; # use Ctrl+Space as prefix

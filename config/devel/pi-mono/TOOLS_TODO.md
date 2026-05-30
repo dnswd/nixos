@@ -1,3 +1,38 @@
+# NOTE: Extension cleanup completed - 2026-05-08
+#
+# REMOVED (13 extensions, 1 skill):
+# - commit, commit-all: You prefer manual git control
+# - review, pi-spar: Use oracle for code review instead
+# - pi-goal, rlm: Your 10-phase workflow is more structured than generic decomposition
+# - voice-input: Not practically used
+# - pi-ghost, annotated-reply, answer: Unclear utility for your workflow
+#
+# KEPT (17 extensions + 2 skills = 19 total):
+# CORE RESEARCH: librarian (GitHub), oracle (architecture/self-review), websearch
+# WORKFLOW: handoff (session transfer), pi-tmux (cross-device persistence), cwd-history
+# SAFETY: permission-gate (dangerous ops), non-interactive (blocks vim/pager hangs), retry-toggle (outage resilience)
+# PRODUCTIVITY: notify (AUTO-LONG-TASK NOTIFY - 30s+ threshold), look-at (media analysis), qna (structured questions), reveal, loop, direnv
+# UI: footer, system-prompt
+# SKILLS: browser-tab (Chrome debug), pi-mono-upgrade (NixOS)
+#
+# ADDED (2026-05-09): workflow-orchestrator extension (custom)
+# - Created lightweight alternative to UniPi due to npm dependency issues
+# - 10-phase workflow matching user's workflow:
+#   - /skill:workflow-phase:understand - Problem understanding
+#   - /skill:workflow-phase:glossary - Knowledge documentation  
+#   - /skill:workflow-phase:requirements - PRD/requirements gathering
+#   - /skill:workflow-phase:design - Solution exploration with pros/cons
+#   - /skill:workflow-phase:review - Feedback/criticism loop
+#   - /skill:workflow-phase:decompose - Break into executable phases
+#   - /skill:workflow-phase:execute - Implementation with tests
+#   - /skill:workflow-phase:codereview - Review and verification
+#   - /skill:workflow-phase:integrate - Integration testing
+#   - /skill:workflow-phase:release - Phase completion
+# - /workflow command: list phases, start workflow, transition help
+# - workflow_transition tool: Handoff between phases with context
+# - NO external npm dependencies - pure Pi API usage
+# - UniPi removed due to better-sqlite3, playwright, require() in ESM issues
+
 ## Tools
 
 ### Bash

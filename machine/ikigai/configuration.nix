@@ -1,7 +1,7 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running 'nixos-help').
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 {
   imports = [
     # Include the results of the hardware scan.
@@ -219,7 +219,7 @@
       # ovmf.enable = true; # all ovmf images with qemu now available by default
     };
   };
-  # virtualisation.docker.enable = true;
+  virtualisation.docker.enable = true;
   programs.virt-manager.enable = true;
 
   # List packages installed in system profile. To search, run:
