@@ -1,5 +1,6 @@
-{ pkgs, ... }: {
-  
+{ pkgs, ... }:
+{
+
   # Import packages needed for hyprland to work
   imports = [
     ./autostart.nix
@@ -35,7 +36,7 @@
       name = "kvantum";
     };
   };
-  
+
   # GUI popup that shows the password prompt for priveledge escalation
   services.hyprpolkitagent.enable = true;
 
@@ -51,12 +52,12 @@
     };
 
     plugins = with pkgs.hyprlandPlugins; [
-      xtra-dispatchers # close all hidden windows
+      # xtra-dispatchers # close all hidden windows
       # hyprsplit # awesome-like split workspace controls for multiple monitor
-      hyprspace # gnome / macos like workspace overview with app drag n drop
+      # hyprspace # gnome / macos like workspace overview with app drag n drop
       # hypr-dynamic-cursors # shake to find cursor (need to disable defaults)
       # hy3 # i3 like tiling management (need to learn hyprland native limitations)
-      csgo-vulkan-fix # force app with fake resolution
+      # csgo-vulkan-fix # force app with fake resolution
     ];
 
     settings = {
@@ -73,4 +74,3 @@
     };
   };
 }
-

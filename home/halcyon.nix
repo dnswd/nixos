@@ -36,6 +36,7 @@
 
   # Variables
   home.sessionVariables = {
+    EDITOR = "nvim";
     TERMINAL = "kitty";
     BROWSER = "firefox";
     TERM = "screen-256color";

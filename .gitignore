@@ -2,3 +2,4 @@ result
 secrets/identity.json
 .pi
 node_modules
+.direnv

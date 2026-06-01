@@ -5,7 +5,8 @@
     ./langs.nix
     ./git.nix
     ./vscode.nix
-    ./pi-mono
+    # ./pi-mono
+    ./neovim.nix
   ];
 
   # Fuzzy finder
@@ -47,32 +48,28 @@
   };
 
   # Manual Installations
-  home.packages =
-    with pkgs;
-    [
-      # jetbrains
-      # jetbrains.idea-oss
-      devenv
-      # devenv.packages."${pkgs.system}".devenv
-      # git-crypt
-      # meld
-      # wiggle
-      # LLM (ChatGPT)
-      # shell-gpt
-      ## Testing
-      # postman
-      ## OCI Containers
-      # dive # https://github.com/wagoodman/dive
-      # trivy
-      # kubectl
-      # act
-      # Locals
-      # lazydocker
-      lazygit
-      gh
-    ]
-    # custom standalone variant of nixvim
-    ++ [ pkgs.my.neovim ];
+  home.packages = with pkgs; [
+    # jetbrains
+    # jetbrains.idea-oss
+    devenv
+    # devenv.packages."${pkgs.system}".devenv
+    # git-crypt
+    # meld
+    # wiggle
+    # LLM (ChatGPT)
+    # shell-gpt
+    ## Testing
+    # postman
+    ## OCI Containers
+    # dive # https://github.com/wagoodman/dive
+    # trivy
+    # kubectl
+    # act
+    # Locals
+    # lazydocker
+    lazygit
+    gh
+  ];
   # home.sessionVariables.EDITOR = "nvim";
   # };
 }

@@ -6,7 +6,7 @@
 }:
 {
   imports = [
-    ../config/devel/pi-mono
+    # ../config/devel/pi-mono
     ../config/devel/git.nix
     ../config/devel/jetbrains.nix
     ../config/devel/langs.nix
@@ -22,11 +22,6 @@
   home.stateVersion = "24.05";
   home.sessionVariables = {
     EDITOR = "vim";
-  };
-
-  # Fuzzy finder
-  programs.fzf = {
-    enable = true;
   };
 
   # Regex find directory
@@ -62,9 +57,12 @@
     enableZshIntegration = true;
   };
 
-  home.packages = with pkgs; [
-    btop
-    lazygit
-    gh
-  ] ++ [ pkgs.my.neovim ];
+  home.packages =
+    with pkgs;
+    [
+      btop
+      lazygit
+      gh
+    ]
+    ++ [ pkgs.my.neovim ];
 }

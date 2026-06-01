@@ -1,4 +1,3 @@
-# Default recipe
 default:
     @just --list
 
@@ -18,34 +17,43 @@ default:
 # 2. Edit config/secrets.nix and set:
 #    - githubUser = "yourusername"
 #    - repoName = "your-repo-name"
-#    - secretsHash = (from step 3)
 
-# Get the sha256 hash for your private repo (uses `gh auth token` for auth)
-prefetch-secrets REPO="nixos-secrets" USERNAME="dnswd" BRANCH="main":
-    #!/usr/bin/env bash
-    URL="https://raw.githubusercontent.com/{{USERNAME}}/{{REPO}}/{{BRANCH}}/secrets.json"
-    TOKEN=$(gh auth token)
-    if [[ -z "$TOKEN" ]]; then
-        echo "Error: Could not get GitHub token from 'gh auth token'"
-        echo "Ensure you're logged in: gh auth login"
-        exit 1
-    fi
-    echo "Fetching from: $URL"
-    nix-prefetch-url --header "Authorization: Bearer $TOKEN" "$URL"
+nix_conf := "~/.config/nix/nix.conf"
 
-# Rebuild NixOS or Darwin system (uses `gh auth token` for secrets auth)
-switch *args="":
+# Install GitHub access token into nix.conf (skips if already set)
+token-install:
     #!/usr/bin/env bash
-    set -e
-    GITHUB_TOKEN=$(gh auth token)
-    if [[ -z "$GITHUB_TOKEN" ]]; then
-        echo "Error: Could not get GitHub token from 'gh auth token'"
-        echo "Ensure you're logged in: gh auth login"
-        exit 1
-    fi
-    export GITHUB_TOKEN
-    if [[ "$(uname -s)" == "Darwin" ]]; then
-        sudo -E darwin-rebuild switch --flake .\#dennis-macbook-pro --impure {{args}}
+    set -euo pipefail
+
+    NIX_CONF=$(eval echo "{{ nix_conf }}")
+
+    if grep -q "access-tokens = github.com=" "$NIX_CONF" 2>/dev/null; then
+        echo "access-tokens already set in $NIX_CONF, skipping. Use 'just token-update' to force."
     else
-        sudo -E nixos-rebuild switch --flake .\#ikigai --impure {{args}}
+        TOKEN=$(gh auth token)
+        [[ -n "$TOKEN" ]] || { echo "error: gh auth token returned nothing. Run 'gh auth login' first."; exit 1; }
+        mkdir -p "$(dirname "$NIX_CONF")"
+        echo "access-tokens = github.com=$TOKEN" >> "$NIX_CONF"
+        echo "Token written to $NIX_CONF."
     fi
+
+# Updates GitHub access token inside nix.conf (force)
+token-update:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    NIX_CONF=$(eval echo "{{ nix_conf }}")
+
+    TOKEN=$(gh auth token)
+    [[ -n "$TOKEN" ]] || { echo "error: gh auth token returned nothing. Run 'gh auth login' first."; exit 1; }
+
+    mkdir -p "$(dirname "$NIX_CONF")"
+
+    if grep -q "access-tokens = github.com=" "$NIX_CONF" 2>/dev/null; then
+        sed -i "s|^access-tokens = github.com=.*|access-tokens = github.com=$TOKEN|" "$NIX_CONF"
+        echo "Token replaced in $NIX_CONF."
+    else
+        echo "access-tokens = github.com=$TOKEN" >> "$NIX_CONF"
+        echo "Token written to $NIX_CONF."
+    fi
+
