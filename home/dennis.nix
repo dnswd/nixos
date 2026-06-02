@@ -63,6 +63,5 @@
       btop
       lazygit
       gh
-    ]
-    ++ [ pkgs.my.neovim ];
+    ];
 }
