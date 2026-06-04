@@ -26,12 +26,12 @@
         set-option -gw xterm-keys on # enable xterm keys
 
         # better copy mode (vi)
-        bind c copy-mode # prefix + c to enter copy mode
+        bind [ copy-mode # prefix + [ to enter copy mode
         set-window-option -g mode-keys vi # set vi-mode
         bind-key -T copy-mode-vi v   send-keys -X begin-selection # start selection
         bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle # toggle line/block select
         bind-key -T copy-mode-vi y   send-keys -X copy-selection-and-cancel # yank
-        bind / copy-mode \; send-keys ?
+        bind / copy-mode \; send-keys ? # search
 
         # pane splits
         bind v split-window -h -c "#{pane_current_path}"
