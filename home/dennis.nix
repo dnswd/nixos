@@ -13,6 +13,7 @@
     ../config/kitty.nix
     ../config/devel/neovim.nix
     ../config/tmux.nix
+    ../config/theme.nix
     ../config/starship.nix
     ../config/zsh
   ];

@@ -4,9 +4,8 @@
     enable = true;
     flavor = "mocha";
     accent = "blue";
-    gtk.icon.enable = true;
+    gtk.icon.enable = pkgs.stdenv.isLinux;
   };
 
-  gtk.enable = true;
-
+  gtk.enable = pkgs.stdenv.isLinux;
 }

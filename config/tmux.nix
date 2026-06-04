@@ -35,7 +35,7 @@
 
         # pane splits
         bind v split-window -h -c "#{pane_current_path}"
-        bind s split-window -v -c "#{pane_current_path}"
+        bind t split-window -v -c "#{pane_current_path}"
 
         # pane navigation
         bind h select-pane -L
