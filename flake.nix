@@ -41,6 +41,9 @@
       url = "github:dnswd/nixos-secrets";
       flake = false;
     };
+
+    # Helper
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs =
@@ -50,6 +53,7 @@
       nix-darwin,
       catppuccin,
       secretsPath,
+      flake-utils,
       ...
     }@inputs:
     let
@@ -95,21 +99,24 @@
         pkgsDir = ./pkgs;
       };
 
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        # this pkgs only used in this flake, per system pkgs see ./lib/hosts.nix
-        config.allowUnfree = true;
-        localSystem = { inherit system; };
-      };
-
       secrets = import "${secretsPath}/secrets.nix";
     in
-    {
-      formatter.${system} = pkgs.alejandra;
-      devShells.${system}.default = pkgs.mkShell {
-        buildInputs = with pkgs; [ just ];
-      };
+      (flake-utils.lib.eachDefaultSystem (system: 
+        let
+          pkgs = import nixpkgs {
+            # this pkgs only used in this flake, per system pkgs see ./lib/hosts.nix
+            config.allowUnfree = true;
+            localSystem = { inherit system; };
+          };
+        in
+        {
+          formatter= pkgs.alejandra;
+          devShells.default = pkgs.mkShell {
+            buildInputs = with pkgs; [ just ];
+          };
 
-      inherit nixosConfigurations darwinConfigurations;
-    };
+        }
+      )) // {
+        inherit nixosConfigurations darwinConfigurations;
+      };
 }

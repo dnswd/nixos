@@ -10,6 +10,8 @@
     ../config/devel/git.nix
     ../config/devel/jetbrains.nix
     ../config/devel/langs.nix
+    ../config/kitty.nix
+    ../config/devel/neovim.nix
     ../config/tmux.nix
     ../config/starship.nix
     ../config/zsh
