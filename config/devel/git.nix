@@ -28,6 +28,9 @@
       column.ui = "auto";
       branch.sort = "-committerdate";
       include.path = "${config.home.homeDirectory}/.config/git/config.secret";
+      url = {
+        "ssh://git@github.com/".insteadOf = [ "https://github.com/" "gh:" "github:"]; 
+      };
       extraConfig = {
         core = {
           editor = "nvim";
@@ -35,7 +38,6 @@
           pager = "${pkgs.lib.getExe pkgs.diff-so-fancy} | less --tabs=4 -RFX";
           fsmonitor = true;
         };
-        "url \"git@github.com:\"".insteadOf = "https://github.com/";
         fetch.writeCommitGraph = true;
         pull = { ff = "only"; rebase = false; };
         rerere.enabled = true;
