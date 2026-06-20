@@ -14,6 +14,7 @@
     ../config/tmux.nix
     ../config/devel
     ../config/bitwarden.nix
+    ../config/vicinae.nix
   ];
 
   # Home Manager needs a bit of information about you and the
