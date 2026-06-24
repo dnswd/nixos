@@ -60,11 +60,10 @@
     enableZshIntegration = true;
   };
 
-  home.packages =
-    with pkgs;
-    [
-      btop
-      lazygit
-      gh
-    ];
+  home.packages = with pkgs; [
+    btop
+    lazygit
+    gh
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp
+  ];
 }

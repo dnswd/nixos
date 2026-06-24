@@ -77,5 +77,6 @@
 
     # ai
     # amp-cli
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp
   ];
 }
