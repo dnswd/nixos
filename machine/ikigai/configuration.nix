@@ -254,8 +254,6 @@
     gcc
     binutils
 
-    python3
-
     # Essential
     libnotify
     nautilus # file manager

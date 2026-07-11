@@ -6,21 +6,34 @@
   ...
 }:
 {
-  home.packages = with pkgs; [ git-stack lazygit gh ];
+  home.packages = with pkgs; [
+    git-stack
+    lazygit
+    gh
+  ];
 
   programs.git = {
     enable = true;
+    lfs.enable = true;
     settings = {
       user = {
         name = secrets.full_name;
         email = secrets.email_primary;
       };
       alias = {
-        c = "commit"; cm = "commit -m"; ca = "commit -am";
-        amend = "commit --amend"; append = "commit --amend --no-edit";
+        c = "commit";
+        cm = "commit -m";
+        ca = "commit -am";
+        amend = "commit --amend";
+        append = "commit --amend --no-edit";
         recent-branches = "!git for-each-ref --count=5 --sort=-committerdate refs/heads/ --format='%(refname:short)'";
-        nb = "checkout -b"; sw = "switch"; pl = "pull"; ps = "push"; psf = "push --force-with-lease";
-        rc = "rebase --continue"; rs = "rebase --skip";
+        nb = "checkout -b";
+        sw = "switch";
+        pl = "pull";
+        ps = "push";
+        psf = "push --force-with-lease";
+        rc = "rebase --continue";
+        rs = "rebase --skip";
         r = "remote -v";
         clone-only-recent = "clone --filter=blob:none";
         clone-only-files = "clone --filter=tree:0";
@@ -29,7 +42,11 @@
       branch.sort = "-committerdate";
       include.path = "${config.home.homeDirectory}/.config/git/config.secret";
       url = {
-        "ssh://git@github.com/".insteadOf = [ "https://github.com/" "gh:" "github:"]; 
+        "ssh://git@github.com/".insteadOf = [
+          "https://github.com/"
+          "gh:"
+          "github:"
+        ];
       };
       extraConfig = {
         core = {
@@ -39,7 +56,10 @@
           fsmonitor = true;
         };
         fetch.writeCommitGraph = true;
-        pull = { ff = "only"; rebase = false; };
+        pull = {
+          ff = "only";
+          rebase = false;
+        };
         rerere.enabled = true;
         push.autoSetupRemote = true;
         diff.algorithm = "histogram";
