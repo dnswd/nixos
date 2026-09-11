@@ -6,9 +6,9 @@
     ./autostart.nix
     ./bindings.nix
     ./env.nix
-    ./hypridle.nix
-    ./hyprlock.nix
-    ./hyprpaper.nix
+    # ./hypridle.nix
+    # ./hyprlock.nix
+    # ./hyprpaper.nix
     ./hyprpolkit.nix
     ./input.nix
     ./visual.nix

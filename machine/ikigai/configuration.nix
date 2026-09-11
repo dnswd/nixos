@@ -1,8 +1,11 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running 'nixos-help').
-{ pkgs, ... }:
 {
+  pkgs,
+  lib,
+  ...
+}: {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -44,7 +47,7 @@
   services.xserver.enable = true;
 
   # Use GPU to render X11
-  services.xserver.videoDrivers = [ "amdgpu" ];
+  services.xserver.videoDrivers = ["amdgpu"];
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -65,6 +68,7 @@
     portalPackage = pkgs.xdg-desktop-portal-hyprland;
   };
   programs.hyprlock.enable = true;
+  services.hypridle.enable = lib.mkForce false;
 
   # XDG portal needed for hyprland
   xdg.portal = {
@@ -89,17 +93,17 @@
           "gnome"
           "gtk"
         ];
-        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+        "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
       };
       hyprland = {
         default = [
           "hyprland"
           "gtk"
         ];
-        "org.freedesktop.impl.portal.FileChooser" = [ "termfilechooser" ];
-        "org.freedesktop.impl.portal.OpenURI" = [ "gtk" ];
-        "org.freedesktop.impl.portal.Notification" = [ "gtk" ];
-        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+        "org.freedesktop.impl.portal.FileChooser" = ["termfilechooser"];
+        "org.freedesktop.impl.portal.OpenURI" = ["gtk"];
+        "org.freedesktop.impl.portal.Notification" = ["gtk"];
+        "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
       };
     };
   };
@@ -162,9 +166,9 @@
     fontconfig = {
       enable = true;
       defaultFonts = {
-        serif = [ "Noto Serif" ];
-        sansSerif = [ "Noto Sans" ];
-        monospace = [ "FantasqueSansMono" ];
+        serif = ["Noto Serif"];
+        sansSerif = ["Noto Sans"];
+        monospace = ["FantasqueSansMono"];
       };
       subpixel.rgba = "rgb";
     };
@@ -296,33 +300,33 @@
       let
         base = pkgs.appimageTools.defaultFhsEnvArgs;
       in
-      pkgs.buildFHSEnv (
-        base
-        // {
-          name = "fhs";
-          targetPkgs =
-            pkgs:
+        pkgs.buildFHSEnv (
+          base
+          // {
+            name = "fhs";
+            targetPkgs = pkgs:
             # pkgs.buildFHSUserEnv provides only a minimal FHS environment,
             # lacking many basic packages needed by most software.
             # Therefore, we need to add them manually.
             #
             # pkgs.appimageTools provides basic packages required by most software.
-            (base.targetPkgs pkgs)
-            ++ (with pkgs; [
-              pkg-config
-              ncurses
-              # Feel free to add more packages here if needed.
-            ]);
-          profile = "export FHS=1";
-          runScript = "bash";
-          extraOutputsToInstall = [ "dev" ];
-        }
-      )
+              (base.targetPkgs pkgs)
+              ++ (with pkgs; [
+                pkg-config
+                ncurses
+                # Feel free to add more packages here if needed.
+              ]);
+            profile = "export FHS=1";
+            runScript = "bash";
+            extraOutputsToInstall = ["dev"];
+          }
+        )
     )
   ];
 
   # udev rule to recognize vial devices and allow them to be configured
-  services.udev.extraRules = # udev
+  services.udev.extraRules =
+    # udev
     ''
       KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{serial}=="*vial:f64c2b3c*", MODE="0660", GROUP="users", TAG+="uaccess", TAG+="udev-acl"
     '';
