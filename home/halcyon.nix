@@ -15,7 +15,7 @@
     ../config/obsidian.nix
     ../config/devel
     ../config/bitwarden.nix
-    # ../config/vicinae.nix
+    ../config/omp.nix
   ];
 
   # Home Manager needs a bit of information about you and the
@@ -75,9 +75,5 @@
 
     # image editing
     gimp
-
-    # ai
-    # amp-cli
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp
   ];
 }

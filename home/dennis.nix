@@ -1,12 +1,9 @@
 {
   pkgs,
-  osType,
-  inputs,
   ...
 }:
 {
   imports = [
-    # ../config/devel/pi-mono
     ../config/devel/git.nix
     ../config/devel/jetbrains.nix
     ../config/devel/langs.nix
@@ -16,6 +13,7 @@
     ../config/theme.nix
     ../config/starship.nix
     ../config/obsidian.nix
+    ../config/omp.nix
     ../config/zsh
   ];
 
@@ -37,6 +35,7 @@
     ignores = [
       ".git/*"
       "node_modules/*"
+      ".direnv/*"
     ];
   };
 
@@ -65,6 +64,5 @@
     btop
     lazygit
     gh
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.omp
   ];
 }

@@ -30,11 +30,11 @@
     # Custom neovim
     halcyon-vim.url = "github:dnswd/vim";
 
+    # Oh-My-Pi coding agent
+    omp.url = "github:can1357/oh-my-pi";
+
     # Pinned nixpkgs for jdtls 1.43.0 (last version with Java 17 bytecode, compatible with Gradle 6.x)
     nixpkgs-jdtls.url = "github:nixos/nixpkgs/21808d22b1cda1898b71cf1a1beb524a97add2c4";
-
-    # Pi coding agent from numtide (binary cache, no local builds)
-    llm-agents.url = "github:numtide/llm-agents.nix";
 
     # Obsidian note taking
     obsidian-extensions = {
@@ -55,12 +55,7 @@
   outputs =
     {
       nixpkgs,
-      home-manager,
-      nix-darwin,
-      catppuccin,
-      secretsPath,
       flake-utils,
-      obsidian-extensions,
       ...
     }@inputs:
     let
@@ -82,36 +77,13 @@
       linuxMachines = lib.filterAttrs (name: cfg: (cfg.metadata.osType or "linux") != "darwin") machines;
       darwinMachines = lib.filterAttrs (name: cfg: (cfg.metadata.osType or "linux") == "darwin") machines;
 
-      secrets = import "${secretsPath}/secrets.nix";
-
       # Generate configurations for all machines
       nixosConfigurations = lib.my.generateConfigurations {
         machines = linuxMachines;
-        inherit
-          nixpkgs
-          home-manager
-          catppuccin
-          obsidian-extensions
-          ;
-        inherit lib inputs;
-        inherit secrets;
-        my = lib.my;
-        pkgsDir = ./pkgs;
       };
 
       darwinConfigurations = lib.my.generateDarwinConfigurations {
         machines = darwinMachines;
-        inherit
-          nix-darwin
-          nixpkgs
-          home-manager
-          catppuccin
-          obsidian-extensions
-          ;
-        inherit lib inputs;
-        inherit secrets;
-        my = lib.my;
-        pkgsDir = ./pkgs;
       };
 
     in
