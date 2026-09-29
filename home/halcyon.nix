@@ -12,6 +12,7 @@
     ../config/starship.nix
     ../config/theme.nix
     ../config/tmux.nix
+    ../config/obsidian.nix
     ../config/devel
     ../config/bitwarden.nix
     # ../config/vicinae.nix

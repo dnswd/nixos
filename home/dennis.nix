@@ -15,6 +15,7 @@
     ../config/tmux.nix
     ../config/theme.nix
     ../config/starship.nix
+    ../config/obsidian.nix
     ../config/zsh
   ];
 

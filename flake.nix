@@ -36,6 +36,12 @@
     # Pi coding agent from numtide (binary cache, no local builds)
     llm-agents.url = "github:numtide/llm-agents.nix";
 
+    # Obsidian note taking
+    obsidian-extensions = {
+      url = "github:karaolidis/nix-obsidian-extensions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Secrets
     secretsPath = {
       url = "github:dnswd/nixos-secrets";
@@ -54,6 +60,7 @@
       catppuccin,
       secretsPath,
       flake-utils,
+      obsidian-extensions,
       ...
     }@inputs:
     let
@@ -75,12 +82,19 @@
       linuxMachines = lib.filterAttrs (name: cfg: (cfg.metadata.osType or "linux") != "darwin") machines;
       darwinMachines = lib.filterAttrs (name: cfg: (cfg.metadata.osType or "linux") == "darwin") machines;
 
+      secrets = import "${secretsPath}/secrets.nix";
+
       # Generate configurations for all machines
       nixosConfigurations = lib.my.generateConfigurations {
         machines = linuxMachines;
-        inherit nixpkgs home-manager catppuccin;
+        inherit
+          nixpkgs
+          home-manager
+          catppuccin
+          obsidian-extensions
+          ;
         inherit lib inputs;
-        inherit secretsPath secrets;
+        inherit secrets;
         my = lib.my;
         pkgsDir = ./pkgs;
       };
@@ -92,31 +106,33 @@
           nixpkgs
           home-manager
           catppuccin
+          obsidian-extensions
           ;
         inherit lib inputs;
-        inherit secretsPath secrets;
+        inherit secrets;
         my = lib.my;
         pkgsDir = ./pkgs;
       };
 
-      secrets = import "${secretsPath}/secrets.nix";
     in
-      (flake-utils.lib.eachDefaultSystem (system: 
-        let
-          pkgs = import nixpkgs {
-            # this pkgs only used in this flake, per system pkgs see ./lib/hosts.nix
-            config.allowUnfree = true;
-            localSystem = { inherit system; };
-          };
-        in
-        {
-          formatter= pkgs.alejandra;
-          devShells.default = pkgs.mkShell {
-            buildInputs = with pkgs; [ just ];
-          };
+    (flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs {
+          # this pkgs only used in this flake, per system pkgs see ./lib/hosts.nix
+          config.allowUnfree = true;
+          localSystem = { inherit system; };
+        };
+      in
+      {
+        formatter = pkgs.alejandra;
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [ just ];
+        };
 
-        }
-      )) // {
-        inherit nixosConfigurations darwinConfigurations;
-      };
+      }
+    ))
+    // {
+      inherit nixosConfigurations darwinConfigurations;
+    };
 }
