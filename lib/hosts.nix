@@ -1,11 +1,12 @@
 {
   lib,
-  pkgs,
   inputs,
   ...
 }:
 with lib;
 rec {
+  secrets = import "${inputs.secretsPath}/secrets.nix";
+
   # Supported shells - extensible list
   supportedShells = [
     "bash"
@@ -110,22 +111,14 @@ rec {
   generateConfigurations =
     {
       machines,
-      nixpkgs,
-      home-manager,
-      catppuccin,
-      lib,
-      inputs,
-      pkgsDir,
-      my,
-      secrets,
-      obsidian-extensions,
+      pkgsDir ? ../pkgs,
     }:
     mapAttrs (
       hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
         osType = machineConfig.metadata.osType or "linux";
-        pkgs = import nixpkgs {
+        pkgs = import inputs.nixpkgs {
 
           # pkgs config per system
           config.allowUnfree = true;
@@ -134,7 +127,7 @@ rec {
           overlays = [
             (final: prev: {
               # custom packages under pkgs.my
-              my = my.mapModules pkgsDir (
+              my = lib.my.mapModules pkgsDir (
                 p:
                 prev.callPackage p {
                   inherit inputs system osType;
@@ -142,7 +135,7 @@ rec {
                 }
               );
             })
-            obsidian-extensions.overlays.default
+            inputs.obsidian-extensions.overlays.default
           ];
         };
 
@@ -163,14 +156,15 @@ rec {
             user:
             nameValuePair user.username {
               imports = [
-                catppuccin.homeModules.catppuccin
+                inputs.catppuccin.homeModules.catppuccin
+                inputs.omp.homeManagerModules.default
                 user.homeConfig
               ];
             }
           ) machineConfig.users
         );
       in
-      nixpkgs.lib.nixosSystem {
+      inputs.nixpkgs.lib.nixosSystem {
         inherit system specialArgs;
         modules = [
           # Properly set nixpkgs attributes for read-only module
@@ -180,7 +174,7 @@ rec {
           }
           # Use _machineDir to resolve configuration.nix (as module, not direct import)
           "${machineConfig._machineDir}/configuration.nix"
-          home-manager.nixosModules.home-manager
+          inputs.home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
@@ -196,29 +190,20 @@ rec {
   generateDarwinConfigurations =
     {
       machines,
-      nix-darwin,
-      nixpkgs,
-      home-manager,
-      catppuccin,
-      lib,
-      inputs,
-      pkgsDir,
-      my,
-      secrets,
-      obsidian-extensions,
+      pkgsDir ? ../pkgs,
     }:
     mapAttrs (
       hostname: machineConfig:
       let
         system = machineConfig.metadata.system;
         osType = "darwin";
-        pkgs = import nixpkgs {
+        pkgs = import inputs.nixpkgs {
           config.allowUnfree = true;
           inherit system;
           overlays = [
             (final: prev: {
               # custom packages under pkgs.my
-              my = my.mapModules pkgsDir (
+              my = lib.my.mapModules pkgsDir (
                 p:
                 prev.callPackage p {
                   inherit inputs system osType;
@@ -226,7 +211,7 @@ rec {
                 }
               );
             })
-            obsidian-extensions.overlays.default
+            inputs.obsidian-extensions.overlays.default
           ];
         };
 
@@ -250,14 +235,15 @@ rec {
             user:
             nameValuePair user.username {
               imports = [
-                catppuccin.homeModules.catppuccin
+                inputs.catppuccin.homeModules.catppuccin
+                inputs.omp.homeManagerModules.default
                 user.homeConfig
               ];
             }
           ) machineConfig.users
         );
       in
-      nix-darwin.lib.darwinSystem {
+      inputs.nix-darwin.lib.darwinSystem {
         inherit system specialArgs;
         modules = [
           # Set pkgs properly for Darwin
@@ -265,7 +251,7 @@ rec {
 
           # Use _machineDir to resolve darwin-configuration.nix (as module)
           "${machineConfig._machineDir}/darwin-configuration.nix"
-          home-manager.darwinModules.home-manager
+          inputs.home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
@@ -276,4 +262,5 @@ rec {
         ];
       }
     ) machines;
+
 }
