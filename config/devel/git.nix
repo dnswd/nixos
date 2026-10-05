@@ -1,16 +1,24 @@
 {
   pkgs,
-  lib,
+  inputs,
   config,
   secrets,
   ...
 }:
+let
+  git-sw = inputs.git-sw.packages.${pkgs.system}.default;
+in
 {
-  home.packages = with pkgs; [
-    git-stack
-    lazygit
-    gh
-  ];
+  home.packages =
+    with pkgs;
+    [
+      git-stack
+      lazygit
+      gh
+    ]
+    ++ [
+      git-sw
+    ];
 
   programs.git = {
     enable = true;
@@ -26,9 +34,8 @@
         ca = "commit -am";
         amend = "commit --amend";
         append = "commit --amend --no-edit";
-        recent-branches = "!git for-each-ref --count=5 --sort=-committerdate refs/heads/ --format='%(refname:short)'";
+        undo = "reset --soft HEAD~1";
         nb = "checkout -b";
-        sw = "switch";
         pl = "pull";
         ps = "push";
         psf = "push --force-with-lease";

@@ -30,6 +30,9 @@
     # Custom neovim
     halcyon-vim.url = "github:dnswd/vim";
 
+    # Custom git commands
+    git-sw.url = "github:dnswd/git-sw";
+
     # Oh-My-Pi coding agent
     omp.url = "github:can1357/oh-my-pi";
 
