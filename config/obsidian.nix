@@ -62,19 +62,30 @@
         "zk-prefixer"
       ];
 
-      communityPlugins = with pkgs.obsidianPlugins; [
-        bases-relation-diagram
-        bloomscroll
-        goko
-        heatmap-tracker
-        key-promoter
-        mermaid-tools
-        micropatches
-        more-excellent-hotkeys
-        obsidian-focus-mode
-        obsidian-excalidraw-plugin
-        vault-full-statistics
-      ];
+      communityPlugins =
+        with pkgs.obsidianPlugins;
+        [
+          bases-relation-diagram
+          bloomscroll
+          goko
+          heatmap-tracker
+          key-promoter
+          mermaid-tools
+          micropatches
+          more-excellent-hotkeys
+          obsidian-focus-mode
+          obsidian-excalidraw-plugin
+          vault-full-statistics
+        ]
+        ++ [
+          {
+            pkg = pkgs.obsidianPlugins."obsidian-minimal-settings";
+            settings = {
+              lightScheme = "minimal-nord-light";
+              darkScheme = "minimal-nord-dark";
+            };
+          }
+        ];
 
     };
   };

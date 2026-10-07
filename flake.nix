@@ -15,7 +15,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/711ab3d132e5d30803ffad7cf7095bfb1dab44d9";
+    nixpkgs.url = "github:nixos/nixpkgs/0f3e3d903ea6cb54f137532e3be39111bc8dfcc5";
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -24,7 +24,7 @@
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     # Theme
-    catppuccin.url = "github:catppuccin/nix/b020a35938aa77cc93985b796e7b79623b98da60";
+    catppuccin.url = "github:catppuccin/nix";
     catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 
     # Custom neovim
