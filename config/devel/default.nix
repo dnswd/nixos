@@ -1,11 +1,20 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
+let
+  custom-vscode = pkgs.vscode-with-extensions.override {
+    vscodeExtensions = with pkgs.vscode-extensions; [
+      ms-python.python
+      jnoortheen.nix-ide
+      mkhl.direnv
+      eamodio.gitlens
+      usernamehw.errorlens
+    ];
+  };
+in
 {
 
   imports = [
     ./langs.nix
     ./git.nix
-    ./vscode.nix
-    # ./pi-mono
     ./neovim.nix
   ];
 
@@ -49,18 +58,12 @@
 
   # Manual Installations
   home.packages = with pkgs; [
-    # jetbrains
     # jetbrains.idea-oss
+    custom-vscode
     devenv
-    # devenv.packages."${pkgs.system}".devenv
     # git-crypt
     # meld
     # wiggle
-    # LLM (ChatGPT)
-    # shell-gpt
-    ## Testing
-    # postman
-    ## OCI Containers
     # dive # https://github.com/wagoodman/dive
     # trivy
     # kubectl
@@ -70,6 +73,4 @@
     lazygit
     gh
   ];
-  # home.sessionVariables.EDITOR = "nvim";
-  # };
 }
