@@ -21,9 +21,8 @@
 
       # Latest onboarding options
       modelRoles = {
-        default = "google-vertex/gemini-3.1-pro-preview";
+        default = "google/gemini-3.1-pro-preview";
       };
-      statusLine.preset = "nerd";
       composer.shape = "band";
 
       # Ensure OMP doesn't open onboarding every time nix is reloaded, unless new
